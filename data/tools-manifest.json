@@ -451,7 +451,7 @@
     "cosmology-calculator": {
       "title": "Cosmology Calculator",
       "path": "tools/cosmology-calculator.html",
-      "category": "context-cosmology",
+      "category": "kardashev",
       "register": "peer-reviewed",
       "widget": true,
       "description": "Standard flat-ΛCDM/wCDM FLRW cosmology: redshift → comoving distance, luminosity distance, angular diameter distance, lookback time, and age of universe. Planck 2018 / WMAP-9 / Flat EdS presets. BibTeX citation export. Hash-addressable permalinks. MCP-exposed as cosmology_distances. Fixes the 3-tool Context & Cosmology category gap.",
