@@ -1,0 +1,13 @@
+{
+  "name": "ocs-mcp",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "assets": {
+    "directory": "./data",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "routes": [{ "pattern": "mcp.omegacentauri.me", "custom_domain": true }]
+}
