@@ -1,0 +1,185 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pre-flight — OCS MCP Worker
+#
+# Validates the committed data/tools-manifest.json before and alongside
+# Cloudflare's GitHub App deploy. Catches: JSON corruption, missing required
+# fields, invalid category/register values, and broken chain step references
+# (slugs that don't exist in the tools dict — would silently produce wrong URLs
+# in build_ocs_workflow_links).
+#
+# Why committed data rather than re-running generate.mjs:
+#   generate.mjs reads from ../repo/tools/data/tools-manifest.json (a local
+#   filesystem path). That path doesn't exist in Cloudflare's CI or in this
+#   runner. The manifest is committed to data/ so Cloudflare's ASSETS binding
+#   can serve it — we validate what Cloudflare will actually deploy.
+#
+# The freshness problem (committed data being stale) is solved at the source:
+#   PostOakLabs/OCS deploy.yml auto-syncs this repo after every live site
+#   deploy, so the manifest in data/ always matches the one in the site repo.
+#
+# Triggers
+#   • Push to master      → runs automatically alongside Cloudflare deploy
+#   • workflow_dispatch   → manual trigger for ad-hoc validation
+#
+# No secrets required — pure python3 validation of committed files.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Pre-flight — MCP Worker
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    name: Validate manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (shallow)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Validate tools-manifest.json
+        run: |
+          python3 << 'PYEOF'
+          import json, sys
+
+          VALID_CATEGORIES = {
+              'imbh-evidence', 'bh-physics', 'fermi-paradox',
+              'fermi-seti', 'mth', 'kardashev'
+          }
+          VALID_REGISTERS = {'peer-reviewed', 'speculative'}
+          MIN_TOOLS  = 19
+          MIN_CHAINS = 39
+
+          # ── Load ────────────────────────────────────────────────────────────
+          try:
+              with open('data/tools-manifest.json') as f:
+                  raw = f.read()
+          except FileNotFoundError:
+              print('::error::data/tools-manifest.json not found — did generate.mjs run before this commit?')
+              sys.exit(1)
+
+          try:
+              m = json.loads(raw)
+          except json.JSONDecodeError as e:
+              print(f'::error::Invalid JSON: {e}')
+              sys.exit(1)
+
+          errors = []
+
+          # ── Top-level structure ──────────────────────────────────────────────
+          for key in ('_meta', 'tools', 'chains'):
+              if key not in m:
+                  errors.append(f'Missing top-level key: {key!r}')
+
+          if errors:
+              for e in errors:
+                  print(f'::error::{e}')
+              sys.exit(1)
+
+          tools  = m['tools']
+          chains = m['chains']
+
+          # ── Counts ──────────────────────────────────────────────────────────
+          if len(tools) < MIN_TOOLS:
+              errors.append(
+                  f'Only {len(tools)} tools — expected ≥{MIN_TOOLS}. '
+                  'Manifest may be truncated or stale.'
+              )
+          if len(chains) < MIN_CHAINS:
+              errors.append(
+                  f'Only {len(chains)} chains — expected ≥{MIN_CHAINS}. '
+                  'Manifest may be truncated or stale.'
+              )
+
+          # ── Per-tool validation ──────────────────────────────────────────────
+          for slug, t in tools.items():
+              for field in ('title', 'path', 'category', 'register', 'inputs'):
+                  if field not in t:
+                      errors.append(f'Tool {slug!r}: missing required field {field!r}')
+              path = t.get('path', '')
+              if not (path.startswith('tools/') and path.endswith('.html')):
+                  errors.append(
+                      f'Tool {slug!r}: bad path {path!r} — '
+                      'must start with "tools/" and end with ".html"'
+                  )
+              cat = t.get('category', '')
+              if cat and cat not in VALID_CATEGORIES:
+                  errors.append(
+                      f'Tool {slug!r}: unknown category {cat!r} — '
+                      f'valid: {sorted(VALID_CATEGORIES)}'
+                  )
+              reg = t.get('register', '')
+              if reg and reg not in VALID_REGISTERS:
+                  errors.append(
+                      f'Tool {slug!r}: unknown register {reg!r} — '
+                      f'valid: {sorted(VALID_REGISTERS)}'
+                  )
+
+          # ── Chain integrity ──────────────────────────────────────────────────
+          # Every step's tool slug must resolve to a real tool.
+          # A broken slug causes build_ocs_workflow_links to silently return
+          # a guessed URL, which is the failure mode we most want to catch.
+          for chain_name, chain in chains.items():
+              for i, step in enumerate(chain.get('steps', [])):
+                  step_tool = step.get('tool', '')
+                  if not step_tool:
+                      errors.append(
+                          f'Chain {chain_name!r} step {i+1}: missing "tool" key'
+                      )
+                  elif step_tool not in tools:
+                      errors.append(
+                          f'Chain {chain_name!r} step {i+1}: '
+                          f'tool slug {step_tool!r} not found in tools dict'
+                      )
+
+          # ── Result ──────────────────────────────────────────────────────────
+          if errors:
+              for e in errors:
+                  print(f'::error::{e}')
+              print(f'\n❌ {len(errors)} error(s) found. Fix before Cloudflare deploy lands.')
+              sys.exit(1)
+
+          print(f'✅ {len(tools)} tools, {len(chains)} chains — manifest valid')
+          print('✅ All required fields, paths, categories, and registers valid')
+          print('✅ All chain step slugs reference existing tools')
+          PYEOF
+
+      - name: Pre-flight summary
+        if: always()
+        run: |
+          TOOL_COUNT=$(python3 -c "
+          import json, sys
+          try:
+            m = json.load(open('data/tools-manifest.json'))
+            print(len(m.get('tools', {})))
+          except Exception:
+            print('N/A')
+          " 2>/dev/null || echo "N/A")
+          CHAIN_COUNT=$(python3 -c "
+          import json, sys
+          try:
+            m = json.load(open('data/tools-manifest.json'))
+            print(len(m.get('chains', {})))
+          except Exception:
+            print('N/A')
+          " 2>/dev/null || echo "N/A")
+          {
+            echo "## MCP Worker pre-flight summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Tools in manifest | $TOOL_COUNT |"
+            echo "| Workflow chains | $CHAIN_COUNT |"
+            echo "| Branch | \`${{ github.ref_name }}\` |"
+            echo "| Commit | \`${{ github.sha }}\` |"
+            echo "| Cloudflare deploy | triggered by GitHub App (see Deployments tab) |"
+          } >> "$GITHUB_STEP_SUMMARY"
