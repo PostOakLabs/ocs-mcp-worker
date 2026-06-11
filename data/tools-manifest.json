@@ -2,6 +2,7 @@
   "_meta": {
     "version": "1.0.0",
     "updated": "2026-06-11",
+    "toolCount": 24,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -122,6 +123,29 @@
         "Colom i Bernadich et al. 2026 (TRAPUM), arXiv:2603.21845",
         "Chen et al. 2023, MNRAS 520:3847 (OC pulsar timing)",
         "Bañares-Hernández et al. 2025, A&A 693 A104 (< 6,000 M☉ upper limit)"
+      ]
+    },
+
+    "ir-excess-checker": {
+      "title": "IR Excess Checker",
+      "path": "tools/ir-excess-checker.html",
+      "category": "fermi-seti",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Given a covering fraction f and waste-heat temperature T, computes the IR excess produced by a partial Dyson swarm and compares against WISE W3/W4 and SPHEREx survey sensitivity. Returns the f–T region current all-sky surveys exclude — the quantitative falsification backbone for the MTH hypothesis. Default is ωCen distance (5.43 kpc), Solar luminosity, T=300 K, f=0.01.",
+      "hashNote": "f is log10 (e.g. f=-2 means covering fraction 0.01). dist, temp, lstar are linear.",
+      "inputs": {
+        "f":     { "type": "number", "desc": "log10(covering fraction) — LOG10 UNITS. e.g. -2 = 0.01 (1%)" },
+        "temp":  { "type": "number", "desc": "Waste-heat temperature K (linear, 100–3000, default 300)" },
+        "dist":  { "type": "number", "desc": "Distance pc (linear, default 5430)" },
+        "lstar": { "type": "number", "desc": "Host star luminosity L☉ (linear, default 1.0)" }
+      },
+      "citations": [
+        "Suazo et al. 2025 (Dyson spheres on H-R diagram), arXiv:2602.23270",
+        "Suazo et al. 2024 (Project Hephaistos), MNRAS 531, doi:10.1093/mnras/stae1186",
+        "Doré et al. 2025 (SPHEREx Science Overview), arXiv:2511.02985",
+        "Wright et al. 2014 (WISE G-star Dyson search), doi:10.1086/678977",
+        "WISE All-Sky Catalog (W3/W4 5σ sensitivity)"
       ]
     },
 
