@@ -84,6 +84,26 @@
       ]
     },
 
+    "pulsar-accel-mapper": {
+      "title": "Pulsar Acceleration Mapper",
+      "path": "tools/pulsar-accel-mapper.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Maps observed line-of-sight accelerations from TRAPUM 2026 spin-period derivatives against the maximum acceleration from a central mass model (point IMBH, Plummer dark cluster, or hybrid). Tests whether a given mass is consistent with all 8 timed OC pulsars simultaneously.",
+      "inputs": {
+        "mass":  { "type": "number", "desc": "Central mass M☉ (linear, default 50000)" },
+        "model": { "type": "string", "desc": "Mass model: point | plummer | hybrid (default point)" },
+        "rc":    { "type": "number", "desc": "Plummer scale radius pc (linear, default 0.8)" },
+        "dist":  { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" }
+      },
+      "citations": [
+        "Colom i Bernadich et al. 2026 (TRAPUM), arXiv:2603.21845",
+        "Chen et al. 2023, MNRAS 520:3847 (OC pulsar timing)",
+        "Bañares-Hernández et al. 2025, A&A 693 A104 (< 6,000 M☉ upper limit)"
+      ]
+    },
+
     "astrometric-microlensing": {
       "title": "Astrometric Microlensing Predictor",
       "path": "tools/astrometric-microlensing.html",
