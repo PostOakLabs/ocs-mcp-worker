@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.0.0",
     "updated": "2026-06-11",
-    "toolCount": 25,
+    "toolCount": 26,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -445,6 +445,29 @@
       "citations": [
         "Event Horizon Telescope Collaboration 2019 (M87*)",
         "Häberle et al. 2024, Nature 631, 285"
+      ]
+    },
+
+    "cosmology-calculator": {
+      "title": "Cosmology Calculator",
+      "path": "tools/cosmology-calculator.html",
+      "category": "context-cosmology",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Standard flat-ΛCDM/wCDM FLRW cosmology: redshift → comoving distance, luminosity distance, angular diameter distance, lookback time, and age of universe. Planck 2018 / WMAP-9 / Flat EdS presets. BibTeX citation export. Hash-addressable permalinks. MCP-exposed as cosmology_distances. Fixes the 3-tool Context & Cosmology category gap.",
+      "hashNote": "All params linear: z (redshift), H0 (km/s/Mpc), Om (Ωm), OL (ΩΛ), w (equation of state). Chain: cosmology-calculator → cosmic-center → transcension-darkening.",
+      "inputs": {
+        "z":  { "type": "number", "desc": "Redshift (linear, ≥ 0, e.g. 0.01)" },
+        "H0": { "type": "number", "desc": "Hubble constant km/s/Mpc (linear, default 67.4)" },
+        "Om": { "type": "number", "desc": "Matter density Ωm (linear, default 0.315)" },
+        "OL": { "type": "number", "desc": "Dark energy density ΩΛ (linear, default 0.685)" },
+        "w":  { "type": "number", "desc": "Dark energy equation of state w (linear, default -1.0)" }
+      },
+      "citations": [
+        "Planck Collaboration 2020, A&A 641:A6 (Planck 2018 parameters)",
+        "Wright 2006, PASP 118:1711 (cosmological calculator — original reference)",
+        "Hogg 1999, arXiv:astro-ph/9905116 (distance measures in cosmology)",
+        "Hinshaw et al. 2013, ApJS 208:19 (WMAP-9 parameters)"
       ]
     },
 
@@ -1024,6 +1047,18 @@
         { "tool": "kerr-geometry",        "handoff": "Full Kerr metric: ISCO, ergosphere, frame dragging at OC mass and spin." },
         { "tool": "hawking-evaporation",  "handoff": "Hawking temperature and evaporation lifetime." },
         { "tool": "constraint-stacker",   "handoff": "Return to observational reality — current mass constraint map." }
+      ]
+    },
+
+    "workflow-cosmology-to-mth": {
+      "title": "Cosmology → MTH Bridge",
+      "tier": "workflow",
+      "page": "tools/workflow-cosmology-to-mth.html",
+      "register": "mixed",
+      "steps": [
+        { "tool": "cosmology-calculator",   "handoff": "Comoving distance and lookback time establish the cosmic context for the OC system." },
+        { "tool": "cosmic-center",          "handoff": "OC's position in the cosmic web and distance from the Galactic center." },
+        { "tool": "transcension-darkening", "handoff": "MTH argument: inward transcension civilisations darken the cosmic web — context for Fermi silence." }
       ]
     },
 
