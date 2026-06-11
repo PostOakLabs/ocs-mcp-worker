@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "1.0.0",
-    "updated": "2026-06-10",
+    "updated": "2026-06-11",
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -61,6 +61,26 @@
       },
       "citations": [
         "Bañares-Hernández et al. 2025, A&A 693 A104"
+      ]
+    },
+
+    "gaia-dr4-forecaster": {
+      "title": "Gaia DR4 IMBH Constraint Forecaster",
+      "path": "tools/gaia-dr4-forecaster.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Propagates Gaia DR4's documented 4.5× proper-motion precision improvement to forecast how tightly the December 2026 data release will constrain the ωCen IMBH mass via stellar kinematics. Includes a pre-registration permalink for Zenodo deposit before DR4 day.",
+      "inputs": {
+        "mass":     { "type": "number", "desc": "IMBH hypothesis mass M☉ (linear, default 8200)" },
+        "dist":     { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" },
+        "crowding": { "type": "number", "desc": "Crowding noise factor 1–10 (linear, default 3)" },
+        "sigma0":   { "type": "number", "desc": "Background cluster velocity dispersion km/s (linear, default 20)" }
+      },
+      "citations": [
+        "Häberle et al. 2024, Nature 631, 285 (≥ 8,200 M☉ lower bound)",
+        "Bañares-Hernández et al. 2025, A&A 693 A104 (≤ 6,000 M☉ upper bound)",
+        "ESA Cosmos: Gaia DR4 content (4.5× PM precision improvement over DR2)"
       ]
     },
 
