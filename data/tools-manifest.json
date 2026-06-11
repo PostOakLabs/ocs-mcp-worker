@@ -125,6 +125,28 @@
       ]
     },
 
+    "gw-horizon-plotter": {
+      "title": "GW Horizon Plotter",
+      "path": "tools/gw-horizon-plotter.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Characteristic strain tracks for IMRI/EMRI/IMBH-IMBH compact binaries overlaid on analytic detector sensitivity curves spanning PTA (nHz) to next-generation ground-based (kHz). Default shows both ωCen IMBH bounds (8,200 M☉ Häberle and 6,000 M☉ Bañares) at 5.43 kpc. The category-page anchor for multi-messenger GW workflows.",
+      "inputs": {
+        "m1":   { "type": "number", "desc": "Primary mass M☉ (linear, default 8200)" },
+        "m2":   { "type": "number", "desc": "Secondary mass M☉ (linear, default 10)" },
+        "dist": { "type": "number", "desc": "Distance kpc (linear, default 5.43)" },
+        "spin": { "type": "number", "desc": "Dimensionless primary spin χ (linear, −0.998 to 0.998, default 0)" }
+      },
+      "citations": [
+        "Robson, Cornish & Liu 2019, CQG 36:105011 (LISA sensitivity)",
+        "Cutler & Flanagan 1994, PRD 49:2658 (characteristic strain)",
+        "Bardeen, Press & Teukolsky 1972, ApJ 178:347 (Kerr ISCO)",
+        "Häberle et al. 2024, Nature 631:285 (≥ 8,200 M☉ lower bound)",
+        "Bañares-Hernández et al. 2025, A&A 693:A104 (≤ 6,000 M☉ upper bound)"
+      ]
+    },
+
     "astrometric-microlensing": {
       "title": "Astrometric Microlensing Predictor",
       "path": "tools/astrometric-microlensing.html",
