@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.0.0",
     "updated": "2026-06-11",
-    "toolCount": 24,
+    "toolCount": 25,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -146,6 +146,30 @@
         "Doré et al. 2025 (SPHEREx Science Overview), arXiv:2511.02985",
         "Wright et al. 2014 (WISE G-star Dyson search), doi:10.1086/678977",
         "WISE All-Sky Catalog (W3/W4 5σ sensitivity)"
+      ]
+    },
+
+    "adaf-sed-modeler": {
+      "title": "ADAF SED Modeler",
+      "path": "tools/adaf-sed-modeler.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Full ADAF/RIAF spectral energy distribution for a Bondi-fed IMBH: synchrotron, inverse Compton, and bremsstrahlung components across 10 decades of frequency, overlaid against JWST NIRCam/MIRI, radio, and X-ray non-detection limits. Extends jwst-accretion.html into a complete accretion SED workbench.",
+      "hashNote": "mdot, eps, rho are all log10 (e.g. mdot=-5 means ṁ=10^-5). mass is linear M☉.",
+      "inputs": {
+        "mass": { "type": "number", "desc": "IMBH mass M☉ (linear, default 8200)" },
+        "mdot": { "type": "number", "desc": "log10(ṁ = Ṁ/Ṁ_Edd) — LOG10 UNITS. e.g. -5 = 10^-5" },
+        "eps":  { "type": "number", "desc": "log10(radiative efficiency ε) — LOG10 UNITS. e.g. -3 = 10^-3" },
+        "rho":  { "type": "number", "desc": "log10(ambient density g/cm³) — LOG10 UNITS. e.g. -24 = 10^-24 g/cm³" }
+      },
+      "citations": [
+        "Narayan & Yi 1995, ApJ 452:710 (ADAF theory)",
+        "Mahadevan 1997, ApJ 477:585 (ADAF SED parametrization)",
+        "Yuan & Narayan 2014, ARA&A 52:529 (RIAF review)",
+        "Chen et al. 2025, arXiv:2511.20945 (JWST ωCen non-detection)",
+        "Häberle et al. 2024, Nature 631:285 (≥ 8,200 M☉ lower bound)",
+        "Bañares-Hernández et al. 2025, A&A 693:A104 (≤ 6,000 M☉ upper bound)"
       ]
     },
 
@@ -930,6 +954,18 @@
         { "tool": "spin-up-timeline", "handoff": "Spin-up timeline to target a." },
         { "tool": "bz-kardashev",     "handoff": "BZ power at target spin." },
         { "tool": "ergosphere-orbit", "handoff": "Optimal computation orbit in ergosphere." }
+      ]
+    },
+
+    "workflow-adaf-accretion-suite": {
+      "title": "ADAF Accretion Suite",
+      "tier": "workflow",
+      "page": "tools/workflow-adaf-accretion-suite.html",
+      "register": "peer-reviewed",
+      "steps": [
+        { "tool": "adaf-sed-modeler", "handoff": "Full SED shape and Bondi supply check; peak frequency and component fractions feed JWST tool." },
+        { "tool": "jwst-accretion",   "handoff": "NIRCam/MIRI sensitivity floor vs ADAF prediction — cross-check accretion luminosity limit." },
+        { "tool": "constraint-stacker","handoff": "Add accretion non-detection as a constraint lane on the mass-stacker map." }
       ]
     },
 
