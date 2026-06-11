@@ -84,6 +84,27 @@
       ]
     },
 
+    "anisotropy-degeneracy-explorer": {
+      "title": "Anisotropy Degeneracy Explorer",
+      "path": "tools/anisotropy-degeneracy-explorer.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Demonstrates the kinematic IMBH degeneracy: velocity anisotropy (β > 0) and a concentrated stellar remnant cluster can both reproduce a central velocity dispersion cusp. Computes the spherical Jeans solution + Abel projection and tests detectability against the reference ωCen profile.",
+      "inputs": {
+        "mass": { "type": "number", "desc": "IMBH mass M☉ (linear, default 8200)" },
+        "mrem": { "type": "number", "desc": "Remnant cluster mass M☉ (linear, default 0)" },
+        "rrem": { "type": "number", "desc": "Remnant Plummer scale radius pc (linear, default 1.0)" },
+        "beta": { "type": "number", "desc": "Velocity anisotropy parameter β (linear, −0.5 to 0.5, default 0)" },
+        "dist": { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" }
+      },
+      "citations": [
+        "Häberle et al. 2024, Nature 631:285 (lower bound ≥ 8,200 M☉)",
+        "Bañares-Hernández et al. 2025, A&A 693:A104 (upper bound ≤ 6,000 M☉)",
+        "den Brok et al. 2023, A&A (IMBH wander + anisotropy)"
+      ]
+    },
+
     "pulsar-accel-mapper": {
       "title": "Pulsar Acceleration Mapper",
       "path": "tools/pulsar-accel-mapper.html",
