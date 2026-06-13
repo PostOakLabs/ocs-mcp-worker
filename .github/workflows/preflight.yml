@@ -190,5 +190,39 @@ jobs:
             echo "| Workflow chains | $CHAIN_COUNT |"
             echo "| Branch | \`${{ github.ref_name }}\` |"
             echo "| Commit | \`${{ github.sha }}\` |"
-            echo "| Cloudflare deploy | triggered by GitHub App (see Deployments tab) |"
+            echo "| Cloudflare deploy | via deploy job below (GitHub Actions) |"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Deploy ────────────────────────────────────────────────────────────────
+  # Real deploy via GitHub Actions + wrangler-action (NOT a Cloudflare GitHub
+  # App). Gated on preflight, master pushes only. A failed deploy leaves the
+  # live worker untouched. Does NOT run generate.mjs (it reads ../repo, which
+  # doesn't exist in CI) — deploys the committed data/tools-manifest.json that
+  # the ASSETS binding serves. Needs repo secrets CLOUDFLARE_API_TOKEN (scoped
+  # to this account + the omegacentauri.me zone) and CLOUDFLARE_ACCOUNT_ID.
+  deploy:
+    name: Deploy to Cloudflare Workers
+    needs: preflight
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"          # Wrangler 4.99 + run_worker_first require Node >=22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.99.0"
+          command: deploy
