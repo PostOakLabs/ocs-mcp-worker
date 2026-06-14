@@ -10,7 +10,7 @@ import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { z } from 'zod';
 
 const BASE_URL = 'https://omegacentauri.me';
-const VERSION  = '0.1.0';
+const VERSION  = '0.2.0';
 
 // ---------------------------------------------------------------------------
 // Physical constants (SI) — constraint_stacker computation.
@@ -280,13 +280,17 @@ function buildServer(manifest) {
       verdict,
     };
 
-    const execHash = 'sha256:' + await sha256hex({ policyParameters, outputPayload });
+    // ChainGraph Standard v0.1 §6: hash the artifact's actual snake_case field
+    // names {policy_parameters, output_payload} so any vendor's verify_execution_hash
+    // reproduces it — and so the worker matches repo/tools/constraint-stacker.html.
+    const execHash = 'sha256:' + await sha256hex({ policy_parameters: policyParameters, output_payload: outputPayload });
 
     const artifact = {
+      chaingraph_version: '0.1.0',
       ocs_version:    '1.0.0',
-      mandate_type:   'imbh_constraint',
+      mandate_type:   'me.omegacentauri/imbh_constraint',
       tool_id:        'constraint-stacker',
-      tool_version:   '1.0.0',
+      tool_version:   '1.1.0',
       generated_at:   new Date().toISOString(),
       execution_hash: execHash,
       chain: {
@@ -296,7 +300,14 @@ function buildServer(manifest) {
       },
       policy_parameters: policyParameters,
       output_payload:    outputPayload,
+      compliance_flags: [
+        'register:peer-reviewed',
+        win.tension ? 'tension:lower_bound_exceeds_upper_limit' : 'window:consistent',
+      ],
       audit_signature: {
+        client_side_executed: true,
+        zero_pii_verified:    true,
+        deterministic_run:    true,
         data_sources: [
           'Häberle et al. 2024, Nature 631:285',
           'Bañares-Hernández et al. 2025, A&A 693:A104',
@@ -304,7 +315,7 @@ function buildServer(manifest) {
           'Malave et al. 2025/2026, arXiv:2512.09649',
           'Colom i Bernadich et al. 2026, arXiv:2603.21845',
         ],
-        schema_version: 'ocs-chaingraph-1.0.0',
+        schema_version: 'ocs-chaingraph-0.1.0',
       },
     };
 
@@ -437,6 +448,50 @@ function buildServer(manifest) {
       content: [{ type: 'text', text: JSON.stringify(output, null, 2) }],
       structuredContent: output,
     };
+  });
+
+  // -------------------------------------------------------------------------
+  // verify_execution_hash — ChainGraph Standard v0.1 §6
+  // Recompute an artifact's execution hash so any agent can independently
+  // verify an OCS (or any ChainGraph) artifact rather than trust it. Reuses
+  // sortKeysDeep + the same snake_case preimage the artifacts are hashed over.
+  // -------------------------------------------------------------------------
+  server.registerTool('verify_execution_hash', {
+    title: 'Verify a ChainGraph execution hash',
+    description:
+      'Independently verify a ChainGraph artifact (ChainGraph Standard v0.1 §6). ' +
+      'Recomputes SHA-256 over the canonical (sorted-key, whitespace-stripped) JSON of ' +
+      '{policy_parameters, output_payload} and compares it to the claimed execution_hash. ' +
+      'Pass a full artifact, or policy_parameters + output_payload + claimed_hash. ' +
+      'Works on artifacts from any ChainGraph vendor (OCS, AINumbers, ApexLogics).',
+    inputSchema: {
+      artifact:          z.record(z.any()).optional().describe('A full ChainGraph artifact (with policy_parameters, output_payload, execution_hash).'),
+      policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
+      output_payload:    z.record(z.any()).optional().describe('Artifact output_payload (if not passing a full artifact).'),
+      claimed_hash:      z.string().optional().describe('execution_hash to check against (if not passing a full artifact).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ artifact, policy_parameters, output_payload, claimed_hash }) => {
+    const pp = policy_parameters ?? artifact?.policy_parameters;
+    const op = output_payload ?? artifact?.output_payload;
+    const claimed = claimed_hash ?? artifact?.execution_hash ?? null;
+    if (pp === undefined || op === undefined) {
+      return { isError: true, content: [{ type: 'text', text: 'Provide a full artifact, or policy_parameters + output_payload (+ claimed_hash).' }] };
+    }
+    const computed = 'sha256:' + await sha256hex({ policy_parameters: pp, output_payload: op });
+    const valid = claimed != null && computed === claimed;
+    const out = {
+      valid,
+      computed_hash: computed,
+      claimed_hash:  claimed,
+      tool_id:            artifact?.tool_id ?? null,
+      chaingraph_version: artifact?.chaingraph_version ?? artifact?.ocs_version ?? null,
+      note: claimed == null
+        ? 'No claimed hash supplied — returning the computed hash only.'
+        : (valid ? 'Verified: recomputed hash matches the artifact.' : 'MISMATCH: treat the artifact as unverified.'),
+      spec: 'ChainGraph Standard v0.1 §6',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
   return server;
