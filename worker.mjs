@@ -13,6 +13,95 @@ const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.1.0';
 
 // ---------------------------------------------------------------------------
+// Physical constants (SI) — constraint_stacker computation.
+// Values match repo/tools/constraint-stacker.html exactly.
+// ---------------------------------------------------------------------------
+const G_SI    = 6.674e-11;   // m³ kg⁻¹ s⁻²
+const C_SI    = 2.998e8;     // m/s
+const MSUN_KG = 1.989e30;    // kg
+
+// JWST accretion upper-limit (Chen et al. 2025, arXiv:2511.20945).
+// L_predicted = ε · Ṁ_Bondi · c²;  Ṁ_Bondi = 4π G² M² ρ∞ / c_s³
+// Solve for M: M = sqrt( L_limit · c_s³ / (ε · 4π G² ρ∞ · c²) )
+const JWST_L_LIMIT = 1e28;  // 10^35 erg/s → 10^28 W
+const JWST_C_S     = 1.0e4; // m/s (~10 km/s, typical GC-core sound speed)
+
+// Constraint set — only entries that bound the window (lower/upper/parameterDependent).
+// 'detection' and 'noEvidence' entries do not contribute to lo/hi and are omitted.
+// Mirrors the subset of window.OCS_MEASUREMENTS.imbh that computeWindow() acts on.
+const IMBH_CONSTRAINTS = [
+  {
+    id: 'vandermarel2010', year: 2010, authors: 'van der Marel & Anderson',
+    limitType: 'upper', method: 'kinematics', value: 12000,
+    journal: 'ApJ 710:1063',
+  },
+  {
+    id: 'haberle2024', year: 2024, authors: 'Häberle et al.',
+    limitType: 'lower', method: 'propermotion', value: 8200,
+    journal: 'Nature 631:285',
+  },
+  {
+    id: 'banares2025', year: 2025, authors: 'Bañares-Hernández et al.',
+    limitType: 'upper', method: 'timing', value: 6000, sigma: 3,
+    journal: 'A&A 693:A104',
+  },
+  {
+    id: 'chen2025', year: 2025, authors: 'Chen et al.',
+    limitType: 'parameterDependent', method: 'accretion', value: null,
+    journal: 'arXiv:2511.20945',
+  },
+  {
+    id: 'trapum2026', year: 2026, authors: 'TRAPUM (Colom i Bernadich et al.)',
+    limitType: 'upper', method: 'timing', value: 1e5, sigma: 1.65,
+    journal: 'arXiv:2603.21845',
+  },
+];
+
+// Constraint computation helpers
+function jwstUpperLimitMsun(epsilon, rho_inf) {
+  const num = JWST_L_LIMIT * Math.pow(JWST_C_S, 3);
+  const den = epsilon * 4 * Math.PI * G_SI * G_SI * rho_inf * C_SI * C_SI;
+  return Math.sqrt(num / den) / MSUN_KG;
+}
+
+function computeConstraintWindow(epsilon, rho_inf, show) {
+  let lo = -Infinity, hi = Infinity;
+  let lowSrc = null, hiSrc = null;
+  for (const m of IMBH_CONSTRAINTS) {
+    if (!show[m.method]) continue;
+    if (m.limitType === 'lower' && m.value !== null) {
+      if (m.value > lo) { lo = m.value; lowSrc = m; }
+    } else if (m.limitType === 'upper' && m.value !== null) {
+      if (m.value < hi) { hi = m.value; hiSrc = m; }
+    } else if (m.limitType === 'parameterDependent' && m.method === 'accretion') {
+      const v = jwstUpperLimitMsun(epsilon, rho_inf);
+      if (v < hi) { hi = v; hiSrc = { ...m, value: v }; }
+    }
+  }
+  if (lo === -Infinity) lo = null;
+  if (hi === Infinity)  hi = null;
+  const tension = (lo !== null && hi !== null && lo > hi);
+  return { lo, hi, tension, lowSrc, hiSrc };
+}
+
+function sortKeysDeep(v) {
+  if (Array.isArray(v)) return v.map(sortKeysDeep);
+  if (v && typeof v === 'object') {
+    const out = {};
+    for (const k of Object.keys(v).sort()) out[k] = sortKeysDeep(v[k]);
+    return out;
+  }
+  return v;
+}
+
+async function sha256hex(obj) {
+  const canonical = JSON.stringify(sortKeysDeep(obj));
+  const buf  = new TextEncoder().encode(canonical);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ---------------------------------------------------------------------------
 // base64url-encode a plain object into an #in= fragment value.
 // Used to build prefill deep-links for the 10 flagship tools.
 // ---------------------------------------------------------------------------
@@ -100,6 +189,128 @@ function buildServer(manifest) {
     return {
       content: [{ type: 'text', text: JSON.stringify(rows, null, 2) }],
       structuredContent: { count: rows.length, tools: rows },
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // constraint_stacker — computes IMBH mass window + returns OCS artifact JSON
+  // -------------------------------------------------------------------------
+  server.registerTool('constraint_stacker', {
+    title: 'OCS IMBH Constraint Stacker',
+    description:
+      'Computes the currently allowed IMBH mass window for NGC 5139 (Omega Centauri) ' +
+      'given active observational constraints. Returns a hash-anchored OCS ChainGraph artifact JSON. ' +
+      'Mirrors the browser tool at omegacentauri.me/tools/constraint-stacker.html. ' +
+      'CRITICAL: Häberle 2024 lower bound (8,200 M☉) exceeds Bañares 2025 upper limit (6,000 M☉) — ' +
+      'irreconcilable under default settings. When tension_detected is true, report as ' +
+      '"at least one analysis has unaccounted-for systematics" — never collapse to one mass. ' +
+      'The JWST accretion limit (Chen et al. 2025) shifts with epsilon and rho_inf. ' +
+      'execution_hash anchors the result for citation and downstream chain provenance.',
+    inputSchema: {
+      epsilon: z.number().min(1e-6).max(1).optional().describe(
+        'ADAF radiative efficiency (0 < ε ≤ 1). Default 0.001. ' +
+        'Lower ε → weaker accretion → JWST upper limit shifts to higher masses.'
+      ),
+      rho_inf: z.number().min(1e-28).max(1e-18).optional().describe(
+        'Ambient gas density at the Bondi radius (kg/m³). Default 1e-21. ' +
+        'Lower ρ∞ → less Bondi accretion → JWST upper limit shifts to higher masses.'
+      ),
+      show_kinematics:   z.boolean().optional().describe('Include stellar kinematics constraints (default true)'),
+      show_propermotion: z.boolean().optional().describe('Include HST proper-motion constraints (default true)'),
+      show_timing:       z.boolean().optional().describe('Include pulsar timing constraints (default true)'),
+      show_accretion:    z.boolean().optional().describe('Include JWST accretion constraints (default true)'),
+      show_nbody:        z.boolean().optional().describe('Include N-body simulation constraints (default true)'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ epsilon, rho_inf, show_kinematics, show_propermotion, show_timing, show_accretion, show_nbody }) => {
+    const eps = epsilon ?? 1e-3;
+    const rho = rho_inf ?? 1e-21;
+    const show = {
+      kinematics:   show_kinematics   ?? true,
+      propermotion: show_propermotion ?? true,
+      timing:       show_timing       ?? true,
+      accretion:    show_accretion    ?? true,
+      nbody:        show_nbody        ?? true,
+    };
+
+    const win = computeConstraintWindow(eps, rho, show);
+
+    const ALL_METHODS    = ['kinematics', 'propermotion', 'timing', 'accretion', 'nbody'];
+    const activeLanes    = ALL_METHODS.filter(m => show[m]);
+    const nActive        = IMBH_CONSTRAINTS.filter(m => show[m.method]).length;
+
+    let verdict;
+    if (win.tension) {
+      const lo = win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : 'lower bound';
+      const hi = win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : 'upper limit';
+      verdict = `tension — ${lo} (${Math.round(win.lo).toLocaleString()} M☉) exceeds ${hi} (${Math.round(win.hi).toLocaleString()} M☉)`;
+    } else if (win.lo !== null && win.hi !== null) {
+      verdict = `allowed window: ${Math.round(win.lo).toLocaleString()}–${Math.round(win.hi).toLocaleString()} M☉`;
+    } else if (win.lo !== null) {
+      verdict = `lower bound only: ≥${Math.round(win.lo).toLocaleString()} M☉`;
+    } else if (win.hi !== null) {
+      verdict = `upper limit only: ≤${Math.round(win.hi).toLocaleString()} M☉`;
+    } else {
+      verdict = 'no active constraints — window undefined';
+    }
+
+    const policyParameters = {
+      epsilon_adaf:      eps,
+      rho_inf_kg_m3:     rho,
+      show_kinematics:   show.kinematics,
+      show_propermotion: show.propermotion,
+      show_timing:       show.timing,
+      show_accretion:    show.accretion,
+      show_nbody:        show.nbody,
+    };
+
+    const outputPayload = {
+      allowed_window_M_solar: {
+        lower: win.lo !== null ? Math.round(win.lo) : null,
+        upper: win.hi !== null ? Math.round(win.hi) : null,
+      },
+      tension_detected:        !!win.tension,
+      tension_direction:       win.tension ? 'lower_bound_exceeds_upper_limit' : null,
+      n_constraints_active:    nActive,
+      constraint_lanes_active: activeLanes,
+      lower_bound_source:      win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : null,
+      upper_limit_source:      win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : null,
+      epsilon_adaf:            eps,
+      rho_inf_kg_m3:           rho,
+      verdict,
+    };
+
+    const execHash = 'sha256:' + await sha256hex({ policyParameters, outputPayload });
+
+    const artifact = {
+      ocs_version:    '1.0.0',
+      mandate_type:   'imbh_constraint',
+      tool_id:        'constraint-stacker',
+      tool_version:   '1.0.0',
+      generated_at:   new Date().toISOString(),
+      execution_hash: execHash,
+      chain: {
+        parent_hashes:   [],
+        parent_tool_ids: [],
+        chain_depth:     0,
+      },
+      policy_parameters: policyParameters,
+      output_payload:    outputPayload,
+      audit_signature: {
+        data_sources: [
+          'Häberle et al. 2024, Nature 631:285',
+          'Bañares-Hernández et al. 2025, A&A 693:A104',
+          'Chen et al. 2025, arXiv:2511.20945',
+          'Malave et al. 2025/2026, arXiv:2512.09649',
+          'Colom i Bernadich et al. 2026, arXiv:2603.21845',
+        ],
+        schema_version: 'ocs-chaingraph-1.0.0',
+      },
+    };
+
+    return {
+      content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
+      structuredContent: artifact,
     };
   });
 
