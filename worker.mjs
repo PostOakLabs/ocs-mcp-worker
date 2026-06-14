@@ -26,35 +26,21 @@ const MSUN_KG = 1.989e30;    // kg
 const JWST_L_LIMIT = 1e28;  // 10^35 erg/s → 10^28 W
 const JWST_C_S     = 1.0e4; // m/s (~10 km/s, typical GC-core sound speed)
 
-// Constraint set — only entries that bound the window (lower/upper/parameterDependent).
-// 'detection' and 'noEvidence' entries do not contribute to lo/hi and are omitted.
-// Mirrors the subset of window.OCS_MEASUREMENTS.imbh that computeWindow() acts on.
+// Full IMBH constraint set — mirrors window.OCS_MEASUREMENTS.imbh in
+// repo/tools/data/measurements.js (all 9 entries, same id/method/limitType/value).
+// computeConstraintWindow() ignores 'detection'/'noEvidence' for lo/hi, but the
+// full list is needed so n_constraints_active matches the browser tool's count.
+// Keep in sync with measurements.js.
 const IMBH_CONSTRAINTS = [
-  {
-    id: 'vandermarel2010', year: 2010, authors: 'van der Marel & Anderson',
-    limitType: 'upper', method: 'kinematics', value: 12000,
-    journal: 'ApJ 710:1063',
-  },
-  {
-    id: 'haberle2024', year: 2024, authors: 'Häberle et al.',
-    limitType: 'lower', method: 'propermotion', value: 8200,
-    journal: 'Nature 631:285',
-  },
-  {
-    id: 'banares2025', year: 2025, authors: 'Bañares-Hernández et al.',
-    limitType: 'upper', method: 'timing', value: 6000, sigma: 3,
-    journal: 'A&A 693:A104',
-  },
-  {
-    id: 'chen2025', year: 2025, authors: 'Chen et al.',
-    limitType: 'parameterDependent', method: 'accretion', value: null,
-    journal: 'arXiv:2511.20945',
-  },
-  {
-    id: 'trapum2026', year: 2026, authors: 'TRAPUM (Colom i Bernadich et al.)',
-    limitType: 'upper', method: 'timing', value: 1e5, sigma: 1.65,
-    journal: 'arXiv:2603.21845',
-  },
+  { id: 'noyola2008',         year: 2008, authors: 'Noyola, Gebhardt & Bergmann',          limitType: 'detection',          method: 'kinematics',   value: 4e4 },
+  { id: 'vandermarel2010',    year: 2010, authors: 'van der Marel & Anderson',             limitType: 'upper',              method: 'kinematics',   value: 1.2e4 },
+  { id: 'baumgardt2017',      year: 2017, authors: 'Baumgardt',                            limitType: 'noEvidence',         method: 'nbody',        value: null },
+  { id: 'haberle2024',        year: 2024, authors: 'Häberle et al.',                       limitType: 'lower',              method: 'propermotion', value: 8200 },
+  { id: 'banares2025',        year: 2025, authors: 'Bañares-Hernández et al.',             limitType: 'upper',              method: 'timing',       value: 6000 },
+  { id: 'omegacat6_2025',     year: 2025, authors: 'Häberle et al. (oMEGACat VI)',         limitType: 'noEvidence',         method: 'kinematics',   value: null },
+  { id: 'chen2025jwst',       year: 2025, authors: 'Chen et al.',                          limitType: 'parameterDependent', method: 'accretion',    value: null },
+  { id: 'gonzalezprieto2025', year: 2025, authors: 'González Prieto, Rodriguez & Cabrera', limitType: 'detection',          method: 'nbody',        value: 5e4 },
+  { id: 'trapum2026',         year: 2026, authors: 'TRAPUM (Colom i Bernadich et al.)',    limitType: 'upper',              method: 'timing',       value: 1e5 },
 ];
 
 // Constraint computation helpers
@@ -82,6 +68,29 @@ function computeConstraintWindow(epsilon, rho_inf, show) {
   if (hi === Infinity)  hi = null;
   const tension = (lo !== null && hi !== null && lo > hi);
   return { lo, hi, tension, lowSrc, hiSrc };
+}
+
+// Number + verdict formatting — ported verbatim from repo/tools/constraint-stacker.html
+// so the worker artifact is byte-identical to the browser export for the same inputs.
+// en-US locale is pinned so the hashed verdict is deterministic across runtimes
+// (ChainGraph Standard §6 — no run-to-run variation in the hash preimage).
+function fmtMass(M) {
+  if (M === null || M === undefined || isNaN(M)) return '—';
+  if (M >= 1e6) return (M / 1e6).toFixed(2) + '×10⁶';
+  if (M >= 1e4) return (M / 1e3).toFixed(1) + '×10³';
+  if (M >= 1000) return Math.round(M).toLocaleString('en-US');
+  return Math.round(M).toString();
+}
+function buildVerdictString(win) {
+  if (win.tension) {
+    const lo = win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : 'lower bound';
+    const hi = win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : 'upper limit';
+    return `tension — ${lo} (${fmtMass(win.lo)} M☉) exceeds ${hi} (${fmtMass(win.hi)} M☉)`;
+  }
+  if (win.lo !== null && win.hi !== null) return `allowed window: ${fmtMass(win.lo)}–${fmtMass(win.hi)} M☉`;
+  if (win.lo !== null) return `lower bound only: > ${fmtMass(win.lo)} M☉`;
+  if (win.hi !== null) return `upper limit only: < ${fmtMass(win.hi)} M☉`;
+  return 'no constraints active';
 }
 
 function sortKeysDeep(v) {
@@ -235,33 +244,24 @@ function buildServer(manifest) {
 
     const win = computeConstraintWindow(eps, rho, show);
 
-    const ALL_METHODS    = ['kinematics', 'propermotion', 'timing', 'accretion', 'nbody'];
-    const activeLanes    = ALL_METHODS.filter(m => show[m]);
-    const nActive        = IMBH_CONSTRAINTS.filter(m => show[m.method]).length;
+    // Physics lanes (msigma is a browser overlay only, not a window-bounding method).
+    const LANES       = ['kinematics', 'propermotion', 'timing', 'accretion', 'nbody'];
+    const activeLanes = LANES.filter(m => show[m]);
+    // Count every measurement whose method is shown (incl. detection/noEvidence),
+    // matching constraint-stacker.html's activeConstraints.
+    const nActive     = IMBH_CONSTRAINTS.filter(m => show[m.method]).length;
 
-    let verdict;
-    if (win.tension) {
-      const lo = win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : 'lower bound';
-      const hi = win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : 'upper limit';
-      verdict = `tension — ${lo} (${Math.round(win.lo).toLocaleString()} M☉) exceeds ${hi} (${Math.round(win.hi).toLocaleString()} M☉)`;
-    } else if (win.lo !== null && win.hi !== null) {
-      verdict = `allowed window: ${Math.round(win.lo).toLocaleString()}–${Math.round(win.hi).toLocaleString()} M☉`;
-    } else if (win.lo !== null) {
-      verdict = `lower bound only: ≥${Math.round(win.lo).toLocaleString()} M☉`;
-    } else if (win.hi !== null) {
-      verdict = `upper limit only: ≤${Math.round(win.hi).toLocaleString()} M☉`;
-    } else {
-      verdict = 'no active constraints — window undefined';
-    }
-
+    // Canonical artifact shape — identical to the browser tool's buildArtifact()
+    // so the execution_hash reproduces across both surfaces. execution_backend is
+    // 'js' (the worker runs the same JS reference computation); the UI-only 'sel'
+    // field is intentionally excluded from the hashed inputs.
     const policyParameters = {
-      epsilon_adaf:      eps,
-      rho_inf_kg_m3:     rho,
-      show_kinematics:   show.kinematics,
-      show_propermotion: show.propermotion,
-      show_timing:       show.timing,
-      show_accretion:    show.accretion,
-      show_nbody:        show.nbody,
+      execution_backend: 'js',
+      input_parameters: {
+        epsilon: eps,
+        rho:     rho,
+        show:    activeLanes.join(','),
+      },
     };
 
     const outputPayload = {
@@ -277,7 +277,7 @@ function buildServer(manifest) {
       upper_limit_source:      win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : null,
       epsilon_adaf:            eps,
       rho_inf_kg_m3:           rho,
-      verdict,
+      verdict:                 buildVerdictString(win),
     };
 
     // ChainGraph Standard v0.1 §6: hash the artifact's actual snake_case field
