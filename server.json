@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "me.omegacentauri/tools",
+  "title": "Omega Centauri Society — Astrophysics Calculator Suite",
+  "description": "Interactive, client-side astrophysics decision tools — IMBH evidence, black-hole physics, Fermi paradox, SETI sensitivity, Macro Transcension Hypothesis, Kardashev metrics. Emits ChainGraph hash-anchored artifacts with reproducible execution_hash. Zero PII.",
+  "repository": {
+    "url": "https://github.com/PostOakLabs/ocs-mcp-worker",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "websiteUrl": "https://omegacentauri.me",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.omegacentauri.me/mcp"
+    }
+  ]
+}
