@@ -226,3 +226,91 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4.99.0"
           command: deploy
+
+  # ── Post-deploy smoke ───────────────────────────────────────────────────────
+  # Assert the LIVE /mcp matches what we just deployed (AINumbers §2.4 analogue).
+  # A green wrangler deploy does NOT prove the handshake serves the right tools —
+  # this hits the live endpoint and checks:
+  #   1. /mcp tools/list returns EXACTLY the 4 registered MCP tools (handshake OK,
+  #      no tool dropped/renamed). NOTE: these 4 are the callable MCP surface —
+  #      distinct from the manifest's tool CATALOG (the searchable data the
+  #      list_ocs_tools tool returns) and from the named chains.
+  #   2. list_ocs_tools returns count == committed manifest catalog count, proving
+  #      the deployed ASSETS manifest matches the repo (catalog not stale/truncated).
+  #   3. build_ocs_workflow_links advertises chain count == committed manifest chains.
+  # Gentle call cadence (3 POSTs, retries) to stay under the /mcp WAF rate limit.
+  smoke:
+    name: Post-deploy MCP smoke
+    needs: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (shallow)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Assert live /mcp matches committed manifest
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://mcp.omegacentauri.me/mcp"
+          ACCEPT="application/json, text/event-stream"
+          # Give the new Cloudflare version a moment to propagate globally.
+          sleep 15
+
+          mcp_call () {  # $1 = json-rpc body ; writes parsed JSON to $2
+            local body="$1" out="$2" raw
+            raw=$(curl -s -X POST "$ENDPOINT" \
+                    -H "Content-Type: application/json" -H "Accept: ${ACCEPT}" \
+                    --max-time 25 --retry 3 --retry-delay 6 -d "$body")
+            # Streamable-HTTP replies as SSE ("data: {…}") or plain JSON — normalise.
+            printf '%s' "$raw" | sed -n 's/^data: //p' | head -1 > "$out"
+            [ -s "$out" ] || printf '%s' "$raw" > "$out"
+          }
+
+          mcp_call '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' /tmp/list.json
+          mcp_call '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"list_ocs_tools","arguments":{"limit":500}}}' /tmp/catalog.json
+          mcp_call '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"build_ocs_workflow_links","arguments":{"chain":"workflow-black-hole-101"}}}' /tmp/chain.json
+
+          python3 << 'PYEOF'
+          import json, sys
+          fail = []
+          m = json.load(open('data/tools-manifest.json', encoding='utf-8'))
+          cat_expected   = len(m['tools'])
+          chain_expected = len(m['chains'])
+
+          # 1. registered MCP tools
+          names = sorted(t['name'] for t in json.load(open('/tmp/list.json', encoding='utf-8'))['result']['tools'])
+          expected = sorted(['list_ocs_tools', 'constraint_stacker',
+                             'build_ocs_workflow_links', 'verify_execution_hash'])
+          if names != expected:
+              fail.append(f'/mcp tools/list = {names}, expected {expected}')
+          else:
+              print(f'OK  registered MCP tools: {names}')
+
+          # 2. list_ocs_tools catalog count == committed manifest
+          cat = json.load(open('/tmp/catalog.json', encoding='utf-8'))['result']['structuredContent']['count']
+          if cat != cat_expected:
+              fail.append(f'list_ocs_tools count = {cat}, committed catalog = {cat_expected} (manifest skew)')
+          else:
+              print(f'OK  catalog count: {cat} == committed {cat_expected}')
+
+          # 3. build_ocs_workflow_links chains advertised == committed manifest
+          desc = next(t for t in json.load(open('/tmp/list.json', encoding='utf-8'))['result']['tools']
+                      if t['name'] == 'build_ocs_workflow_links')['description']
+          import re
+          mnum = re.search(r'Named chains \((\d+) total\)', desc)
+          live_chains = int(mnum.group(1)) if mnum else -1
+          if live_chains != chain_expected:
+              fail.append(f'build_ocs_workflow_links advertises {live_chains} chains, committed = {chain_expected}')
+          else:
+              print(f'OK  chain count: {live_chains} == committed {chain_expected}')
+
+          if fail:
+              for f in fail:
+                  print(f'::error::{f}')
+              print(f'\n❌ live /mcp diverges from committed manifest ({len(fail)} issue(s)).')
+              sys.exit(1)
+          print('\n✅ live /mcp matches the committed manifest.')
+          PYEOF
