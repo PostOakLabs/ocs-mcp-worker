@@ -408,6 +408,7 @@
       "inputs": {
         "mass_solar": { "type": "number", "desc": "Black hole mass M☉ (linear, e.g. 8200)" }
       },
+      "hashNote": "Prefill input mass_solar is linear (auto-converted). The raw URL hash key is #mass= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
         "Misner, Thorne & Wheeler 1973, Gravitation",
         "Häberle et al. 2024, Nature 631, 285"
@@ -425,6 +426,7 @@
         "mass_solar": { "type": "number", "desc": "Black hole mass M☉ (linear)" },
         "height_m":   { "type": "number", "desc": "Object height m (linear, e.g. 1.8 for a human)" }
       },
+      "hashNote": "Prefill input mass_solar is linear (auto-converted); height_m is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
         "Misner, Thorne & Wheeler 1973, Gravitation",
         "Penrose 1965 (singularity theorem)"
@@ -442,6 +444,7 @@
         "mass_solar":   { "type": "number", "desc": "Black hole mass M☉ (linear, e.g. 8200)" },
         "distance_kpc": { "type": "number", "desc": "Distance kpc (linear, e.g. 5.43 for OC)" }
       },
+      "hashNote": "Prefill input mass_solar is linear (auto-converted); distance_kpc is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
         "Event Horizon Telescope Collaboration 2019 (M87*)",
         "Häberle et al. 2024, Nature 631, 285"
