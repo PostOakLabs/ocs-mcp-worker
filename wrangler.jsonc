@@ -12,11 +12,12 @@
       "invocation_logs": true
     }
   },
-  // Analytics Engine — queryable per-tool-call usage metrics (track() in worker.mjs).
-  // Privacy: records only the tool name + enumerable, non-identifying dimensions
-  // (category / chain) — never the raw user query, client IP, or any identity.
+  // Analytics Engine — queryable per-tool-call usage metrics, written centrally in the
+  // fetch handler (mirrors ainumbers-mcp / apexlogics-mcp). Privacy: structural metadata
+  // only — tool name, latency, ok/error, salted non-reversible caller hash; never the raw
+  // query, parameters, outputs, or a reversible identity.
   "analytics_engine_datasets": [
-    { "binding": "AE", "dataset": "ocs_tool_calls" }
+    { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
   ],
   "assets": {
     "directory": "./data",

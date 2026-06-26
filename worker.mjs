@@ -133,26 +133,9 @@ async function loadData(env) {
 }
 
 // ---------------------------------------------------------------------------
-// Telemetry — Cloudflare Analytics Engine writeDataPoint (non-blocking, fire-and-forget).
-// PRIVACY: record ONLY the tool name + enumerable, non-identifying dimensions (category,
-// chain). NEVER the raw user query, client IP, or any identity. Optional-chained so local
-// dev (no AE binding) silently no-ops, and a telemetry error never breaks a tool call.
-// Schema: blobs[0]=tool, blobs[1]=dim1, blobs[2]=dim2, doubles[0]=1; indexes[0]=tool.
-// ---------------------------------------------------------------------------
-function track(env, tool, dim1 = '', dim2 = '') {
-  try {
-    env?.AE?.writeDataPoint({
-      blobs: [tool, String(dim1), String(dim2)],
-      doubles: [1],
-      indexes: [tool],
-    });
-  } catch (_) { /* telemetry must never surface to callers */ }
-}
-
-// ---------------------------------------------------------------------------
 // buildServer — called per request; manifest already loaded + cached.
 // ---------------------------------------------------------------------------
-function buildServer(manifest, env) {
+function buildServer(manifest) {
   const server = new McpServer({ name: 'ocs-mcp', version: VERSION });
   const tools  = manifest.tools  ?? {};
   const chains = manifest.chains ?? {};
@@ -192,8 +175,6 @@ function buildServer(manifest, env) {
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, register, limit }) => {
-    // Privacy: record the enumerable filters only — NOT the raw query text.
-    track(env, 'list_ocs_tools', category ?? '', register ?? '');
     const q = (query ?? '').toLowerCase();
     const rows = Object.entries(tools)
       .filter(([, t]) => !category || t.category === category)
@@ -251,7 +232,6 @@ function buildServer(manifest, env) {
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ epsilon, rho_inf, show_kinematics, show_propermotion, show_timing, show_accretion, show_nbody }) => {
-    track(env, 'constraint_stacker');
     const eps = epsilon ?? 1e-3;
     const rho = rho_inf ?? 1e-21;
     const show = {
@@ -378,7 +358,6 @@ function buildServer(manifest, env) {
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ chain, steps }) => {
-    track(env, 'build_ocs_workflow_links', chain ?? '_adhoc');
     // Validate mutual exclusivity
     if (chain && steps) {
       return {
@@ -493,7 +472,6 @@ function buildServer(manifest, env) {
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ artifact, policy_parameters, output_payload, claimed_hash }) => {
-    track(env, 'verify_execution_hash');
     const pp = policy_parameters ?? artifact?.policy_parameters;
     const op = output_payload ?? artifact?.output_payload;
     const claimed = claimed_hash ?? artifact?.execution_hash ?? null;
@@ -559,15 +537,47 @@ export default {
 
     // MCP endpoint
     if (url.pathname === '/mcp') {
+      // Parse body once — needed by both the MCP handler and telemetry extraction.
+      const body = await request.json().catch(() => undefined);
+
+      // Telemetry fields from tools/call requests only — structural metadata,
+      // never payloads, parameters, or outputs.
+      const isToolCall = body?.method === 'tools/call';
+      const toolName   = isToolCall ? (body?.params?.name ?? 'unknown') : null;
+      const chainDepth = isToolCall ? (body?.params?.arguments?.chain_depth ?? 0) : null;
+
+      const t0        = Date.now();
       const manifest  = await loadData(env);
-      const server    = buildServer(manifest, env);
+      const server    = buildServer(manifest);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       const { req, res } = toReqRes(request);
       await server.connect(transport);
-      const handled = transport.handleRequest(req, res, await request.json().catch(() => undefined));
+      const handled = transport.handleRequest(req, res, body);
       ctx.waitUntil(handled);
       const response = await toFetchResponse(res);
       for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
+
+      // Fire-and-forget Analytics Engine telemetry — never blocks the response.
+      // Structural metadata only: tool name, salted (non-reversible, no-PII) caller hash,
+      // ok/error, latency, chain depth. Mirrors ainumbers-mcp / apexlogics-mcp.
+      if (isToolCall && env.ANALYTICS) {
+        const latencyMs = Date.now() - t0;
+        const success   = response.status < 500;
+        const callerRaw = request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '';
+        const callerBuf = await crypto.subtle.digest('SHA-256',
+          new TextEncoder().encode('ocs-mcp-v1:' + callerRaw));
+        const callerHash = 'sha256:' + Array.from(new Uint8Array(callerBuf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+        ctx.waitUntil(Promise.resolve().then(() => {
+          try {
+            env.ANALYTICS.writeDataPoint({
+              blobs:   [toolName, callerHash, success ? 'ok' : 'error'],
+              doubles: [latencyMs, chainDepth ?? 0],
+              indexes: [toolName],
+            });
+          } catch (_) { /* telemetry is best-effort; never affect the response */ }
+        }));
+      }
+
       return response;
     }
 
