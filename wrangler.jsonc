@@ -12,6 +12,12 @@
       "invocation_logs": true
     }
   },
+  // Analytics Engine — queryable per-tool-call usage metrics (track() in worker.mjs).
+  // Privacy: records only the tool name + enumerable, non-identifying dimensions
+  // (category / chain) — never the raw user query, client IP, or any identity.
+  "analytics_engine_datasets": [
+    { "binding": "AE", "dataset": "ocs_tool_calls" }
+  ],
   "assets": {
     "directory": "./data",
     "binding": "ASSETS",
