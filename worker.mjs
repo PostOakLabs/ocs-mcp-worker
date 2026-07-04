@@ -19,6 +19,8 @@ import { compute as gwtcRemnantClassifierCompute } from './kernels/gwtc-remnant-
 import GWTC_REMNANT_CLASSIFIER_PROOF from './kernels/receipts/gwtc-remnant-classifier.computeproof.mjs';
 import { compute as romanMicrolensingCompute } from './kernels/roman-microlensing.kernel.mjs';
 import ROMAN_MICROLENSING_PROOF from './kernels/receipts/roman-microlensing.computeproof.mjs';
+import { compute as apophisFlybyGeometryCompute } from './kernels/apophis-flyby-geometry.kernel.mjs';
+import APOPHIS_FLYBY_GEOMETRY_PROOF from './kernels/receipts/apophis-flyby-geometry.computeproof.mjs';
 
 const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.3.0';
@@ -26,7 +28,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:d7517f8f6a30a0ea1761a28d071f947a1f387dae64ccd1ce35db15dc11946a80';
+const KERNEL_DIGEST = 'sha256:583502d86e14fb858ba0b9dcde209c577a3575ee31fa391de6f74bab32582333';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -219,6 +221,7 @@ const KERNEL_REGISTRY = {
   'jwst-accretion-ledger':    { compute: jwstAccretionLedgerCompute,    mandate_type: 'me.omegacentauri/imbh_accretion' },
   'gwtc-remnant-classifier':  { compute: gwtcRemnantClassifierCompute,  mandate_type: 'me.omegacentauri/gw_remnant' },
   'roman-microlensing':       { compute: romanMicrolensingCompute,       mandate_type: 'me.omegacentauri/roman_microlensing' },
+  'apophis-flyby-geometry':   { compute: apophisFlybyGeometryCompute,   mandate_type: 'me.omegacentauri/apophis_flyby' },
 };
 
 // §21.2/§21.4 composite preimage helper — bare-hex SHA-256 over the JCS-
@@ -955,6 +958,101 @@ function buildServer(manifest) {
     };
     if (JSON.stringify(cgCanon(policyParameters)) === JSON.stringify(cgCanon(PROVEN_PP_ROMAN_MICROLENSING))) {
       artifact.audit_signature.compute_proof = ROMAN_MICROLENSING_PROOF;
+    }
+
+    return {
+      content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
+      structuredContent: artifact,
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // apophis_flyby_geometry — Apophis 99942 close-approach geometry (2029-04-13)
+  // -------------------------------------------------------------------------
+  server.registerTool('apophis_flyby_geometry', {
+    title: 'OCS Apophis Flyby Geometry',
+    description:
+      'Computes the close-approach geometry for the 2029-04-13 flyby of asteroid 99942 Apophis, ' +
+      'which passes inside geostationary orbit at ~38,017 km from Earth\'s centre. ' +
+      'Physics: tidal acceleration differential across the asteroid (dg = 2·GM_earth·d/r³, classical tidal formula), ' +
+      'perigee speed from vis-viva equation (v_peri² = v_inf² + 2·GM/r), and GEO-ring crossing status. ' +
+      'Default inputs match the nominal JPL/CNEOS solution #197 (perigee ~38,017 km, ' +
+      'diameter ~340 m, v_inf ~7.43 km/s). ' +
+      'Missions en route: NASA OSIRIS-APEX (arrival 2029-04-13) and ESA Ramses (launch Apr 2028). ' +
+      'Inputs: perigee_km (Earth-centre distance at closest approach, km), ' +
+      'diameter_m (asteroid mean diameter, m), rel_velocity_km_s (hyperbolic excess velocity v_inf, km/s). ' +
+      'Returns a hash-anchored OCS ChainGraph artifact. Register: peer-reviewed ' +
+      '(Farnocchia et al. 2021 Icarus 369 114594; Brozovic et al. 2018 Icarus 300 115).',
+    inputSchema: {
+      perigee_km: z.number().positive().optional().describe(
+        'Earth-centre distance at closest approach in km. Default 38017.0 (JPL nominal). ' +
+        'GEO orbit is at 42,164 km — values below this are inside GEO.'
+      ),
+      diameter_m: z.number().positive().optional().describe(
+        'Asteroid mean diameter in metres. Default 340.0 (radar shape model, uncertainty ~30 m).'
+      ),
+      rel_velocity_km_s: z.number().positive().optional().describe(
+        'Hyperbolic excess velocity (v_inf) in km/s. Default 7.43. ' +
+        'Used in vis-viva equation: v_peri² = v_inf² + 2·GM/r.'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ perigee_km, diameter_m, rel_velocity_km_s }) => {
+    const input_parameters = {};
+    if (perigee_km         !== undefined) input_parameters.perigee_km         = perigee_km;
+    if (diameter_m         !== undefined) input_parameters.diameter_m         = diameter_m;
+    if (rel_velocity_km_s  !== undefined) input_parameters.rel_velocity_km_s  = rel_velocity_km_s;
+
+    const policyParameters = { execution_backend: 'js', input_parameters };
+    const { output_payload: outputPayload } = apophisFlybyGeometryCompute(policyParameters);
+    const execHash = await executionHash(policyParameters, outputPayload);
+
+    const artifact = {
+      '@context':     'https://openchain.graph/spec/v0.3/context.jsonld',
+      chaingraph_version: '0.4.0',
+      buildType:      'https://openchain.graph/spec/v0.2#WebCryptoSHA256',
+      mandate_type:   'me.omegacentauri/apophis_flyby',
+      tool_id:        'apophis-flyby-geometry',
+      tool_version:   '1.2.0',
+      generated_at:   new Date().toISOString(),
+      execution_hash: execHash,
+      chain: {
+        parent_hashes:   [],
+        parent_tool_ids: [],
+        chain_depth:     0,
+      },
+      policy_parameters: policyParameters,
+      output_payload:    outputPayload,
+      compliance_flags: ['register:peer-reviewed'],
+      audit_signature: {
+        client_side_executed: true,
+        zero_pii_verified:    true,
+        deterministic_run:    true,
+        register:             'peer-reviewed',
+        data_sources: [
+          'Farnocchia et al. 2021, Icarus 369, 114594 (DOI 10.1016/j.icarus.2021.114594) — definitive Apophis orbit solution',
+          'Brozovic et al. 2018, Icarus 300, 115 (DOI 10.1016/j.icarus.2017.09.010) — Apophis radar observations',
+          'JPL/CNEOS Apophis close-approach solution #197: 2029-Apr-13 perigee ~38,017 km',
+          'ESA Ramses mission: committed Nov 2025, launch target Apr 2028',
+          'NASA OSIRIS-APEX: en route to Apophis, arrival 2029-04-13',
+        ],
+        schema_version: 'ocs-chaingraph-0.4.0',
+        ocs_artifact_version: '1.0.0',
+      },
+    };
+
+    artifact.audit_signature.build_identity = {
+      kernel_digest: KERNEL_DIGEST,
+      buildType:     BUILDID_BUILDTYPE,
+      source_ref:    'worker.mjs',
+    };
+
+    const PROVEN_PP_APOPHIS_FLYBY = {
+      execution_backend: 'js',
+      input_parameters: { perigee_km: 38017.0, diameter_m: 340.0, rel_velocity_km_s: 7.43 },
+    };
+    if (JSON.stringify(cgCanon(policyParameters)) === JSON.stringify(cgCanon(PROVEN_PP_APOPHIS_FLYBY))) {
+      artifact.audit_signature.compute_proof = APOPHIS_FLYBY_GEOMETRY_PROOF;
     }
 
     return {

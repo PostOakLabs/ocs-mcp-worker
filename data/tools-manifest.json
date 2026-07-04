@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.1.0",
     "updated": "2026-07-04",
-    "toolCount": 30,
+    "toolCount": 31,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -926,6 +926,33 @@
         "Gould 2000, ApJ 542, 785 (DOI 10.1086/308744) — microlensing Einstein radius formalism",
         "Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield",
         "Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield"
+      ]
+    },
+    "apophis-flyby-geometry": {
+      "title": "Apophis Flyby Geometry",
+      "path": "tools/apophis-flyby-geometry.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Computes the close-approach geometry for the 2029-04-13 flyby of asteroid 99942 Apophis. Calculates tidal acceleration across the body (dg = 2·GM_earth·d/r³) and perigee speed from the vis-viva equation (v_peri² = v_inf² + 2·GM/r). JPL nominal: 38,017 km from Earth's centre — inside GEO at 42,164 km.",
+      "inputs": {
+        "perigee": {
+          "type": "number",
+          "desc": "perigee_km — Earth-centre distance at closest approach in km (linear, default 38017)"
+        },
+        "diam": {
+          "type": "number",
+          "desc": "diameter_m — asteroid mean diameter in metres (linear, default 340)"
+        },
+        "vinf": {
+          "type": "number",
+          "desc": "rel_velocity_km_s — hyperbolic excess velocity in km/s (linear, default 7.43)"
+        }
+      },
+      "citations": [
+        "Farnocchia et al. 2021, Icarus 369, 114594 (DOI 10.1016/j.icarus.2021.114594) — definitive Apophis orbit",
+        "Brozovic et al. 2018, Icarus 300, 115 (DOI 10.1016/j.icarus.2017.09.010) — Apophis radar + diameter",
+        "JPL/CNEOS Apophis close-approach solution #197: 2029-Apr-13 perigee ~38,017 km"
       ]
     }
   },
