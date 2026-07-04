@@ -78,7 +78,7 @@ jobs:
               'imbh-evidence', 'bh-physics', 'fermi-paradox',
               'fermi-seti', 'mth', 'kardashev'
           }
-          VALID_REGISTERS = {'peer-reviewed', 'speculative'}
+          VALID_REGISTERS = {'peer-reviewed', 'speculative', 'model-dependent'}
           MIN_TOOLS  = 19
           MIN_CHAINS = 39
 
