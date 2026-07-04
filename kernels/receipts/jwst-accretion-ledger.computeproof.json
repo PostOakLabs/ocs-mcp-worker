@@ -1,0 +1,23 @@
+{
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "CgYWcKfmmjr7fxlTHMsEMZqPquVCPsa4i7JTIgDBGscScZnJG4M3ZbpB9wuvQh3Hyt4BgGyhwpQRQB25+LnddiS+VIn762SrMLX28Ed9kdP5kN5Rg1C9J8pmSDgDw4K5FWuT+6JhFvUTJPy+cR01SXK2zEaJEhbV8gwAiwuZrakD2n7N8VvRekUppAnypgt+An/f73ZBiUIAYwOvDejikR71DcLtcG1Yb6/ZYY4iHH2car0wvnFpkb+hYZZy7OtOHPLPbNX+nLnkSew1A2q6ivSIXEee03/+fFZBWounUR8S3aORRC0xCf9Y1F0zRBxcGPhHjX96cTdRHjwisYeQyw==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:3d1bc25d77b503dc2075894298819385abdd8a2192ca25dc762c124542e9a4da",
+    "output": {
+      "constraint_axis": "accretion",
+      "epsilon_adaf": 0.001,
+      "excluded_above_Msun": 709,
+      "jwst_upper_limit_Msun": 709,
+      "l_limit_w": "1e+28",
+      "model_dependence": "scales with ADAF radiative efficiency epsilon (Pesce et al. 2021); not a peer of the kinematic (Haberle 2024) or timing (Banares 2025) bounds",
+      "reference": "Chen et al. 2025, arXiv:2511.20945 (accepted ApJ, v2 2026-03-20)",
+      "register": "model-dependent",
+      "rho_inf_kg_m3": 1e-21,
+      "verdict": "JWST accretion excludes IMBH above ~709 M-sun at epsilon=0.001, rho_inf=1e-21"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "tool_id": "constraint-stacker",
+  "vectors": [
+    {
+      "name": "defaults",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "epsilon": 0.001,
+          "rho": 1e-21,
+          "show": "kinematics,propermotion,timing,accretion,nbody"
+        }
+      },
+      "output_payload": {
+        "allowed_window_M_solar": {
+          "lower": 8200,
+          "upper": 709
+        },
+        "tension_detected": true,
+        "tension_direction": "lower_bound_exceeds_upper_limit",
+        "n_constraints_active": 9,
+        "constraint_lanes_active": [
+          "kinematics",
+          "propermotion",
+          "timing",
+          "accretion",
+          "nbody"
+        ],
+        "lower_bound_source": "Häberle et al. 2024",
+        "upper_limit_source": "Chen et al. 2025",
+        "epsilon_adaf": 0.001,
+        "rho_inf_kg_m3": 1e-21,
+        "verdict": "tension — Häberle et al. 2024 (8,200 M☉) exceeds Chen et al. 2025 (709 M☉)"
+      },
+      "golden_hash": "533362070f30bf62f874fcf9b589446c8ec745c1023b575d515a7f77d68ae59f"
+    },
+    {
+      "name": "kinematics_timing_only",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "epsilon": 0.001,
+          "rho": 1e-21,
+          "show": "kinematics,timing"
+        }
+      },
+      "output_payload": {
+        "allowed_window_M_solar": {
+          "lower": null,
+          "upper": 6000
+        },
+        "tension_detected": false,
+        "tension_direction": null,
+        "n_constraints_active": 5,
+        "constraint_lanes_active": [
+          "kinematics",
+          "timing"
+        ],
+        "lower_bound_source": null,
+        "upper_limit_source": "Bañares-Hernández et al. 2025",
+        "epsilon_adaf": 0.001,
+        "rho_inf_kg_m3": 1e-21,
+        "verdict": "upper limit only: < 6,000 M☉"
+      },
+      "golden_hash": "eb76aeb6b9b0bdf20b9f725ef8125b2a1d32cbec64dd4af05cb9ef4e0c66a976"
+    }
+  ]
+}

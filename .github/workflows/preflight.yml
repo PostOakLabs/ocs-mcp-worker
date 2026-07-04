@@ -63,6 +63,12 @@ jobs:
       - name: Measurements-sync gate (IMBH_CONSTRAINTS <-> live measurements.js)
         run: node scripts/check-measurements-sync.mjs
 
+      - name: §18 compute-proof verify + §18.6 coverage gate
+        # Verifies every committed groth16 receipt offline (BN254 seal, journal==V8
+        # compute, kernel_digest, imageId, cgv) and enforces §18.6 coverage: every
+        # kernel has a receipt or a dated deferral (no vacuous skip). CI-standalone.
+        run: node scripts/check-compute-proofs.mjs
+
       - name: Validate tools-manifest.json
         run: |
           python3 << 'PYEOF'

@@ -68,13 +68,15 @@ async function fetchMeasurementsImbh() {
 }
 
 function extractWorkerConstraints() {
-  const workerPath = resolve(ROOT, 'worker.mjs');
-  const src = readFileSync(workerPath, 'utf8');
+  // IMBH_CONSTRAINTS is the single source of truth in the extracted kernel
+  // (constraint-stacker.kernel.mjs), which the worker imports.
+  const kernelPath = resolve(ROOT, 'kernels', 'constraint-stacker.kernel.mjs');
+  const src = readFileSync(kernelPath, 'utf8');
 
   const marker = 'const IMBH_CONSTRAINTS = [';
   const start = src.indexOf(marker);
   if (start === -1) {
-    throw new Error('IMBH_CONSTRAINTS array not found in worker.mjs');
+    throw new Error('IMBH_CONSTRAINTS array not found in kernels/constraint-stacker.kernel.mjs');
   }
   // Find the matching closing bracket for the array literal that starts right after '['.
   const arrStart = src.indexOf('[', start);

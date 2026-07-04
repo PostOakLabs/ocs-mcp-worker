@@ -1,0 +1,137 @@
+{
+  "tool_id": "bayes-factor-router",
+  "vectors": [
+    {
+      "name": "decisive_nanograv",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "bf": 100000000000000
+        }
+      },
+      "output_payload": {
+        "scale": "bayes_factor",
+        "input_value": 100000000000000,
+        "evidence_category": "decisive",
+        "gate_token": "decisive",
+        "thresholds": {
+          "substantial": 3.2,
+          "strong": 10,
+          "decisive": 100
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "e09cfdc7396438f303a6ecb8cf303dc3a0434c4e9f963cd77d6fc6d9ad1aeb50"
+    },
+    {
+      "name": "strong",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "bf": 50
+        }
+      },
+      "output_payload": {
+        "scale": "bayes_factor",
+        "input_value": 50,
+        "evidence_category": "strong",
+        "gate_token": "strong",
+        "thresholds": {
+          "substantial": 3.2,
+          "strong": 10,
+          "decisive": 100
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "659b69965f1c65239e605b66377a1149b4afd079b9a486b61a1975de67cfe620"
+    },
+    {
+      "name": "substantial",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "bf": 5
+        }
+      },
+      "output_payload": {
+        "scale": "bayes_factor",
+        "input_value": 5,
+        "evidence_category": "substantial",
+        "gate_token": "substantial",
+        "thresholds": {
+          "substantial": 3.2,
+          "strong": 10,
+          "decisive": 100
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "a3d2119b6c09b296d79ad4a2d5e6d9759fa31cf823fe4f296c5159f50d04119a"
+    },
+    {
+      "name": "weak",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "bf": 2
+        }
+      },
+      "output_payload": {
+        "scale": "bayes_factor",
+        "input_value": 2,
+        "evidence_category": "weak (barely worth mentioning)",
+        "gate_token": "weak",
+        "thresholds": {
+          "substantial": 3.2,
+          "strong": 10,
+          "decisive": 100
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "b999a9b5566739bdbaf709a59228715ad69c4e4843434654861201d0cc7adbe8"
+    },
+    {
+      "name": "supports_null",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "bf": 0.5
+        }
+      },
+      "output_payload": {
+        "scale": "bayes_factor",
+        "input_value": 0.5,
+        "evidence_category": "supports null hypothesis",
+        "gate_token": "supports_null",
+        "thresholds": {
+          "substantial": 3.2,
+          "strong": 10,
+          "decisive": 100
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "479d0accd9de88443f67f98915f7a50f9b2620c02dd1a28f81e1b55a0fab5a05"
+    },
+    {
+      "name": "two_ln_bf_strong",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "two_ln_bf": 8
+        }
+      },
+      "output_payload": {
+        "scale": "two_ln_bayes_factor",
+        "input_value": 8,
+        "evidence_category": "strong",
+        "gate_token": "strong",
+        "thresholds": {
+          "substantial": 2.3263,
+          "strong": 4.6052,
+          "decisive": 9.2103
+        },
+        "reference": "Jeffreys 1961; Kass & Raftery 1995 (JASA 90:773)"
+      },
+      "golden_hash": "5d44a42eb9e0c789b367a1cfbf776e8e512f1b381bf47ee24cd1dd0e3cb4ac67"
+    }
+  ]
+}

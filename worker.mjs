@@ -9,6 +9,8 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { z } from 'zod';
 import { BUILDID_BUILDTYPE } from './lib/_buildid.mjs';
+import CONSTRAINT_STACKER_PROOF from './kernels/receipts/constraint-stacker.computeproof.mjs';
+import { compute as constraintStackerCompute } from './kernels/constraint-stacker.kernel.mjs';
 
 const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.3.0';
@@ -16,103 +18,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:12d0f39fa8900e58f99701df8163658e808a50d757250ae57c4e03eb0d465c52';
-
-// ---------------------------------------------------------------------------
-// Physical constants (SI) — constraint_stacker computation.
-// Values match repo/tools/constraint-stacker.html exactly.
-// ---------------------------------------------------------------------------
-const G_SI    = 6.674e-11;   // m³ kg⁻¹ s⁻²
-const C_SI    = 2.998e8;     // m/s
-const MSUN_KG = 1.989e30;    // kg
-
-// JWST accretion upper-limit (Chen et al. 2025, arXiv:2511.20945).
-// L_predicted = ε · Ṁ_Bondi · c²;  Ṁ_Bondi = 4π G² M² ρ∞ / c_s³
-// Solve for M: M = sqrt( L_limit · c_s³ / (ε · 4π G² ρ∞ · c²) )
-const JWST_L_LIMIT = 1e28;  // 10^35 erg/s → 10^28 W
-const JWST_C_S     = 1.0e4; // m/s (~10 km/s, typical GC-core sound speed)
-
-// Full IMBH constraint set — mirrors window.OCS_MEASUREMENTS.imbh in
-// repo/tools/data/measurements.js (all 9 entries, same id/method/limitType/value).
-// computeConstraintWindow() ignores 'detection'/'noEvidence' for lo/hi, but the
-// full list is needed so n_constraints_active matches the browser tool's count.
-// Keep in sync with measurements.js.
-const IMBH_CONSTRAINTS = [
-  { id: 'noyola2008',         year: 2008, authors: 'Noyola, Gebhardt & Bergmann',          limitType: 'detection',          method: 'kinematics',   value: 4e4 },
-  { id: 'vandermarel2010',    year: 2010, authors: 'van der Marel & Anderson',             limitType: 'upper',              method: 'kinematics',   value: 1.2e4 },
-  { id: 'baumgardt2017',      year: 2017, authors: 'Baumgardt',                            limitType: 'noEvidence',         method: 'nbody',        value: null },
-  { id: 'haberle2024',        year: 2024, authors: 'Häberle et al.',                       limitType: 'lower',              method: 'propermotion', value: 8200 },
-  { id: 'banares2025',        year: 2025, authors: 'Bañares-Hernández et al.',             limitType: 'upper',              method: 'timing',       value: 6000 },
-  { id: 'omegacat6_2025',     year: 2025, authors: 'Häberle et al. (oMEGACat VI)',         limitType: 'noEvidence',         method: 'kinematics',   value: null },
-  { id: 'chen2025jwst',       year: 2025, authors: 'Chen et al.',                          limitType: 'parameterDependent', method: 'accretion',    value: null },
-  { id: 'gonzalezprieto2025', year: 2025, authors: 'González Prieto, Rodriguez & Cabrera', limitType: 'detection',          method: 'nbody',        value: 5e4 },
-  { id: 'trapum2026',         year: 2026, authors: 'TRAPUM (Colom i Bernadich et al.)',    limitType: 'upper',              method: 'timing',       value: 1e5 },
-];
-
-// Constraint computation helpers
-function jwstUpperLimitMsun(epsilon, rho_inf) {
-  const num = JWST_L_LIMIT * Math.pow(JWST_C_S, 3);
-  const den = epsilon * 4 * Math.PI * G_SI * G_SI * rho_inf * C_SI * C_SI;
-  return Math.sqrt(num / den) / MSUN_KG;
-}
-
-function computeConstraintWindow(epsilon, rho_inf, show) {
-  let lo = -Infinity, hi = Infinity;
-  let lowSrc = null, hiSrc = null;
-  for (const m of IMBH_CONSTRAINTS) {
-    if (!show[m.method]) continue;
-    if (m.limitType === 'lower' && m.value !== null) {
-      if (m.value > lo) { lo = m.value; lowSrc = m; }
-    } else if (m.limitType === 'upper' && m.value !== null) {
-      if (m.value < hi) { hi = m.value; hiSrc = m; }
-    } else if (m.limitType === 'parameterDependent' && m.method === 'accretion') {
-      const v = jwstUpperLimitMsun(epsilon, rho_inf);
-      if (v < hi) { hi = v; hiSrc = { ...m, value: v }; }
-    }
-  }
-  if (lo === -Infinity) lo = null;
-  if (hi === Infinity)  hi = null;
-  const tension = (lo !== null && hi !== null && lo > hi);
-  return { lo, hi, tension, lowSrc, hiSrc };
-}
-
-// Number + verdict formatting — ported verbatim from repo/tools/constraint-stacker.html
-// so the worker artifact is byte-identical to the browser export for the same inputs.
-// en-US locale is pinned so the hashed verdict is deterministic across runtimes
-// (ChainGraph Standard §6 — no run-to-run variation in the hash preimage).
-// Deterministic en-US thousands grouping (no Intl; kernel-rule compliant, feeds
-// the hashed verdict). Vendored pattern from AINumbers art-107; fmtEnUS(int) is
-// byte-identical to Math.round(M).toLocaleString('en-US') for integers.
-function fmtEnUS(n){
-  n=Number(n);
-  if(Number.isNaN(n))return 'NaN';
-  if(!Number.isFinite(n))return n>0?'∞':'-∞';
-  const sign=(n<0)?'-':'';
-  let s=Math.abs(n).toString();
-  if(s.includes('e')||s.includes('E'))return sign+s;
-  let [i,f='']=s.split('.');
-  if(f.length>3){const keep=f.slice(0,3);const nd=f.charCodeAt(3)-48;const d=(i+keep).split('').map(c=>c.charCodeAt(0)-48);if(nd>=5){let j=d.length-1;for(;j>=0;j--){if(d[j]===9){d[j]=0;}else{d[j]++;break;}}if(j<0)d.unshift(1);}const a=d.join('');i=a.slice(0,a.length-keep.length)||'0';f=a.slice(a.length-keep.length);}
-  f=f.replace(/0+$/,'');i=i.replace(/^0+(?=\d)/,'');
-  return sign+i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(f?'.'+f:'');
-}
-function fmtMass(M) {
-  if (M === null || M === undefined || isNaN(M)) return '—';
-  if (M >= 1e6) return (M / 1e6).toFixed(2) + '×10⁶';
-  if (M >= 1e4) return (M / 1e3).toFixed(1) + '×10³';
-  if (M >= 1000) return fmtEnUS(Math.round(M));
-  return Math.round(M).toString();
-}
-function buildVerdictString(win) {
-  if (win.tension) {
-    const lo = win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : 'lower bound';
-    const hi = win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : 'upper limit';
-    return `tension — ${lo} (${fmtMass(win.lo)} M☉) exceeds ${hi} (${fmtMass(win.hi)} M☉)`;
-  }
-  if (win.lo !== null && win.hi !== null) return `allowed window: ${fmtMass(win.lo)}–${fmtMass(win.hi)} M☉`;
-  if (win.lo !== null) return `lower bound only: > ${fmtMass(win.lo)} M☉`;
-  if (win.hi !== null) return `upper limit only: < ${fmtMass(win.hi)} M☉`;
-  return 'no constraints active';
-}
+const KERNEL_DIGEST = 'sha256:d4c234cecdc98967946912b2434e958fe951d05c59ad64ea5d7ab5092b0c52f8';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -270,14 +176,9 @@ function buildServer(manifest) {
       nbody:        show_nbody        ?? true,
     };
 
-    const win = computeConstraintWindow(eps, rho, show);
-
     // Physics lanes (msigma is a browser overlay only, not a window-bounding method).
     const LANES       = ['kinematics', 'propermotion', 'timing', 'accretion', 'nbody'];
     const activeLanes = LANES.filter(m => show[m]);
-    // Count every measurement whose method is shown (incl. detection/noEvidence),
-    // matching constraint-stacker.html's activeConstraints.
-    const nActive     = IMBH_CONSTRAINTS.filter(m => show[m.method]).length;
 
     // Canonical artifact shape — identical to the browser tool's buildArtifact()
     // so the execution_hash reproduces across both surfaces. execution_backend is
@@ -292,21 +193,9 @@ function buildServer(manifest) {
       },
     };
 
-    const outputPayload = {
-      allowed_window_M_solar: {
-        lower: win.lo !== null ? Math.round(win.lo) : null,
-        upper: win.hi !== null ? Math.round(win.hi) : null,
-      },
-      tension_detected:        !!win.tension,
-      tension_direction:       win.tension ? 'lower_bound_exceeds_upper_limit' : null,
-      n_constraints_active:    nActive,
-      constraint_lanes_active: activeLanes,
-      lower_bound_source:      win.lowSrc ? win.lowSrc.authors + ' ' + win.lowSrc.year : null,
-      upper_limit_source:      win.hiSrc  ? win.hiSrc.authors  + ' ' + win.hiSrc.year  : null,
-      epsilon_adaf:            eps,
-      rho_inf_kg_m3:           rho,
-      verdict:                 buildVerdictString(win),
-    };
+    // Single source of truth for the window/output-payload computation — shared
+    // with the guest runtime via kernels/constraint-stacker.kernel.mjs.
+    const { output_payload: outputPayload } = constraintStackerCompute(policyParameters);
 
     // OCG Standard §4: hash over the artifact's snake_case {policy_parameters,
     // output_payload} so any vendor's verify_execution_hash reproduces it — and
@@ -333,7 +222,7 @@ function buildServer(manifest) {
       output_payload:    outputPayload,
       compliance_flags: [
         'register:peer-reviewed',
-        win.tension ? 'tension:lower_bound_exceeds_upper_limit' : 'window:consistent',
+        outputPayload.tension_detected ? 'tension:lower_bound_exceeds_upper_limit' : 'window:consistent',
       ],
       audit_signature: {
         client_side_executed: true,
@@ -359,6 +248,16 @@ function buildServer(manifest) {
       buildType:     BUILDID_BUILDTYPE,
       source_ref:    'worker.mjs',
     };
+
+    // OCG Standard §18 — attach the real groth16 compute-proof for the PROVEN default
+    // inputs (hash-excluded; assigned after execution_hash, never enters the preimage).
+    // The zkVM receipt proves kernels/constraint-stacker.kernel.mjs produced this exact
+    // output_payload. Non-default inputs stay §4 hash-anchored but carry no per-input
+    // receipt (only the default vector was proven).
+    const PROVEN_PP = { execution_backend: 'js', input_parameters: { epsilon: 1e-3, rho: 1e-21, show: 'kinematics,propermotion,timing,accretion,nbody' } };
+    if (JSON.stringify(cgCanon(policyParameters)) === JSON.stringify(cgCanon(PROVEN_PP))) {
+      artifact.audit_signature.compute_proof = CONSTRAINT_STACKER_PROOF;
+    }
 
     return {
       content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],

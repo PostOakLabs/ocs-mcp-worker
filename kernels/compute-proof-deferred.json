@@ -1,0 +1,4 @@
+{
+  "_note": "OCG §18.6 deferral baseline. Kernels here carry no compute_proof, with a reason. Ratchets DOWN only (CI rejects re-adding a proven kernel). Empty = all kernels proven.",
+  "deferred": []
+}
