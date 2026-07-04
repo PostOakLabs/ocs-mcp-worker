@@ -1,0 +1,25 @@
+{
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "IRmT0dYtkOqGvDATtQofRAkhBTO4g9xrGRAkN8jmFS8JKXJZej2Y/CcBIp0oGDi2AQQjpxwbs5UnoHjIQdgtrR0QG6JNDpKJxWiVmSeBBhhhdBfcKxaxsvZ1CnrzYvQ9AWLkPi0jMqcLhnzhnheFhjm6azjGtPgeZ5S/tVhKvIwEEkrE5srT+LLajYiL19esZB+LD+GJXlbAKhnCMBJ3zjA6wCq69Y83bFbuJW5iqM2MvV0z6Wr4Jbh6YaotNVeeHvTW1xhfWuRClA1/7B9Cyvus3taQi8olbghn10T+75UEKD0y8yvQ3e93AlYjTfU6IYlCd0ECbmHQmc/VtS2QpQ==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:1aeee1b57b6fc4a09667f2dd2cee3490c890bbf5357c654a58910f7faebba7ba",
+    "output": {
+      "caveat": "Nonspinning-limit JF17 fit (chi1=chi2=0 assumed absent input spins); aligned-spin 2D/3D correction terms not implemented. PI-gap edges and GW231123-class remnant masses carry model/waveform-systematics uncertainty (see arXiv:2509.09161 for ML-based validation of these fits against NR).",
+      "chirp_mass_Msun": 103.2,
+      "final_spin": 0.68,
+      "gate_token": "imbh_remnant",
+      "imbh_class": true,
+      "in_pi_gap": true,
+      "mass_ratio": 0.75,
+      "pi_gap_note": "PI mass-gap edges (~60-130 Msun) are model-dependent (nuclear reaction rates, rotation, metallicity -- e.g. Farmer et al. 2019, Woosley 2019), not sharp thresholds.",
+      "reference": "Jimenez-Forteza et al. 2017, PRD 95, 064024 (arXiv:1611.00332), nonspinning-limit fits (Eqs. 7 and 21); PI-gap edges model-dependent (e.g. Farmer et al. 2019); GW231123 waveform-systematics ML validation: Chatterjee et al. 2025 (arXiv:2509.09161)",
+      "register": "peer-reviewed fit (JF17), applied here in its nonspinning limit; PI-gap edges and waveform-systematics for GW231123-class remnants are model-dependent -- see caveat",
+      "remnant_mass_Msun": 228.83,
+      "total_mass_Msun": 240
+    }
+  }
+}

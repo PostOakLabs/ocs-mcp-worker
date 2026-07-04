@@ -1,0 +1,49 @@
+{
+  "chain": "accretion-eligibility-fastfail",
+  "type": "gated",
+  "branches": {
+    "A_fastfail": {
+      "fields": {
+        "epsilon": 0.001,
+        "rho_inf": 1e-21
+      },
+      "composite_execution_hash": "6104b673659191a841693863f8537eb05d0f8ea49d5b5b51435c2642a6dc917f",
+      "path_taken": [
+        "ledger"
+      ],
+      "decisions": [
+        {
+          "input_pointer": "/excluded_above_Msun",
+          "observed_value": 709,
+          "matched_rule_index": 0,
+          "op": "lt",
+          "value": 1000,
+          "next": "end",
+          "step_id": "ledger"
+        }
+      ]
+    },
+    "B_followup": {
+      "fields": {
+        "epsilon": 0.001,
+        "rho_inf": 1e-23
+      },
+      "composite_execution_hash": "e25b2d8b5361e13aa73e4d29ee5b7bbee46380ca636682047f69850082bc935a",
+      "path_taken": [
+        "ledger",
+        "followup"
+      ],
+      "decisions": [
+        {
+          "input_pointer": "/excluded_above_Msun",
+          "observed_value": 7088,
+          "matched_rule_index": null,
+          "op": null,
+          "value": null,
+          "next": "followup",
+          "step_id": "ledger"
+        }
+      ]
+    }
+  }
+}

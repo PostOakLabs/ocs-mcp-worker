@@ -1,0 +1,9 @@
+{
+  "chain": "imbh-evidence-window",
+  "type": "linear",
+  "composite_execution_hash": "522c6cbaa940656e11d6a609f589cc01861d831557ca7d83cac6ff1c8e809ec0",
+  "path_taken": [
+    "window"
+  ],
+  "decisions": []
+}

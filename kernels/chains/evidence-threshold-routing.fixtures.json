@@ -1,0 +1,52 @@
+{
+  "chain": "evidence-threshold-routing",
+  "type": "gated",
+  "branches": {
+    "A_decisive": {
+      "fields": {
+        "bf": 100000000000000
+      },
+      "composite_execution_hash": "74bca25928a05ec747a6a4fa940fe6c1b71646802c233487c636e8fe345779de",
+      "path_taken": [
+        "evidence",
+        "falsification",
+        "consistency"
+      ],
+      "decisions": [
+        {
+          "input_pointer": "/gate_token",
+          "observed_value": "decisive",
+          "matched_rule_index": 0,
+          "op": "in",
+          "value": [
+            "decisive",
+            "strong"
+          ],
+          "next": "falsification",
+          "step_id": "evidence"
+        }
+      ]
+    },
+    "B_weak": {
+      "fields": {
+        "bf": 2
+      },
+      "composite_execution_hash": "1008f3b9a1b33a81713516b10532df71d3bf58371ee90121db65d1e25170df5e",
+      "path_taken": [
+        "evidence",
+        "consistency"
+      ],
+      "decisions": [
+        {
+          "input_pointer": "/gate_token",
+          "observed_value": "weak",
+          "matched_rule_index": null,
+          "op": null,
+          "value": null,
+          "next": "consistency",
+          "step_id": "evidence"
+        }
+      ]
+    }
+  }
+}
