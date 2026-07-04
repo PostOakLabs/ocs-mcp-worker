@@ -10,7 +10,7 @@ import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { z } from 'zod';
 
 const BASE_URL = 'https://omegacentauri.me';
-const VERSION  = '0.2.0';
+const VERSION  = '0.3.0';
 
 // ---------------------------------------------------------------------------
 // Physical constants (SI) — constraint_stacker computation.
@@ -74,11 +74,26 @@ function computeConstraintWindow(epsilon, rho_inf, show) {
 // so the worker artifact is byte-identical to the browser export for the same inputs.
 // en-US locale is pinned so the hashed verdict is deterministic across runtimes
 // (ChainGraph Standard §6 — no run-to-run variation in the hash preimage).
+// Deterministic en-US thousands grouping (no Intl; kernel-rule compliant, feeds
+// the hashed verdict). Vendored pattern from AINumbers art-107; fmtEnUS(int) is
+// byte-identical to Math.round(M).toLocaleString('en-US') for integers.
+function fmtEnUS(n){
+  n=Number(n);
+  if(Number.isNaN(n))return 'NaN';
+  if(!Number.isFinite(n))return n>0?'∞':'-∞';
+  const sign=(n<0)?'-':'';
+  let s=Math.abs(n).toString();
+  if(s.includes('e')||s.includes('E'))return sign+s;
+  let [i,f='']=s.split('.');
+  if(f.length>3){const keep=f.slice(0,3);const nd=f.charCodeAt(3)-48;const d=(i+keep).split('').map(c=>c.charCodeAt(0)-48);if(nd>=5){let j=d.length-1;for(;j>=0;j--){if(d[j]===9){d[j]=0;}else{d[j]++;break;}}if(j<0)d.unshift(1);}const a=d.join('');i=a.slice(0,a.length-keep.length)||'0';f=a.slice(a.length-keep.length);}
+  f=f.replace(/0+$/,'');i=i.replace(/^0+(?=\d)/,'');
+  return sign+i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(f?'.'+f:'');
+}
 function fmtMass(M) {
   if (M === null || M === undefined || isNaN(M)) return '—';
   if (M >= 1e6) return (M / 1e6).toFixed(2) + '×10⁶';
   if (M >= 1e4) return (M / 1e3).toFixed(1) + '×10³';
-  if (M >= 1000) return Math.round(M).toLocaleString('en-US');
+  if (M >= 1000) return fmtEnUS(Math.round(M));
   return Math.round(M).toString();
 }
 function buildVerdictString(win) {
@@ -93,21 +108,28 @@ function buildVerdictString(win) {
   return 'no constraints active';
 }
 
-function sortKeysDeep(v) {
-  if (Array.isArray(v)) return v.map(sortKeysDeep);
-  if (v && typeof v === 'object') {
-    const out = {};
-    for (const k of Object.keys(v).sort()) out[k] = sortKeysDeep(v[k]);
-    return out;
-  }
-  return v;
+// Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
+// Namespace adapted for me.omegacentauri. Recursive key sort + per-value
+// JSON.stringify reproduces RFC 8785 JCS for the I-JSON subset; assertIJson
+// fails loud on non-finite / unsafe-int rather than emit an unstable hash.
+function assertIJson(v){
+  if(typeof v==='number'){
+    if(!Number.isFinite(v))throw new Error('Non-finite number ('+v+') not valid I-JSON (RFC 8785 §3.2.2.3).');
+    if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('Integer '+v+' exceeds 2^53 (RFC 7493).');
+  } else if(Array.isArray(v)){ v.forEach(assertIJson); }
+  else if(v&&typeof v==='object'){ for(const k of Object.keys(v)) assertIJson(v[k]); }
 }
-
-async function sha256hex(obj) {
-  const canonical = JSON.stringify(sortKeysDeep(obj));
-  const buf  = new TextEncoder().encode(canonical);
-  const hash = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+const cgCanon=(v)=>Array.isArray(v)?v.map(cgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=cgCanon(v[k]),o),{}):v;
+function canonicalPreimage(policy_parameters,output_payload){
+  const obj={policy_parameters,output_payload};
+  assertIJson(obj);
+  return JSON.stringify(cgCanon(obj));
+}
+// Bare lowercase hex (OCG §4). No "sha256:" prefix.
+async function executionHash(policy_parameters,output_payload){
+  const bytes=new TextEncoder().encode(canonicalPreimage(policy_parameters,output_payload));
+  const digest=await crypto.subtle.digest('SHA-256',bytes);
+  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -280,17 +302,20 @@ function buildServer(manifest) {
       verdict:                 buildVerdictString(win),
     };
 
-    // ChainGraph Standard v0.1 §6: hash the artifact's actual snake_case field
-    // names {policy_parameters, output_payload} so any vendor's verify_execution_hash
-    // reproduces it — and so the worker matches repo/tools/constraint-stacker.html.
-    const execHash = 'sha256:' + await sha256hex({ policy_parameters: policyParameters, output_payload: outputPayload });
+    // OCG Standard §4: hash over the artifact's snake_case {policy_parameters,
+    // output_payload} so any vendor's verify_execution_hash reproduces it — and
+    // so the worker matches repo/tools/constraint-stacker.html byte-for-byte.
+    // Bare lowercase hex (no sha256: prefix); the digest is unchanged from the
+    // prior sortKeysDeep+JSON.stringify canonicalization.
+    const execHash = await executionHash(policyParameters, outputPayload);
 
     const artifact = {
-      chaingraph_version: '0.1.0',
-      ocs_version:    '1.0.0',
+      '@context':     'https://openchain.graph/spec/v0.3/context.jsonld',
+      chaingraph_version: '0.4.0',
+      buildType:      'https://openchain.graph/spec/v0.2#WebCryptoSHA256',
       mandate_type:   'me.omegacentauri/imbh_constraint',
       tool_id:        'constraint-stacker',
-      tool_version:   '1.1.0',
+      tool_version:   '1.2.0',
       generated_at:   new Date().toISOString(),
       execution_hash: execHash,
       chain: {
@@ -308,6 +333,7 @@ function buildServer(manifest) {
         client_side_executed: true,
         zero_pii_verified:    true,
         deterministic_run:    true,
+        register:             'peer-reviewed',
         data_sources: [
           'Häberle et al. 2024, Nature 631:285',
           'Bañares-Hernández et al. 2025, A&A 693:A104',
@@ -315,7 +341,8 @@ function buildServer(manifest) {
           'Malave et al. 2025/2026, arXiv:2512.09649',
           'Colom i Bernadich et al. 2026, arXiv:2603.21845',
         ],
-        schema_version: 'ocs-chaingraph-0.1.0',
+        schema_version: 'ocs-chaingraph-0.4.0',
+        ocs_artifact_version: '1.0.0',
       },
     };
 
@@ -451,17 +478,19 @@ function buildServer(manifest) {
   });
 
   // -------------------------------------------------------------------------
-  // verify_execution_hash — ChainGraph Standard v0.1 §6
+  // verify_execution_hash — ChainGraph Standard §4 (JCS execution hash)
   // Recompute an artifact's execution hash so any agent can independently
-  // verify an OCS (or any ChainGraph) artifact rather than trust it. Reuses
-  // sortKeysDeep + the same snake_case preimage the artifacts are hashed over.
+  // verify an OCS (or any ChainGraph) artifact rather than trust it. Uses the
+  // §4 JCS canonicalizer over the same snake_case preimage the artifacts are
+  // hashed over; tolerant of a legacy 'sha256:' prefix on the claimed hash.
   // -------------------------------------------------------------------------
   server.registerTool('verify_execution_hash', {
     title: 'Verify a ChainGraph execution hash',
     description:
-      'Independently verify a ChainGraph artifact (ChainGraph Standard v0.1 §6). ' +
-      'Recomputes SHA-256 over the canonical (sorted-key, whitespace-stripped) JSON of ' +
-      '{policy_parameters, output_payload} and compares it to the claimed execution_hash. ' +
+      'Independently verify a ChainGraph artifact (ChainGraph Standard §4 JCS). ' +
+      'Recomputes SHA-256 over the canonical (RFC 8785 JCS, sorted-key, whitespace-stripped) JSON of ' +
+      '{policy_parameters, output_payload} and compares it to the claimed execution_hash ' +
+      '(bare hex or legacy sha256:-prefixed). ' +
       'Pass a full artifact, or policy_parameters + output_payload + claimed_hash. ' +
       'Works on artifacts from any ChainGraph vendor (OCS, AINumbers, ApexLogics).',
     inputSchema: {
@@ -478,18 +507,22 @@ function buildServer(manifest) {
     if (pp === undefined || op === undefined) {
       return { isError: true, content: [{ type: 'text', text: 'Provide a full artifact, or policy_parameters + output_payload (+ claimed_hash).' }] };
     }
-    const computed = 'sha256:' + await sha256hex({ policy_parameters: pp, output_payload: op });
-    const valid = claimed != null && computed === claimed;
+    // Bare lowercase hex (OCG §4). Accept a claimed hash with or without a
+    // legacy 'sha256:' prefix: strip it from both sides before comparing so
+    // previously exported (sha256:-prefixed) artifacts still verify.
+    const stripPfx = (h) => (typeof h === 'string' && h.startsWith('sha256:')) ? h.slice(7) : h;
+    const computed = await executionHash(pp, op);
+    const valid = claimed != null && stripPfx(computed) === stripPfx(claimed);
     const out = {
       valid,
       computed_hash: computed,
       claimed_hash:  claimed,
       tool_id:            artifact?.tool_id ?? null,
-      chaingraph_version: artifact?.chaingraph_version ?? artifact?.ocs_version ?? null,
+      chaingraph_version: artifact?.chaingraph_version ?? null,
       note: claimed == null
         ? 'No claimed hash supplied — returning the computed hash only.'
         : (valid ? 'Verified: recomputed hash matches the artifact.' : 'MISMATCH: treat the artifact as unverified.'),
-      spec: 'ChainGraph Standard v0.1 §6',
+      spec: 'ChainGraph Standard §4',
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
