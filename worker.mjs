@@ -24,7 +24,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:5071da6f21da77ee38ddf18a520b98a6c76ebcfd7eb6733b46f53969a882c741';
+const KERNEL_DIGEST = 'sha256:97b6a82d006788923809de9acec060b6ac5925c3af2c9ab76721e8ac7be09a41';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -247,7 +247,7 @@ export const CHAINS = {
         id: 'evidence', tool_id: 'bayes-factor-router', fields: { bf: 1e14 },
         gate: { input: '/gate_token', rules: [{ op: 'in', value: ['decisive', 'strong'], next: 'falsification' }], default: 'consistency' },
       },
-      { id: 'falsification', tool_id: 'constraint-stacker', fields: {} },
+      { id: 'falsification', tool_id: 'constraint-stacker', fields: {}, gate: { input: '', rules: [], default: 'end' } },
       { id: 'consistency', tool_id: 'gwtc-remnant-classifier', fields: { m1: 35, m2: 30 } },
     ],
   },

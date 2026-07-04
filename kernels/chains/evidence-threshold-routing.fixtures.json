@@ -6,11 +6,10 @@
       "fields": {
         "bf": 100000000000000
       },
-      "composite_execution_hash": "74bca25928a05ec747a6a4fa940fe6c1b71646802c233487c636e8fe345779de",
+      "composite_execution_hash": "44599b75fb72a16fa4e24e88767159b15c536f6ab1f3d917cb2c624e9d118028",
       "path_taken": [
         "evidence",
-        "falsification",
-        "consistency"
+        "falsification"
       ],
       "decisions": [
         {
@@ -24,6 +23,29 @@
           ],
           "next": "falsification",
           "step_id": "evidence"
+        },
+        {
+          "input_pointer": "",
+          "observed_value": {
+            "allowed_window_M_solar": {
+              "lower": null,
+              "upper": null
+            },
+            "tension_detected": false,
+            "tension_direction": null,
+            "n_constraints_active": 0,
+            "constraint_lanes_active": [],
+            "lower_bound_source": null,
+            "upper_limit_source": null,
+            "epsilon_adaf": 0.001,
+            "rho_inf_kg_m3": 1e-21,
+            "verdict": "no constraints active"
+          },
+          "matched_rule_index": null,
+          "op": null,
+          "value": null,
+          "next": "end",
+          "step_id": "falsification"
         }
       ]
     },
@@ -31,7 +53,7 @@
       "fields": {
         "bf": 2
       },
-      "composite_execution_hash": "1008f3b9a1b33a81713516b10532df71d3bf58371ee90121db65d1e25170df5e",
+      "composite_execution_hash": "3daaf6c87a88bf4c9db3d17160ff838ba4cb90fb383d0601202830a11dde2c65",
       "path_taken": [
         "evidence",
         "consistency"
