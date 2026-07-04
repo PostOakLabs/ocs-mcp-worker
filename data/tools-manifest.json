@@ -2,13 +2,11 @@
   "_meta": {
     "version": "1.1.0",
     "updated": "2026-07-04",
-    "toolCount": 29,
+    "toolCount": 30,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
-
   "tools": {
-
     "constraint-stacker": {
       "title": "IMBH Constraint Stacker",
       "path": "tools/constraint-stacker.html",
@@ -17,17 +15,28 @@
       "widget": true,
       "description": "Interactive overlay of every published mass constraint on a single log-mass axis. Shows which IMBH masses remain allowed by kinematics, proper motion, pulsar timing, accretion, and N-body simultaneously.",
       "inputs": {
-        "epsilon": { "type": "number", "desc": "Radiative efficiency (linear, 0–1, default 0.001)" },
-        "rho":     { "type": "number", "desc": "Ambient density g/cm³ (linear, maps to rhoInf)" },
-        "show":    { "type": "string", "desc": "Comma-separated visible lanes: kinematics,propermotion,timing,accretion,nbody,msigma" },
-        "sel":     { "type": "string", "desc": "Selected constraint ID" }
+        "epsilon": {
+          "type": "number",
+          "desc": "Radiative efficiency (linear, 0–1, default 0.001)"
+        },
+        "rho": {
+          "type": "number",
+          "desc": "Ambient density g/cm³ (linear, maps to rhoInf)"
+        },
+        "show": {
+          "type": "string",
+          "desc": "Comma-separated visible lanes: kinematics,propermotion,timing,accretion,nbody,msigma"
+        },
+        "sel": {
+          "type": "string",
+          "desc": "Selected constraint ID"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285 (≥ 8,200 M☉ lower bound)",
         "Bañares-Hernández et al. 2025, A&A 693 A104 (≤ 6,000 M☉ upper bound)"
       ]
     },
-
     "velocity-dispersion": {
       "title": "Velocity Dispersion / M-σ Estimator",
       "path": "tools/velocity-dispersion.html",
@@ -36,16 +45,24 @@
       "widget": true,
       "description": "What IMBH mass does the M-σ scaling relation predict for Omega Centauri? Compares predicted velocity dispersion against published estimates and adjustable overrides.",
       "inputs": {
-        "mass": { "type": "number", "desc": "IMBH mass M☉ (linear, e.g. 8200)" },
-        "rh":   { "type": "number", "desc": "Half-light radius pc (linear, default 4.8)" },
-        "sig":  { "type": "number", "desc": "Velocity dispersion override km/s (linear, 0 = auto)" }
+        "mass": {
+          "type": "number",
+          "desc": "IMBH mass M☉ (linear, e.g. 8200)"
+        },
+        "rh": {
+          "type": "number",
+          "desc": "Half-light radius pc (linear, default 4.8)"
+        },
+        "sig": {
+          "type": "number",
+          "desc": "Velocity dispersion override km/s (linear, 0 = auto)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285",
         "Bañares-Hernández et al. 2025, A&A 693 A104"
       ]
     },
-
     "dark-cluster": {
       "title": "Dark Cluster Alternative Explorer",
       "path": "tools/dark-cluster.html",
@@ -54,17 +71,31 @@
       "widget": true,
       "description": "Models the Bañares 2025 alternative to a central IMBH — a concentrated population of stellar-mass black holes and neutron stars — and compares its kinematic and pulsar-timing signature against the single-IMBH interpretation.",
       "inputs": {
-        "Mdark": { "type": "number", "desc": "Total dark cluster mass M☉ (linear)" },
-        "Mmean": { "type": "number", "desc": "Mean remnant mass M☉ (linear)" },
-        "aPlum": { "type": "number", "desc": "Plummer radius pc (linear)" },
-        "beta":  { "type": "number", "desc": "Velocity anisotropy" },
-        "MBH":   { "type": "number", "desc": "Comparison IMBH mass M☉ (linear)" }
+        "Mdark": {
+          "type": "number",
+          "desc": "Total dark cluster mass M☉ (linear)"
+        },
+        "Mmean": {
+          "type": "number",
+          "desc": "Mean remnant mass M☉ (linear)"
+        },
+        "aPlum": {
+          "type": "number",
+          "desc": "Plummer radius pc (linear)"
+        },
+        "beta": {
+          "type": "number",
+          "desc": "Velocity anisotropy"
+        },
+        "MBH": {
+          "type": "number",
+          "desc": "Comparison IMBH mass M☉ (linear)"
+        }
       },
       "citations": [
         "Bañares-Hernández et al. 2025, A&A 693 A104"
       ]
     },
-
     "gaia-dr4-forecaster": {
       "title": "Gaia DR4 IMBH Constraint Forecaster",
       "path": "tools/gaia-dr4-forecaster.html",
@@ -73,10 +104,22 @@
       "widget": true,
       "description": "Propagates Gaia DR4's documented 4.5× proper-motion precision improvement to forecast how tightly the December 2026 data release will constrain the ωCen IMBH mass via stellar kinematics. Includes a pre-registration permalink for Zenodo deposit before DR4 day.",
       "inputs": {
-        "mass":     { "type": "number", "desc": "IMBH hypothesis mass M☉ (linear, default 8200)" },
-        "dist":     { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" },
-        "crowding": { "type": "number", "desc": "Crowding noise factor 1–10 (linear, default 3)" },
-        "sigma0":   { "type": "number", "desc": "Background cluster velocity dispersion km/s (linear, default 20)" }
+        "mass": {
+          "type": "number",
+          "desc": "IMBH hypothesis mass M☉ (linear, default 8200)"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "OC distance kpc (linear, default 5.43)"
+        },
+        "crowding": {
+          "type": "number",
+          "desc": "Crowding noise factor 1–10 (linear, default 3)"
+        },
+        "sigma0": {
+          "type": "number",
+          "desc": "Background cluster velocity dispersion km/s (linear, default 20)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285 (≥ 8,200 M☉ lower bound)",
@@ -84,7 +127,6 @@
         "ESA Cosmos: Gaia DR4 content (4.5× PM precision improvement over DR2)"
       ]
     },
-
     "anisotropy-degeneracy-explorer": {
       "title": "Anisotropy Degeneracy Explorer",
       "path": "tools/anisotropy-degeneracy-explorer.html",
@@ -93,11 +135,26 @@
       "widget": true,
       "description": "Demonstrates the kinematic IMBH degeneracy: velocity anisotropy (β > 0) and a concentrated stellar remnant cluster can both reproduce a central velocity dispersion cusp. Computes the spherical Jeans solution + Abel projection and tests detectability against the reference ωCen profile.",
       "inputs": {
-        "mass": { "type": "number", "desc": "IMBH mass M☉ (linear, default 8200)" },
-        "mrem": { "type": "number", "desc": "Remnant cluster mass M☉ (linear, default 0)" },
-        "rrem": { "type": "number", "desc": "Remnant Plummer scale radius pc (linear, default 1.0)" },
-        "beta": { "type": "number", "desc": "Velocity anisotropy parameter β (linear, −0.5 to 0.5, default 0)" },
-        "dist": { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" }
+        "mass": {
+          "type": "number",
+          "desc": "IMBH mass M☉ (linear, default 8200)"
+        },
+        "mrem": {
+          "type": "number",
+          "desc": "Remnant cluster mass M☉ (linear, default 0)"
+        },
+        "rrem": {
+          "type": "number",
+          "desc": "Remnant Plummer scale radius pc (linear, default 1.0)"
+        },
+        "beta": {
+          "type": "number",
+          "desc": "Velocity anisotropy parameter β (linear, −0.5 to 0.5, default 0)"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "OC distance kpc (linear, default 5.43)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631:285 (lower bound ≥ 8,200 M☉)",
@@ -105,7 +162,6 @@
         "den Brok et al. 2023, A&A (IMBH wander + anisotropy)"
       ]
     },
-
     "pulsar-accel-mapper": {
       "title": "Pulsar Acceleration Mapper",
       "path": "tools/pulsar-accel-mapper.html",
@@ -114,10 +170,22 @@
       "widget": true,
       "description": "Maps observed line-of-sight accelerations from TRAPUM 2026 spin-period derivatives against the maximum acceleration from a central mass model (point IMBH, Plummer dark cluster, or hybrid). Tests whether a given mass is consistent with all 8 timed OC pulsars simultaneously.",
       "inputs": {
-        "mass":  { "type": "number", "desc": "Central mass M☉ (linear, default 50000)" },
-        "model": { "type": "string", "desc": "Mass model: point | plummer | hybrid (default point)" },
-        "rc":    { "type": "number", "desc": "Plummer scale radius pc (linear, default 0.8)" },
-        "dist":  { "type": "number", "desc": "OC distance kpc (linear, default 5.43)" }
+        "mass": {
+          "type": "number",
+          "desc": "Central mass M☉ (linear, default 50000)"
+        },
+        "model": {
+          "type": "string",
+          "desc": "Mass model: point | plummer | hybrid (default point)"
+        },
+        "rc": {
+          "type": "number",
+          "desc": "Plummer scale radius pc (linear, default 0.8)"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "OC distance kpc (linear, default 5.43)"
+        }
       },
       "citations": [
         "Colom i Bernadich et al. 2026 (TRAPUM), arXiv:2603.21845",
@@ -125,7 +193,6 @@
         "Bañares-Hernández et al. 2025, A&A 693 A104 (< 6,000 M☉ upper limit)"
       ]
     },
-
     "ir-excess-checker": {
       "title": "IR Excess Checker",
       "path": "tools/ir-excess-checker.html",
@@ -135,10 +202,22 @@
       "description": "Given a covering fraction f and waste-heat temperature T, computes the IR excess produced by a partial Dyson swarm and compares against WISE W3/W4 and SPHEREx survey sensitivity. Returns the f–T region current all-sky surveys exclude — the quantitative falsification backbone for the MTH hypothesis. Default is ωCen distance (5.43 kpc), Solar luminosity, T=300 K, f=0.01.",
       "hashNote": "f is log10 (e.g. f=-2 means covering fraction 0.01). dist, temp, lstar are linear.",
       "inputs": {
-        "f":     { "type": "number", "desc": "log10(covering fraction) — LOG10 UNITS. e.g. -2 = 0.01 (1%)" },
-        "temp":  { "type": "number", "desc": "Waste-heat temperature K (linear, 100–3000, default 300)" },
-        "dist":  { "type": "number", "desc": "Distance pc (linear, default 5430)" },
-        "lstar": { "type": "number", "desc": "Host star luminosity L☉ (linear, default 1.0)" }
+        "f": {
+          "type": "number",
+          "desc": "log10(covering fraction) — LOG10 UNITS. e.g. -2 = 0.01 (1%)"
+        },
+        "temp": {
+          "type": "number",
+          "desc": "Waste-heat temperature K (linear, 100–3000, default 300)"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "Distance pc (linear, default 5430)"
+        },
+        "lstar": {
+          "type": "number",
+          "desc": "Host star luminosity L☉ (linear, default 1.0)"
+        }
       },
       "citations": [
         "Suazo et al. 2025 (Dyson spheres on H-R diagram), arXiv:2602.23270",
@@ -148,7 +227,6 @@
         "WISE All-Sky Catalog (W3/W4 5σ sensitivity)"
       ]
     },
-
     "adaf-sed-modeler": {
       "title": "ADAF SED Modeler",
       "path": "tools/adaf-sed-modeler.html",
@@ -158,10 +236,22 @@
       "description": "Full ADAF/RIAF spectral energy distribution for a Bondi-fed IMBH: synchrotron, inverse Compton, and bremsstrahlung components across 10 decades of frequency, overlaid against JWST NIRCam/MIRI, radio, and X-ray non-detection limits. Extends jwst-accretion.html into a complete accretion SED workbench.",
       "hashNote": "mdot, eps, rho are all log10 (e.g. mdot=-5 means ṁ=10^-5). mass is linear M☉.",
       "inputs": {
-        "mass": { "type": "number", "desc": "IMBH mass M☉ (linear, default 8200)" },
-        "mdot": { "type": "number", "desc": "log10(ṁ = Ṁ/Ṁ_Edd) — LOG10 UNITS. e.g. -5 = 10^-5" },
-        "eps":  { "type": "number", "desc": "log10(radiative efficiency ε) — LOG10 UNITS. e.g. -3 = 10^-3" },
-        "rho":  { "type": "number", "desc": "log10(ambient density g/cm³) — LOG10 UNITS. e.g. -24 = 10^-24 g/cm³" }
+        "mass": {
+          "type": "number",
+          "desc": "IMBH mass M☉ (linear, default 8200)"
+        },
+        "mdot": {
+          "type": "number",
+          "desc": "log10(ṁ = Ṁ/Ṁ_Edd) — LOG10 UNITS. e.g. -5 = 10^-5"
+        },
+        "eps": {
+          "type": "number",
+          "desc": "log10(radiative efficiency ε) — LOG10 UNITS. e.g. -3 = 10^-3"
+        },
+        "rho": {
+          "type": "number",
+          "desc": "log10(ambient density g/cm³) — LOG10 UNITS. e.g. -24 = 10^-24 g/cm³"
+        }
       },
       "citations": [
         "Narayan & Yi 1995, ApJ 452:710 (ADAF theory)",
@@ -172,7 +262,6 @@
         "Bañares-Hernández et al. 2025, A&A 693:A104 (≤ 6,000 M☉ upper bound)"
       ]
     },
-
     "gw-horizon-plotter": {
       "title": "GW Horizon Plotter",
       "path": "tools/gw-horizon-plotter.html",
@@ -181,10 +270,22 @@
       "widget": true,
       "description": "Characteristic strain tracks for IMRI/EMRI/IMBH-IMBH compact binaries overlaid on analytic detector sensitivity curves spanning PTA (nHz) to next-generation ground-based (kHz). Default shows both ωCen IMBH bounds (8,200 M☉ Häberle and 6,000 M☉ Bañares) at 5.43 kpc. The category-page anchor for multi-messenger GW workflows.",
       "inputs": {
-        "m1":   { "type": "number", "desc": "Primary mass M☉ (linear, default 8200)" },
-        "m2":   { "type": "number", "desc": "Secondary mass M☉ (linear, default 10)" },
-        "dist": { "type": "number", "desc": "Distance kpc (linear, default 5.43)" },
-        "spin": { "type": "number", "desc": "Dimensionless primary spin χ (linear, −0.998 to 0.998, default 0)" }
+        "m1": {
+          "type": "number",
+          "desc": "Primary mass M☉ (linear, default 8200)"
+        },
+        "m2": {
+          "type": "number",
+          "desc": "Secondary mass M☉ (linear, default 10)"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "Distance kpc (linear, default 5.43)"
+        },
+        "spin": {
+          "type": "number",
+          "desc": "Dimensionless primary spin χ (linear, −0.998 to 0.998, default 0)"
+        }
       },
       "citations": [
         "Robson, Cornish & Liu 2019, CQG 36:105011 (LISA sensitivity)",
@@ -194,7 +295,6 @@
         "Bañares-Hernández et al. 2025, A&A 693:A104 (≤ 6,000 M☉ upper bound)"
       ]
     },
-
     "astrometric-microlensing": {
       "title": "Astrometric Microlensing Predictor",
       "path": "tools/astrometric-microlensing.html",
@@ -203,19 +303,36 @@
       "widget": true,
       "description": "Predicts the astrometric microlensing signature a central IMBH would produce against background bulge stars, and assesses whether Gaia DR4 (≈ Dec 2026) or Roman would detect it.",
       "inputs": {
-        "ML":    { "type": "number", "desc": "Lens (IMBH) mass M☉ (linear, e.g. 8200)" },
-        "DL":    { "type": "number", "desc": "Lens distance kpc (linear, default 5.43)" },
-        "DS":    { "type": "number", "desc": "Source distance kpc (linear, default 8)" },
-        "G":     { "type": "number", "desc": "Source G magnitude (linear, default 17)" },
-        "mu":    { "type": "number", "desc": "Relative proper motion mas/yr (linear, default 5)" },
-        "Sigma": { "type": "number", "desc": "Stellar surface density arcsec⁻² (linear, default 2)" }
+        "ML": {
+          "type": "number",
+          "desc": "Lens (IMBH) mass M☉ (linear, e.g. 8200)"
+        },
+        "DL": {
+          "type": "number",
+          "desc": "Lens distance kpc (linear, default 5.43)"
+        },
+        "DS": {
+          "type": "number",
+          "desc": "Source distance kpc (linear, default 8)"
+        },
+        "G": {
+          "type": "number",
+          "desc": "Source G magnitude (linear, default 17)"
+        },
+        "mu": {
+          "type": "number",
+          "desc": "Relative proper motion mas/yr (linear, default 5)"
+        },
+        "Sigma": {
+          "type": "number",
+          "desc": "Stellar surface density arcsec⁻² (linear, default 2)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285",
         "Gaia Collaboration 2023 (DR3)"
       ]
     },
-
     "qpo-mass-spin": {
       "title": "QPO Mass-Spin Estimator",
       "path": "tools/qpo-mass-spin.html",
@@ -225,16 +342,27 @@
       "description": "Constrains IMBH mass and spin from observed quasi-periodic oscillation frequencies using the ISCO orbital model and 3:2 epicyclic resonance (Török et al.). Compares against OC's constraint window.",
       "hashNote": "lognu is log10 of QPO frequency in Hz — pass log10 values, not linear Hz.",
       "inputs": {
-        "lognu": { "type": "number", "desc": "log10(QPO frequency Hz) — LOG10 UNITS" },
-        "unc":   { "type": "number", "desc": "Frequency uncertainty fraction" },
-        "a":     { "type": "number", "desc": "Spin parameter a* (0–1)" },
-        "model": { "type": "string", "desc": "QPO model: isco | epicyclic | precession" }
+        "lognu": {
+          "type": "number",
+          "desc": "log10(QPO frequency Hz) — LOG10 UNITS"
+        },
+        "unc": {
+          "type": "number",
+          "desc": "Frequency uncertainty fraction"
+        },
+        "a": {
+          "type": "number",
+          "desc": "Spin parameter a* (0–1)"
+        },
+        "model": {
+          "type": "string",
+          "desc": "QPO model: isco | epicyclic | precession"
+        }
       },
       "citations": [
         "Török et al. 2011 (3:2 epicyclic resonance)"
       ]
     },
-
     "drake-monte-carlo": {
       "title": "Drake Equation Monte Carlo",
       "path": "tools/drake-monte-carlo.html",
@@ -243,26 +371,67 @@
       "widget": true,
       "description": "Drake equation with full uncertainty propagation via in-browser Bayesian Monte Carlo, per Sandberg, Drexler & Ord (2018). Shows why point estimates mislead and uncertainty intervals span many orders of magnitude.",
       "inputs": {
-        "preset":   { "type": "string", "desc": "Starting preset: sandberg2018 | optimistic | pessimistic" },
-        "n":        { "type": "number", "desc": "Monte Carlo sample count (integer)" },
-        "fp_lo":    { "type": "number", "desc": "Fraction of stars with planets — lower log10 bound" },
-        "fp_hi":    { "type": "number", "desc": "Fraction of stars with planets — upper log10 bound" },
-        "ne_lo":    { "type": "number", "desc": "Habitable planets per system — lower log10 bound" },
-        "ne_hi":    { "type": "number", "desc": "Habitable planets per system — upper log10 bound" },
-        "fl_lo":    { "type": "number", "desc": "Fraction where life arises — lower log10 bound" },
-        "fl_hi":    { "type": "number", "desc": "Fraction where life arises — upper log10 bound" },
-        "fi_lo":    { "type": "number", "desc": "Fraction where intelligence arises — lower log10 bound" },
-        "fi_hi":    { "type": "number", "desc": "Fraction where intelligence arises — upper log10 bound" },
-        "fc_lo":    { "type": "number", "desc": "Fraction that communicate — lower log10 bound" },
-        "fc_hi":    { "type": "number", "desc": "Fraction that communicate — upper log10 bound" },
-        "L_lo":     { "type": "number", "desc": "Civilisation lifetime years — lower log10 bound" },
-        "L_hi":     { "type": "number", "desc": "Civilisation lifetime years — upper log10 bound" }
+        "preset": {
+          "type": "string",
+          "desc": "Starting preset: sandberg2018 | optimistic | pessimistic"
+        },
+        "n": {
+          "type": "number",
+          "desc": "Monte Carlo sample count (integer)"
+        },
+        "fp_lo": {
+          "type": "number",
+          "desc": "Fraction of stars with planets — lower log10 bound"
+        },
+        "fp_hi": {
+          "type": "number",
+          "desc": "Fraction of stars with planets — upper log10 bound"
+        },
+        "ne_lo": {
+          "type": "number",
+          "desc": "Habitable planets per system — lower log10 bound"
+        },
+        "ne_hi": {
+          "type": "number",
+          "desc": "Habitable planets per system — upper log10 bound"
+        },
+        "fl_lo": {
+          "type": "number",
+          "desc": "Fraction where life arises — lower log10 bound"
+        },
+        "fl_hi": {
+          "type": "number",
+          "desc": "Fraction where life arises — upper log10 bound"
+        },
+        "fi_lo": {
+          "type": "number",
+          "desc": "Fraction where intelligence arises — lower log10 bound"
+        },
+        "fi_hi": {
+          "type": "number",
+          "desc": "Fraction where intelligence arises — upper log10 bound"
+        },
+        "fc_lo": {
+          "type": "number",
+          "desc": "Fraction that communicate — lower log10 bound"
+        },
+        "fc_hi": {
+          "type": "number",
+          "desc": "Fraction that communicate — upper log10 bound"
+        },
+        "L_lo": {
+          "type": "number",
+          "desc": "Civilisation lifetime years — lower log10 bound"
+        },
+        "L_hi": {
+          "type": "number",
+          "desc": "Civilisation lifetime years — upper log10 bound"
+        }
       },
       "citations": [
         "Sandberg, Drexler & Ord 2018, arXiv:1806.02404"
       ]
     },
-
     "great-filter": {
       "title": "Great Filter Localizer",
       "path": "tools/great-filter.html",
@@ -271,15 +440,23 @@
       "widget": true,
       "description": "Robin Hanson's Great Filter as an interactive calculator. Set survival probabilities at each step; the tool shows what fraction of the filter lies ahead and why finding microbial life on Mars would be bad news.",
       "inputs": {
-        "preset": { "type": "string", "desc": "Starting preset: balanced | optimistic | pessimistic | hanson1998" },
-        "you":    { "type": "number", "desc": "Index of the step 'we are here' (integer 0–8)" },
-        "H":      { "type": "number", "desc": "Fraction of stars with habitable planets (linear)" }
+        "preset": {
+          "type": "string",
+          "desc": "Starting preset: balanced | optimistic | pessimistic | hanson1998"
+        },
+        "you": {
+          "type": "number",
+          "desc": "Index of the step 'we are here' (integer 0–8)"
+        },
+        "H": {
+          "type": "number",
+          "desc": "Fraction of stars with habitable planets (linear)"
+        }
       },
       "citations": [
         "Hanson 1998, 'The Great Filter — Are We Almost Past It?'"
       ]
     },
-
     "radio-seti": {
       "title": "Radio SETI Sensitivity",
       "path": "tools/radio-seti.html",
@@ -289,18 +466,35 @@
       "hashNote": "ALL params are log10 — pass log10 values. e.g. eirp=13 means 10^13 W. Do NOT pass linear values.",
       "description": "Radiometer equation made interactive. Returns SNR, minimum detectable EIRP, and comparison to Earth's leakage and the Dec 2025 Breakthrough Listen / 3I/ATLAS benchmark.",
       "inputs": {
-        "eirp": { "type": "number", "desc": "log10(transmitter EIRP W) — LOG10. e.g. 13 = 10^13 W" },
-        "dist": { "type": "number", "desc": "log10(distance ly) — LOG10. e.g. 4.23 = 17,000 ly" },
-        "aeff": { "type": "number", "desc": "log10(effective aperture m²) — LOG10. e.g. 3.8 = 6,310 m²" },
-        "tsys": { "type": "number", "desc": "log10(system temperature K) — LOG10. e.g. 1.3 = 20 K" },
-        "tau":  { "type": "number", "desc": "log10(integration time s) — LOG10. e.g. 3.56 = 3,631 s" },
-        "bw":   { "type": "number", "desc": "log10(bandwidth Hz) — LOG10. e.g. 0 = 1 Hz" }
+        "eirp": {
+          "type": "number",
+          "desc": "log10(transmitter EIRP W) — LOG10. e.g. 13 = 10^13 W"
+        },
+        "dist": {
+          "type": "number",
+          "desc": "log10(distance ly) — LOG10. e.g. 4.23 = 17,000 ly"
+        },
+        "aeff": {
+          "type": "number",
+          "desc": "log10(effective aperture m²) — LOG10. e.g. 3.8 = 6,310 m²"
+        },
+        "tsys": {
+          "type": "number",
+          "desc": "log10(system temperature K) — LOG10. e.g. 1.3 = 20 K"
+        },
+        "tau": {
+          "type": "number",
+          "desc": "log10(integration time s) — LOG10. e.g. 3.56 = 3,631 s"
+        },
+        "bw": {
+          "type": "number",
+          "desc": "log10(bandwidth Hz) — LOG10. e.g. 0 = 1 Hz"
+        }
       },
       "citations": [
         "Breakthrough Listen 2025 (3I/ATLAS benchmark)"
       ]
     },
-
     "bekenstein-landauer": {
       "title": "Bekenstein-Landauer-Lloyd Limit Explorer",
       "path": "tools/bekenstein-landauer.html",
@@ -309,13 +503,34 @@
       "widget": true,
       "description": "The three fundamental limits on physical computation: Bekenstein bit storage, Landauer power-per-bit-erasure, Lloyd ops-from-energy. Applied to a black hole ergosphere. Labelled speculative (MTH engineering).",
       "inputs": {
-        "T": { "type": "number", "desc": "Temperature K (linear)" },
-        "P": { "type": "number", "desc": "Power W (linear, e.g. 1e9)" },
-        "R": { "type": "number", "desc": "Radius m (linear)" },
-        "E": { "type": "number", "desc": "Energy J (linear, e.g. 1e9)" },
-        "M": { "type": "number", "desc": "Black hole mass M☉ (linear, default 8200)" },
-        "a": { "type": "number", "desc": "Spin parameter a* (0–1, default 0.9)" },
-        "B": { "type": "number", "desc": "Magnetic field T (linear, e.g. 1e4)" }
+        "T": {
+          "type": "number",
+          "desc": "Temperature K (linear)"
+        },
+        "P": {
+          "type": "number",
+          "desc": "Power W (linear, e.g. 1e9)"
+        },
+        "R": {
+          "type": "number",
+          "desc": "Radius m (linear)"
+        },
+        "E": {
+          "type": "number",
+          "desc": "Energy J (linear, e.g. 1e9)"
+        },
+        "M": {
+          "type": "number",
+          "desc": "Black hole mass M☉ (linear, default 8200)"
+        },
+        "a": {
+          "type": "number",
+          "desc": "Spin parameter a* (0–1, default 0.9)"
+        },
+        "B": {
+          "type": "number",
+          "desc": "Magnetic field T (linear, e.g. 1e4)"
+        }
       },
       "citations": [
         "Bekenstein 1973 (bit storage bound)",
@@ -323,7 +538,6 @@
         "Lloyd 2000, Nature 406 (ops from energy)"
       ]
     },
-
     "bz-kardashev": {
       "title": "BZ / Kardashev Power Calculator",
       "path": "tools/bz-kardashev.html",
@@ -332,18 +546,32 @@
       "widget": true,
       "description": "Blandford-Znajek power output of a spinning black hole in two modes: target a power and solve for the required magnetic field, or set the field and read off the Kardashev rung. Labelled speculative (MTH engineering).",
       "inputs": {
-        "mode":  { "type": "string", "desc": "inverse (solve for B given P) or forward (solve for P given B)" },
-        "mass":  { "type": "number", "desc": "Black hole mass M☉ (linear)" },
-        "spin":  { "type": "number", "desc": "Spin parameter a* (0–0.999, default 0.9) — hash key is 'spin'" },
-        "power": { "type": "number", "desc": "Target power W (linear, used in inverse mode) — hash key is 'power'" },
-        "B":     { "type": "number", "desc": "Magnetic field T (linear, used in forward mode)" }
+        "mode": {
+          "type": "string",
+          "desc": "inverse (solve for B given P) or forward (solve for P given B)"
+        },
+        "mass": {
+          "type": "number",
+          "desc": "Black hole mass M☉ (linear)"
+        },
+        "spin": {
+          "type": "number",
+          "desc": "Spin parameter a* (0–0.999, default 0.9) — hash key is 'spin'"
+        },
+        "power": {
+          "type": "number",
+          "desc": "Target power W (linear, used in inverse mode) — hash key is 'power'"
+        },
+        "B": {
+          "type": "number",
+          "desc": "Magnetic field T (linear, used in forward mode)"
+        }
       },
       "citations": [
         "Blandford & Znajek 1977, MNRAS 179",
         "Tchekhovskoy et al. 2010 (efficiency)"
       ]
     },
-
     "evidence-ledger": {
       "title": "Bayesian IMBH Evidence Ledger",
       "path": "tools/evidence-ledger.html",
@@ -352,16 +580,24 @@
       "widget": true,
       "description": "Aggregates every published line of evidence for and against an IMBH vs dark-cluster hypothesis using a Bayesian log-odds ledger. Adjust prior percentages and per-evidence weights; the tool computes posterior odds in real time.",
       "inputs": {
-        "prior_imbh": { "type": "number", "desc": "Prior probability for IMBH hypothesis (%, integer 0–100)" },
-        "prior_dc":   { "type": "number", "desc": "Prior probability for dark-cluster hypothesis (%, integer 0–100)" },
-        "prior_null": { "type": "number", "desc": "Prior probability for no central mass (%, integer 0–100; all three must sum to 100)" }
+        "prior_imbh": {
+          "type": "number",
+          "desc": "Prior probability for IMBH hypothesis (%, integer 0–100)"
+        },
+        "prior_dc": {
+          "type": "number",
+          "desc": "Prior probability for dark-cluster hypothesis (%, integer 0–100)"
+        },
+        "prior_null": {
+          "type": "number",
+          "desc": "Prior probability for no central mass (%, integer 0–100; all three must sum to 100)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285 (≥ 8,200 M☉ lower bound)",
         "Bañares-Hernández et al. 2025, A&A 693 A104 (≤ 6,000 M☉ upper bound)"
       ]
     },
-
     "detection-forecast": {
       "title": "Detection Forecast",
       "path": "tools/detection-forecast.html",
@@ -370,16 +606,24 @@
       "widget": true,
       "description": "Given the current mass tension window, computes the minimum instrument sensitivity and timeline needed to confirm or rule out an IMBH. Covers Gaia DR4, Roman Space Telescope, ELT, and MeerKAT TRAPUM.",
       "inputs": {
-        "lower": { "type": "number", "desc": "Lower mass bound M☉ (linear, e.g. 8200 for Häberle 2024)" },
-        "upper": { "type": "number", "desc": "Upper mass bound M☉ (linear, e.g. 6000 for Bañares 2025)" },
-        "sigma": { "type": "number", "desc": "Detection threshold in σ (default 3.0)" }
+        "lower": {
+          "type": "number",
+          "desc": "Lower mass bound M☉ (linear, e.g. 8200 for Häberle 2024)"
+        },
+        "upper": {
+          "type": "number",
+          "desc": "Upper mass bound M☉ (linear, e.g. 6000 for Bañares 2025)"
+        },
+        "sigma": {
+          "type": "number",
+          "desc": "Detection threshold in σ (default 3.0)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285",
         "Bañares-Hernández et al. 2025, A&A 693 A104"
       ]
     },
-
     "observing-campaign-planner": {
       "title": "Observing Campaign Planner",
       "path": "tools/observing-campaign-planner.html",
@@ -388,16 +632,24 @@
       "widget": true,
       "description": "Resource ledger for a multi-instrument IMBH observing campaign. Select instrument (Roman, ELT, Gaia, custom), science goal, and available time; outputs required sensitivity and scheduling windows.",
       "inputs": {
-        "instr":  { "type": "string", "desc": "Instrument: roman | elt | gaia | custom" },
-        "goal":   { "type": "string", "desc": "Science goal: tension | confirm | discovery | rule_out" },
-        "time_h": { "type": "number", "desc": "Available observing time hours (linear)" }
+        "instr": {
+          "type": "string",
+          "desc": "Instrument: roman | elt | gaia | custom"
+        },
+        "goal": {
+          "type": "string",
+          "desc": "Science goal: tension | confirm | discovery | rule_out"
+        },
+        "time_h": {
+          "type": "number",
+          "desc": "Available observing time hours (linear)"
+        }
       },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285",
         "Bañares-Hernández et al. 2025, A&A 693 A104"
       ]
     },
-
     "bh-scale-comparator": {
       "title": "Black Hole Scale Comparator",
       "path": "tools/bh-scale-comparator.html",
@@ -406,7 +658,10 @@
       "widget": true,
       "description": "Places any black hole mass on a visual scale from stellar to supermassive, showing Schwarzschild radius, ISCO radius, and mass comparisons against Earth, Sun, Solar System, and Omega Centauri.",
       "inputs": {
-        "mass_solar": { "type": "number", "desc": "Black hole mass M☉ (linear, e.g. 8200)" }
+        "mass_solar": {
+          "type": "number",
+          "desc": "Black hole mass M☉ (linear, e.g. 8200)"
+        }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted). The raw URL hash key is #mass= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
@@ -414,7 +669,6 @@
         "Häberle et al. 2024, Nature 631, 285"
       ]
     },
-
     "infall-survival": {
       "title": "Infall Survival Calculator",
       "path": "tools/infall-survival.html",
@@ -423,8 +677,14 @@
       "widget": true,
       "description": "Spaghettification threshold and tidal survival radius for a falling object. Computes whether a human-scale or spacecraft-scale infaller survives crossing the event horizon intact for a given IMBH mass.",
       "inputs": {
-        "mass_solar": { "type": "number", "desc": "Black hole mass M☉ (linear)" },
-        "height_m":   { "type": "number", "desc": "Object height m (linear, e.g. 1.8 for a human)" }
+        "mass_solar": {
+          "type": "number",
+          "desc": "Black hole mass M☉ (linear)"
+        },
+        "height_m": {
+          "type": "number",
+          "desc": "Object height m (linear, e.g. 1.8 for a human)"
+        }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted); height_m is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
@@ -432,7 +692,6 @@
         "Penrose 1965 (singularity theorem)"
       ]
     },
-
     "shadow-imaging": {
       "title": "Black Hole Shadow Imaging",
       "path": "tools/shadow-imaging.html",
@@ -441,8 +700,14 @@
       "widget": true,
       "description": "Computes the apparent angular diameter of a black hole's photon sphere (shadow) for any mass and distance. Shows whether EHT or ngEHT could resolve the shadow, benchmarked to M87* and Sgr A*.",
       "inputs": {
-        "mass_solar":   { "type": "number", "desc": "Black hole mass M☉ (linear, e.g. 8200)" },
-        "distance_kpc": { "type": "number", "desc": "Distance kpc (linear, e.g. 5.43 for OC)" }
+        "mass_solar": {
+          "type": "number",
+          "desc": "Black hole mass M☉ (linear, e.g. 8200)"
+        },
+        "distance_kpc": {
+          "type": "number",
+          "desc": "Distance kpc (linear, e.g. 5.43 for OC)"
+        }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted); distance_kpc is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
       "citations": [
@@ -450,7 +715,6 @@
         "Häberle et al. 2024, Nature 631, 285"
       ]
     },
-
     "cosmology-calculator": {
       "title": "Cosmology Calculator",
       "path": "tools/cosmology-calculator.html",
@@ -460,11 +724,26 @@
       "description": "Standard flat-ΛCDM/wCDM FLRW cosmology: redshift → comoving distance, luminosity distance, angular diameter distance, lookback time, and age of universe. Planck 2018 / WMAP-9 / Flat EdS presets. BibTeX citation export. Hash-addressable permalinks. MCP-exposed as cosmology_distances. Fixes the 3-tool Context & Cosmology category gap.",
       "hashNote": "All params linear: z (redshift), H0 (km/s/Mpc), Om (Ωm), OL (ΩΛ), w (equation of state). Chain: cosmology-calculator → cosmic-center → transcension-darkening.",
       "inputs": {
-        "z":  { "type": "number", "desc": "Redshift (linear, ≥ 0, e.g. 0.01)" },
-        "H0": { "type": "number", "desc": "Hubble constant km/s/Mpc (linear, default 67.4)" },
-        "Om": { "type": "number", "desc": "Matter density Ωm (linear, default 0.315)" },
-        "OL": { "type": "number", "desc": "Dark energy density ΩΛ (linear, default 0.685)" },
-        "w":  { "type": "number", "desc": "Dark energy equation of state w (linear, default -1.0)" }
+        "z": {
+          "type": "number",
+          "desc": "Redshift (linear, ≥ 0, e.g. 0.01)"
+        },
+        "H0": {
+          "type": "number",
+          "desc": "Hubble constant km/s/Mpc (linear, default 67.4)"
+        },
+        "Om": {
+          "type": "number",
+          "desc": "Matter density Ωm (linear, default 0.315)"
+        },
+        "OL": {
+          "type": "number",
+          "desc": "Dark energy density ΩΛ (linear, default 0.685)"
+        },
+        "w": {
+          "type": "number",
+          "desc": "Dark energy equation of state w (linear, default -1.0)"
+        }
       },
       "citations": [
         "Planck Collaboration 2020, A&A 641:A6 (Planck 2018 parameters)",
@@ -473,7 +752,6 @@
         "Hinshaw et al. 2013, ApJS 208:19 (WMAP-9 parameters)"
       ]
     },
-
     "kardashev-meter": {
       "title": "Kardashev Meter",
       "path": "tools/kardashev-meter.html",
@@ -482,15 +760,20 @@
       "widget": true,
       "description": "Computes a civilisation's Kardashev scale rung from current energy use and growth rate, plus the year each rung is reached. Labelled speculative (extrapolation beyond known technology).",
       "inputs": {
-        "energy_EJ":  { "type": "number", "desc": "Current energy use exajoules/yr (linear, e.g. 580 for Earth 2024)" },
-        "growth_pct": { "type": "number", "desc": "Annual energy growth rate %/yr (linear, e.g. 1.5)" }
+        "energy_EJ": {
+          "type": "number",
+          "desc": "Current energy use exajoules/yr (linear, e.g. 580 for Earth 2024)"
+        },
+        "growth_pct": {
+          "type": "number",
+          "desc": "Annual energy growth rate %/yr (linear, e.g. 1.5)"
+        }
       },
       "citations": [
         "Kardashev 1964, Soviet Astronomy 8",
         "Zackrisson et al. 2015, ApJ 810 (Kardashev calibration)"
       ]
     },
-
     "energy-translator": {
       "title": "Energy Unit Translator",
       "path": "tools/energy-translator.html",
@@ -499,15 +782,20 @@
       "widget": true,
       "description": "Converts any energy or power quantity between SI units, astrophysical units (solar luminosity, Eddington), and Kardashev benchmarks. Useful for comparing civilisation power to stellar or BZ outputs.",
       "inputs": {
-        "value": { "type": "number", "desc": "Numeric value to convert (linear)" },
-        "unit":  { "type": "string", "desc": "Source unit key: J | kWh | Lsun | K1 | K2 | K3 | W | EJ | eV" }
+        "value": {
+          "type": "number",
+          "desc": "Numeric value to convert (linear)"
+        },
+        "unit": {
+          "type": "string",
+          "desc": "Source unit key: J | kWh | Lsun | K1 | K2 | K3 | W | EJ | eV"
+        }
       },
       "citations": [
         "NIST CODATA 2018 (physical constants)",
         "Kardashev 1964, Soviet Astronomy 8"
       ]
     },
-
     "scifi-tech-auditor": {
       "title": "Sci-Fi Tech Auditor",
       "path": "tools/scifi-tech-auditor.html",
@@ -516,14 +804,16 @@
       "widget": true,
       "description": "Rates canonical science-fiction technologies against known physics: Dyson spheres, warp drives, teleportation, Matrioshka brains, BZ ergosphere tapping, mind uploading, and MTH transcension. Shows energy requirements and physics barriers.",
       "inputs": {
-        "tech": { "type": "string", "desc": "Technology slug: dyson | warp | teleport | matrioshka | btz | upload | transcension" }
+        "tech": {
+          "type": "string",
+          "desc": "Technology slug: dyson | warp | teleport | matrioshka | btz | upload | transcension"
+        }
       },
       "citations": [
         "Alcubierre 1994, Class. Quantum Grav. 11 (warp metric)",
         "Blandford & Znajek 1977, MNRAS 179 (BZ effect)"
       ]
     },
-
     "bayes-factor-router": {
       "title": "Bayes Factor Evidence Router",
       "path": "tools/bayes-factor-router.html",
@@ -532,9 +822,19 @@
       "widget": true,
       "description": "Maps a Bayes factor (or 2-ln BF) to a categorical evidence-strength token on the Jeffreys/Kass-Raftery scale. Gate primitive for ChainGraph evidence chains.",
       "inputs": {
-        "mode":    { "type": "string", "desc": "Input mode: bf (direct Bayes factor) or k (2-ln BF)" },
-        "log10bf": { "type": "number", "desc": "log10 of Bayes factor (log10 scale, default 14)", "log10": true },
-        "k":       { "type": "number", "desc": "2-ln BF value (linear, default 8)" }
+        "mode": {
+          "type": "string",
+          "desc": "Input mode: bf (direct Bayes factor) or k (2-ln BF)"
+        },
+        "log10bf": {
+          "type": "number",
+          "desc": "log10 of Bayes factor (log10 scale, default 14)",
+          "log10": true
+        },
+        "k": {
+          "type": "number",
+          "desc": "2-ln BF value (linear, default 8)"
+        }
       },
       "citations": [
         "Jeffreys, H. 1961, Theory of Probability, 3rd ed. (Oxford University Press)",
@@ -542,7 +842,6 @@
         "NANOGrav 2023, arXiv:2306.16213"
       ]
     },
-
     "jwst-accretion-ledger": {
       "title": "JWST Accretion Ledger",
       "path": "tools/jwst-accretion-ledger.html",
@@ -551,15 +850,22 @@
       "widget": true,
       "description": "Computes the IMBH mass above which predicted Bondi/ADAF accretion luminosity would exceed the JWST NIRCam/MIRI bolometric upper limit. Model-dependent; scales with ADAF radiative efficiency epsilon.",
       "inputs": {
-        "epslog": { "type": "number", "desc": "log10 of ADAF radiative efficiency epsilon (log10 scale, default -3)", "log10": true },
-        "rholog": { "type": "number", "desc": "log10 of ambient gas density rho_inf in kg/m3 (log10 scale, default -21)", "log10": true }
+        "epslog": {
+          "type": "number",
+          "desc": "log10 of ADAF radiative efficiency epsilon (log10 scale, default -3)",
+          "log10": true
+        },
+        "rholog": {
+          "type": "number",
+          "desc": "log10 of ambient gas density rho_inf in kg/m3 (log10 scale, default -21)",
+          "log10": true
+        }
       },
       "citations": [
         "Chen et al. 2025, arXiv:2511.20945 (accepted ApJ, v2 2026-03-20)",
         "Pesce et al. 2021, ApJ 923, 260 (DOI 10.3847/1538-4357/ac2eb3)"
       ]
     },
-
     "gwtc-remnant-classifier": {
       "title": "GWTC Remnant Classifier",
       "path": "tools/gwtc-remnant-classifier.html",
@@ -568,572 +874,1125 @@
       "widget": true,
       "description": "Classifies binary black hole merger remnants using JF17 nonspinning-limit fits. Computes chirp mass, total mass, remnant mass, final spin, PI-gap membership, and a ChainGraph gate token.",
       "inputs": {
-        "m1": { "type": "number", "desc": "Primary component mass in solar masses (linear, default 137)" },
-        "m2": { "type": "number", "desc": "Secondary component mass in solar masses (linear, default 103)" }
+        "m1": {
+          "type": "number",
+          "desc": "Primary component mass in solar masses (linear, default 137)"
+        },
+        "m2": {
+          "type": "number",
+          "desc": "Secondary component mass in solar masses (linear, default 103)"
+        }
       },
       "citations": [
         "Jimenez-Forteza et al. 2017, PRD 95, 064024 (arXiv:1611.00332)",
         "Farmer et al. 2019, ApJ 887, 53",
         "Chatterjee et al. 2025, arXiv:2509.09161"
       ]
+    },
+    "roman-microlensing": {
+      "title": "Roman Microlensing",
+      "path": "tools/roman-microlensing.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Computes Einstein radius (theta_E) and crossing timescale (t_E) for a gravitational microlensing event observable by the Nancy Grace Roman Space Telescope (launch 2026-08-30). Uses the Gould 2000 formalism (kappa=8.144 mas/M-sun). Scales Penny et al. 2019 stellar event yield by an optional survey fraction. Pre-launch forecasts until released=true.",
+      "inputs": {
+        "masslog": {
+          "type": "number",
+          "desc": "log10(lens_mass_Msun) — log scale slider (default 0 = 1.0 M-sun)"
+        },
+        "dl": {
+          "type": "number",
+          "desc": "D_L_kpc — lens distance in kpc (linear, default 4.0)"
+        },
+        "ds": {
+          "type": "number",
+          "desc": "D_S_kpc — source distance in kpc (linear, default 8.0)"
+        },
+        "mu": {
+          "type": "number",
+          "desc": "mu_mas_yr — relative proper motion in mas/yr (linear, default 5.0)"
+        },
+        "frac": {
+          "type": "number",
+          "desc": "survey_fraction — yield scale factor 0-1 (linear, default 1.0)"
+        },
+        "released": {
+          "type": "string",
+          "desc": "'1' = live regime label; omit = forecast (default)"
+        }
+      },
+      "citations": [
+        "Gould 2000, ApJ 542, 785 (DOI 10.1086/308744) — microlensing Einstein radius formalism",
+        "Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield",
+        "Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield"
+      ]
     }
-
   },
-
   "chains": {
-
     "scenario-breaking-degeneracy": {
       "title": "Breaking the IMBH/Dark-Cluster Degeneracy",
       "tier": "scenario",
       "page": "tools/scenario-breaking-degeneracy.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "constraint-stacker",       "handoff": "Allowed mass window becomes the prior for all subsequent tools." },
-        { "tool": "velocity-dispersion",       "handoff": "M-σ prediction constrains the mass floor; output σ feeds dark-cluster comparison." },
-        { "tool": "dark-cluster",              "handoff": "Dark-cluster model output shows which kinematic signatures are degenerate with IMBH." },
-        { "tool": "mass-segregation",          "handoff": "Mass segregation test rules out or constrains the compact remnant population." },
-        { "tool": "pulsar-timing",             "handoff": "Timing limits set the upper bound from Bañares 2025; compare to stacker output." },
-        { "tool": "astrometric-microlensing",  "handoff": "Lensing is the decisive experiment — output shows Gaia DR4 / Roman detectability." }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Allowed mass window becomes the prior for all subsequent tools."
+        },
+        {
+          "tool": "velocity-dispersion",
+          "handoff": "M-σ prediction constrains the mass floor; output σ feeds dark-cluster comparison."
+        },
+        {
+          "tool": "dark-cluster",
+          "handoff": "Dark-cluster model output shows which kinematic signatures are degenerate with IMBH."
+        },
+        {
+          "tool": "mass-segregation",
+          "handoff": "Mass segregation test rules out or constrains the compact remnant population."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "Timing limits set the upper bound from Bañares 2025; compare to stacker output."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Lensing is the decisive experiment — output shows Gaia DR4 / Roman detectability."
+        }
       ]
     },
-
     "scenario-imbh-evidence": {
       "title": "IMBH Evidence Chain",
       "tier": "scenario",
       "page": "tools/scenario-imbh-evidence.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "constraint-stacker",   "handoff": "Mass window established." },
-        { "tool": "imbh-timeline",        "handoff": "Formation timeline constrains prior on mass." },
-        { "tool": "velocity-dispersion",  "handoff": "M-σ prediction compared to observations." },
-        { "tool": "orbital-dynamics",     "handoff": "Orbital dynamics constrains central mass." },
-        { "tool": "pulsar-timing",        "handoff": "Pulsar timing upper bound from Bañares 2025." },
-        { "tool": "jwst-accretion",       "handoff": "JWST accretion limits cross-check mass estimate." }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Mass window established."
+        },
+        {
+          "tool": "imbh-timeline",
+          "handoff": "Formation timeline constrains prior on mass."
+        },
+        {
+          "tool": "velocity-dispersion",
+          "handoff": "M-σ prediction compared to observations."
+        },
+        {
+          "tool": "orbital-dynamics",
+          "handoff": "Orbital dynamics constrains central mass."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "Pulsar timing upper bound from Bañares 2025."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST accretion limits cross-check mass estimate."
+        }
       ]
     },
-
     "scenario-fermi-honest": {
       "title": "Fermi Paradox — Honest Numbers",
       "tier": "scenario",
       "page": "tools/scenario-fermi-honest.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "drake-monte-carlo",  "handoff": "Full uncertainty distribution on N; median and tails feed great-filter framing." },
-        { "tool": "great-filter",       "handoff": "Filter placement shows how much remains ahead; output framing feeds constraint-stacker." },
-        { "tool": "constraint-stacker", "handoff": "IMBH mass context: if a civilisation built here, what mass would it exploit?" }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "Full uncertainty distribution on N; median and tails feed great-filter framing."
+        },
+        {
+          "tool": "great-filter",
+          "handoff": "Filter placement shows how much remains ahead; output framing feeds constraint-stacker."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "IMBH mass context: if a civilisation built here, what mass would it exploit?"
+        }
       ]
     },
-
     "scenario-fermi-mth-crossover": {
       "title": "Fermi/MTH Crossover",
       "tier": "scenario",
       "page": "tools/scenario-fermi-mth-crossover.html",
       "register": "mixed",
       "steps": [
-        { "tool": "drake-monte-carlo",   "handoff": "N distribution establishes baseline civilisation density." },
-        { "tool": "great-filter",        "handoff": "Filter placement; high fl feeds aestivation motivation." },
-        { "tool": "aestivation",         "handoff": "Aestivation gain: if waiting pays, silence is explained without filter." },
-        { "tool": "constraint-stacker",  "handoff": "IMBH mass window: what does acting now produce?" },
-        { "tool": "bz-kardashev",        "handoff": "BZ power at that mass sets the Kardashev rung achievable." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute limits at that mass/power; compare to aestivation gain." }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N distribution establishes baseline civilisation density."
+        },
+        {
+          "tool": "great-filter",
+          "handoff": "Filter placement; high fl feeds aestivation motivation."
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation gain: if waiting pays, silence is explained without filter."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "IMBH mass window: what does acting now produce?"
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at that mass sets the Kardashev rung achievable."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits at that mass/power; compare to aestivation gain."
+        }
       ]
     },
-
     "scenario-dark-cluster-alt": {
       "title": "Dark Cluster Alternative",
       "tier": "scenario",
       "page": "tools/scenario-dark-cluster-alt.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "constraint-stacker",   "handoff": "Both mass bounds shown; dark-cluster lives in the gap." },
-        { "tool": "dark-cluster",         "handoff": "Dark-cluster model tuned; residual σ profile feeds populations." },
-        { "tool": "omegacat-populations", "handoff": "Stellar population counts constrain remnant budget." },
-        { "tool": "mass-segregation",     "handoff": "Mass segregation check — can the remnants be this concentrated?" }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Both mass bounds shown; dark-cluster lives in the gap."
+        },
+        {
+          "tool": "dark-cluster",
+          "handoff": "Dark-cluster model tuned; residual σ profile feeds populations."
+        },
+        {
+          "tool": "omegacat-populations",
+          "handoff": "Stellar population counts constrain remnant budget."
+        },
+        {
+          "tool": "mass-segregation",
+          "handoff": "Mass segregation check — can the remnants be this concentrated?"
+        }
       ]
     },
-
     "scenario-bh-physics": {
       "title": "Black Hole Physics Suite",
       "tier": "scenario",
       "page": "tools/scenario-bh-physics.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "kerr-geometry",        "handoff": "ISCO and ergosphere geometry at OC mass; feeds time-dilation calc." },
-        { "tool": "time-dilation",        "handoff": "Gravitational time dilation at ISCO feeds Hawking budget." },
-        { "tool": "hawking-evaporation",  "handoff": "Evaporation timescale sets engineering deadline." },
-        { "tool": "bekenstein-landauer",  "handoff": "Compute limits given mass, spin, power." },
-        { "tool": "compute-in-space",     "handoff": "Orbital compute budget — ops/s at ISCO." }
+        {
+          "tool": "kerr-geometry",
+          "handoff": "ISCO and ergosphere geometry at OC mass; feeds time-dilation calc."
+        },
+        {
+          "tool": "time-dilation",
+          "handoff": "Gravitational time dilation at ISCO feeds Hawking budget."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Evaporation timescale sets engineering deadline."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits given mass, spin, power."
+        },
+        {
+          "tool": "compute-in-space",
+          "handoff": "Orbital compute budget — ops/s at ISCO."
+        }
       ]
     },
-
     "scenario-bh-tap": {
       "title": "BH Tap — Energy Extraction",
       "tier": "scenario",
       "page": "tools/scenario-bh-tap.html",
       "register": "speculative",
       "steps": [
-        { "tool": "bz-kardashev",        "handoff": "BZ power at spin a; compare to superradiance channel." },
-        { "tool": "superradiance",       "handoff": "Superradiance amplification; energy feeds Hawking budget." },
-        { "tool": "hawking-evaporation", "handoff": "Evaporation lifetime." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute limits given extracted energy." },
-        { "tool": "time-dilation",       "handoff": "Subjective-time speedup at ISCO." }
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at spin a; compare to superradiance channel."
+        },
+        {
+          "tool": "superradiance",
+          "handoff": "Superradiance amplification; energy feeds Hawking budget."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Evaporation lifetime."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits given extracted energy."
+        },
+        {
+          "tool": "time-dilation",
+          "handoff": "Subjective-time speedup at ISCO."
+        }
       ]
     },
-
     "scenario-decision-tree": {
       "title": "Observational Decision Tree",
       "tier": "scenario",
       "page": "tools/scenario-decision-tree.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "falsification-hub",         "handoff": "Roadmap of open falsification tests." },
-        { "tool": "astrometric-microlensing",  "handoff": "Lensing detectability — Gaia DR4 / Roman." },
-        { "tool": "jwst-accretion",            "handoff": "JWST accretion flux limits." },
-        { "tool": "pulsar-timing",             "handoff": "MeerKAT TRAPUM timing sensitivity." },
-        { "tool": "lisa-emri",                 "handoff": "LISA EMRI signal: would an inspiral be detectable?" }
+        {
+          "tool": "falsification-hub",
+          "handoff": "Roadmap of open falsification tests."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Lensing detectability — Gaia DR4 / Roman."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST accretion flux limits."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "MeerKAT TRAPUM timing sensitivity."
+        },
+        {
+          "tool": "lisa-emri",
+          "handoff": "LISA EMRI signal: would an inspiral be detectable?"
+        }
       ]
     },
-
     "scenario-fermi-five-ways": {
       "title": "Five Ways to Look for ET",
       "tier": "scenario",
       "page": "tools/scenario-fermi-five-ways.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "drake-monte-carlo", "handoff": "N distribution." },
-        { "tool": "great-filter",      "handoff": "Filter placement." },
-        { "tool": "radio-seti",        "handoff": "Radio sensitivity — would we hear them?" },
-        { "tool": "optical-seti",      "handoff": "Optical sensitivity — would we see laser pulses?" },
-        { "tool": "dyson-swarm",       "handoff": "Waste heat — would we see IR excess?" },
-        { "tool": "aestivation",       "handoff": "Aestivation — does silence imply waiting?" }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N distribution."
+        },
+        {
+          "tool": "great-filter",
+          "handoff": "Filter placement."
+        },
+        {
+          "tool": "radio-seti",
+          "handoff": "Radio sensitivity — would we hear them?"
+        },
+        {
+          "tool": "optical-seti",
+          "handoff": "Optical sensitivity — would we see laser pulses?"
+        },
+        {
+          "tool": "dyson-swarm",
+          "handoff": "Waste heat — would we see IR excess?"
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation — does silence imply waiting?"
+        }
       ]
     },
-
     "scenario-dvali-signal": {
       "title": "Dvali Signal",
       "tier": "scenario",
       "page": "tools/scenario-dvali-signal.html",
       "register": "speculative",
       "steps": [
-        { "tool": "kugelblitz-dvali",     "handoff": "Dvali quantum gravity signature rate." },
-        { "tool": "neutrino-seti",        "handoff": "Neutrino flux detectability." },
-        { "tool": "multi-messenger-alert","handoff": "Combined multi-messenger alert threshold." }
+        {
+          "tool": "kugelblitz-dvali",
+          "handoff": "Dvali quantum gravity signature rate."
+        },
+        {
+          "tool": "neutrino-seti",
+          "handoff": "Neutrino flux detectability."
+        },
+        {
+          "tool": "multi-messenger-alert",
+          "handoff": "Combined multi-messenger alert threshold."
+        }
       ]
     },
-
     "scenario-dwarf-inheritance": {
       "title": "Dwarf Galaxy Inheritance",
       "tier": "scenario",
       "page": "tools/scenario-dwarf-inheritance.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "omega-dwarf-origin",  "handoff": "OC-as-stripped-dwarf scenario; seed mass inherited." },
-        { "tool": "cmd-explorer",        "handoff": "CMD stellar populations confirm dwarf origin." },
-        { "tool": "mass-segregation",    "handoff": "Mass segregation in dwarf remnant core." },
-        { "tool": "constraint-stacker",  "handoff": "Inherited seed mass feeds into current constraint window." }
+        {
+          "tool": "omega-dwarf-origin",
+          "handoff": "OC-as-stripped-dwarf scenario; seed mass inherited."
+        },
+        {
+          "tool": "cmd-explorer",
+          "handoff": "CMD stellar populations confirm dwarf origin."
+        },
+        {
+          "tool": "mass-segregation",
+          "handoff": "Mass segregation in dwarf remnant core."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Inherited seed mass feeds into current constraint window."
+        }
       ]
     },
-
     "scenario-every-way-it-eats": {
       "title": "Every Way It Eats",
       "tier": "scenario",
       "page": "tools/scenario-every-way-it-eats.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "tidal-capture",      "handoff": "Capture rate → accretion duty cycle." },
-        { "tool": "tidal-disruption",   "handoff": "TDE flare energy → observational signature." },
-        { "tool": "jwst-accretion",     "handoff": "JWST limit on steady accretion luminosity." },
-        { "tool": "imbh-growth-history","handoff": "Growth history integrates all accretion modes." }
+        {
+          "tool": "tidal-capture",
+          "handoff": "Capture rate → accretion duty cycle."
+        },
+        {
+          "tool": "tidal-disruption",
+          "handoff": "TDE flare energy → observational signature."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST limit on steady accretion luminosity."
+        },
+        {
+          "tool": "imbh-growth-history",
+          "handoff": "Growth history integrates all accretion modes."
+        }
       ]
     },
-
     "scenario-kardashev-two": {
       "title": "Kardashev II via Dyson + BZ",
       "tier": "scenario",
       "page": "tools/scenario-kardashev-two.html",
       "register": "speculative",
       "steps": [
-        { "tool": "dyson-swarm",        "handoff": "Dyson swarm stellar power → compare to BZ." },
-        { "tool": "compute-in-space",   "handoff": "Orbital compute budget for Dyson config." },
-        { "tool": "constraint-stacker", "handoff": "IMBH mass context." },
-        { "tool": "bz-kardashev",       "handoff": "BZ power at OC IMBH spin." }
+        {
+          "tool": "dyson-swarm",
+          "handoff": "Dyson swarm stellar power → compare to BZ."
+        },
+        {
+          "tool": "compute-in-space",
+          "handoff": "Orbital compute budget for Dyson config."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "IMBH mass context."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at OC IMBH spin."
+        }
       ]
     },
-
     "scenario-lisas-shot": {
       "title": "LISA's Shot",
       "tier": "scenario",
       "page": "tools/scenario-lisas-shot.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "lisa-emri",             "handoff": "EMRI signal amplitude and detection probability." },
-        { "tool": "astrometric-microlensing","handoff": "Complementary lensing channel." },
-        { "tool": "synthetic-observation", "handoff": "Synthetic joint observation prediction." },
-        { "tool": "multi-messenger-alert", "handoff": "Alert threshold for multi-messenger coincidence." }
+        {
+          "tool": "lisa-emri",
+          "handoff": "EMRI signal amplitude and detection probability."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Complementary lensing channel."
+        },
+        {
+          "tool": "synthetic-observation",
+          "handoff": "Synthetic joint observation prediction."
+        },
+        {
+          "tool": "multi-messenger-alert",
+          "handoff": "Alert threshold for multi-messenger coincidence."
+        }
       ]
     },
-
     "scenario-oc-vs-gc": {
       "title": "OC vs Other Globular Clusters",
       "tier": "scenario",
       "page": "tools/scenario-oc-vs-gc.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "cluster-comparator",       "handoff": "OC properties vs GC population." },
-        { "tool": "bz-kardashev",             "handoff": "BZ power if any GC IMBH were spun up." },
-        { "tool": "time-dilation",            "handoff": "Time dilation comparison across mass range." },
-        { "tool": "astrometric-microlensing", "handoff": "Detectability comparison across distance range." }
+        {
+          "tool": "cluster-comparator",
+          "handoff": "OC properties vs GC population."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power if any GC IMBH were spun up."
+        },
+        {
+          "tool": "time-dilation",
+          "handoff": "Time dilation comparison across mass range."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Detectability comparison across distance range."
+        }
       ]
     },
-
     "scenario-proposal-bridge": {
       "title": "Proposal Bridge",
       "tier": "scenario",
       "page": "tools/scenario-proposal-bridge.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "lisa-emri",        "handoff": "LISA EMRI science case." },
-        { "tool": "pulsar-timing",    "handoff": "Pulsar timing observational sensitivity." },
-        { "tool": "jwst-accretion",   "handoff": "JWST accretion science case." },
-        { "tool": "cw-sensitivity",   "handoff": "Continuous wave gravitational wave sensitivity." },
-        { "tool": "constraint-stacker","handoff": "Combined constraint map for proposal." }
+        {
+          "tool": "lisa-emri",
+          "handoff": "LISA EMRI science case."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "Pulsar timing observational sensitivity."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST accretion science case."
+        },
+        {
+          "tool": "cw-sensitivity",
+          "handoff": "Continuous wave gravitational wave sensitivity."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Combined constraint map for proposal."
+        }
       ]
     },
-
     "scenario-reconnection-bz": {
       "title": "Reconnection → BZ Power",
       "tier": "scenario",
       "page": "tools/scenario-reconnection-bz.html",
       "register": "speculative",
       "steps": [
-        { "tool": "kerr-geometry",      "handoff": "Ergosphere geometry." },
-        { "tool": "bz-kardashev",       "handoff": "BZ power given reconnection-supplied B." },
-        { "tool": "magnetic-reconnection","handoff": "Reconnection rate and energy release." }
+        {
+          "tool": "kerr-geometry",
+          "handoff": "Ergosphere geometry."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power given reconnection-supplied B."
+        },
+        {
+          "tool": "magnetic-reconnection",
+          "handoff": "Reconnection rate and energy release."
+        }
       ]
     },
-
     "scenario-spin-up-economics": {
       "title": "Spin-Up Economics",
       "tier": "scenario",
       "page": "tools/scenario-spin-up-economics.html",
       "register": "speculative",
       "steps": [
-        { "tool": "tidal-capture",       "handoff": "Capture rate → average accretion torque." },
-        { "tool": "imbh-growth-history", "handoff": "Growth and spin-up history." },
-        { "tool": "spin-up-timeline",    "handoff": "Time to target spin at given accretion rate." },
-        { "tool": "bz-kardashev",        "handoff": "BZ power at achieved spin." }
+        {
+          "tool": "tidal-capture",
+          "handoff": "Capture rate → average accretion torque."
+        },
+        {
+          "tool": "imbh-growth-history",
+          "handoff": "Growth and spin-up history."
+        },
+        {
+          "tool": "spin-up-timeline",
+          "handoff": "Time to target spin at given accretion rate."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at achieved spin."
+        }
       ]
     },
-
     "scenario-spin-up-tap": {
       "title": "Spin-Up via Penrose / BZ",
       "tier": "scenario",
       "page": "tools/scenario-spin-up-tap.html",
       "register": "speculative",
       "steps": [
-        { "tool": "penrose-process",  "handoff": "Penrose energy extraction → feeds superradiance calc." },
-        { "tool": "superradiance",    "handoff": "Superradiance amplification." },
-        { "tool": "bz-kardashev",     "handoff": "BZ power at resulting spin." },
-        { "tool": "kerr-geometry",    "handoff": "Final Kerr geometry at target a." }
+        {
+          "tool": "penrose-process",
+          "handoff": "Penrose energy extraction → feeds superradiance calc."
+        },
+        {
+          "tool": "superradiance",
+          "handoff": "Superradiance amplification."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at resulting spin."
+        },
+        {
+          "tool": "kerr-geometry",
+          "handoff": "Final Kerr geometry at target a."
+        }
       ]
     },
-
     "scenario-wait-compute": {
       "title": "Wait or Compute?",
       "tier": "scenario",
       "page": "tools/scenario-wait-compute.html",
       "register": "mixed",
       "steps": [
-        { "tool": "drake-monte-carlo",   "handoff": "N distribution — how many others might be waiting?" },
-        { "tool": "aestivation",         "handoff": "Aestivation gain from waiting for cooler universe." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute limits if acting now at OC." },
-        { "tool": "hawking-evaporation", "handoff": "Evaporation deadline: the clock on waiting." }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N distribution — how many others might be waiting?"
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation gain from waiting for cooler universe."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits if acting now at OC."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Evaporation deadline: the clock on waiting."
+        }
       ]
     },
-
     "scenario-cosmology-browser": {
       "title": "Cosmology Browser",
       "tier": "scenario",
       "page": "tools/scenario-cosmology-browser.html",
       "register": "mixed",
       "steps": [
-        { "tool": "cosmic-center",                 "handoff": "OC's place in the cosmic web." },
-        { "tool": "omega-dwarf-origin",            "handoff": "Dwarf origin in cosmological context." },
-        { "tool": "cosmological-natural-selection","handoff": "CNS in cosmological context." },
-        { "tool": "stem-compression",              "handoff": "STEM compression — complexity limit." }
+        {
+          "tool": "cosmic-center",
+          "handoff": "OC's place in the cosmic web."
+        },
+        {
+          "tool": "omega-dwarf-origin",
+          "handoff": "Dwarf origin in cosmological context."
+        },
+        {
+          "tool": "cosmological-natural-selection",
+          "handoff": "CNS in cosmological context."
+        },
+        {
+          "tool": "stem-compression",
+          "handoff": "STEM compression — complexity limit."
+        }
       ]
     },
-
     "workflow-mth-compute-budget": {
       "title": "MTH Compute Budget",
       "tier": "workflow",
       "page": "tools/workflow-mth-compute-budget.html",
       "register": "speculative",
       "steps": [
-        { "tool": "constraint-stacker",  "handoff": "Pick an allowed IMBH mass as input to BZ calc." },
-        { "tool": "bz-kardashev",        "handoff": "BZ power at that mass and spin." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute limits at that mass/power." },
-        { "tool": "time-dilation",       "handoff": "Gravitational time dilation speedup at ISCO." }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Pick an allowed IMBH mass as input to BZ calc."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at that mass and spin."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits at that mass/power."
+        },
+        {
+          "tool": "time-dilation",
+          "handoff": "Gravitational time dilation speedup at ISCO."
+        }
       ]
     },
-
     "workflow-fermi-mth-crossover": {
       "title": "Fermi / MTH Crossover",
       "tier": "workflow",
       "page": "tools/workflow-fermi-mth-crossover.html",
       "register": "mixed",
       "steps": [
-        { "tool": "drake-monte-carlo",   "handoff": "N distribution: baseline civilisation density." },
-        { "tool": "great-filter",        "handoff": "Filter placement: how much remains ahead?" },
-        { "tool": "aestivation",         "handoff": "Aestivation gain: does waiting pay more?" },
-        { "tool": "constraint-stacker",  "handoff": "IMBH mass context: acting now produces what?" },
-        { "tool": "bz-kardashev",        "handoff": "BZ power at that mass." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute limits at that power; compare to aestivation gain." }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N distribution: baseline civilisation density."
+        },
+        {
+          "tool": "great-filter",
+          "handoff": "Filter placement: how much remains ahead?"
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation gain: does waiting pay more?"
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "IMBH mass context: acting now produces what?"
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at that mass."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits at that power; compare to aestivation gain."
+        }
       ]
     },
-
     "workflow-bh-energy-budget": {
       "title": "Black Hole Energy Budget",
       "tier": "workflow",
       "page": "tools/workflow-bh-energy-budget.html",
       "register": "speculative",
       "steps": [
-        { "tool": "bz-kardashev",        "handoff": "BZ magnetic extraction power." },
-        { "tool": "superradiance",       "handoff": "Superradiance alternative channel." },
-        { "tool": "hawking-evaporation", "handoff": "Evaporation lifetime budget." },
-        { "tool": "compute-in-space",    "handoff": "Total compute ops over IMBH lifetime." }
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ magnetic extraction power."
+        },
+        {
+          "tool": "superradiance",
+          "handoff": "Superradiance alternative channel."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Evaporation lifetime budget."
+        },
+        {
+          "tool": "compute-in-space",
+          "handoff": "Total compute ops over IMBH lifetime."
+        }
       ]
     },
-
     "workflow-wait-or-act": {
       "title": "Wait or Act?",
       "tier": "workflow",
       "page": "tools/workflow-wait-or-act.html",
       "register": "mixed",
       "steps": [
-        { "tool": "drake-monte-carlo",   "handoff": "N prior on civilisation density." },
-        { "tool": "aestivation",         "handoff": "Aestivation gain from waiting for cooler universe." },
-        { "tool": "bz-kardashev",        "handoff": "IMBH ergosphere compute rate if acting now." },
-        { "tool": "hawking-evaporation", "handoff": "Hawking lifetime comparison and verdict." }
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N prior on civilisation density."
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation gain from waiting for cooler universe."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "IMBH ergosphere compute rate if acting now."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Hawking lifetime comparison and verdict."
+        }
       ]
     },
-
     "workflow-constraint-window": {
       "title": "Closing the Constraint Window",
       "tier": "workflow",
       "page": "tools/workflow-constraint-window.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "pulsar-timing",           "handoff": "Pulsar timing upper bound (Bañares 2025)." },
-        { "tool": "jwst-accretion",          "handoff": "JWST accretion cross-check." },
-        { "tool": "lisa-emri",               "handoff": "LISA EMRI posterior." },
-        { "tool": "constraint-stacker",      "handoff": "Updated constraint map with all three." }
+        {
+          "tool": "pulsar-timing",
+          "handoff": "Pulsar timing upper bound (Bañares 2025)."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST accretion cross-check."
+        },
+        {
+          "tool": "lisa-emri",
+          "handoff": "LISA EMRI posterior."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Updated constraint map with all three."
+        }
       ]
     },
-
     "workflow-survivability": {
       "title": "OC Survivability Budget",
       "tier": "workflow",
       "page": "tools/workflow-survivability.html",
       "register": "mixed",
       "steps": [
-        { "tool": "orbital-dynamics",   "handoff": "Current orbit and tidal radius." },
-        { "tool": "cluster-dissolution","handoff": "Dissolution timeline under Milky Way tides." },
-        { "tool": "oc-orbit-simulator", "handoff": "Future orbit evolution." },
-        { "tool": "bekenstein-landauer","handoff": "MTH engineering deadline given dissolution timeline." }
+        {
+          "tool": "orbital-dynamics",
+          "handoff": "Current orbit and tidal radius."
+        },
+        {
+          "tool": "cluster-dissolution",
+          "handoff": "Dissolution timeline under Milky Way tides."
+        },
+        {
+          "tool": "oc-orbit-simulator",
+          "handoff": "Future orbit evolution."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "MTH engineering deadline given dissolution timeline."
+        }
       ]
     },
-
     "workflow-spin-economics": {
       "title": "Spin Economics End to End",
       "tier": "workflow",
       "page": "tools/workflow-spin-economics.html",
       "register": "speculative",
       "steps": [
-        { "tool": "tidal-capture",       "handoff": "Stellar capture rate → accretion torque." },
-        { "tool": "spin-up-timeline",    "handoff": "Time to target spin a." },
-        { "tool": "bz-kardashev",        "handoff": "BZ power at achieved spin." },
-        { "tool": "bekenstein-landauer", "handoff": "Compute ops/s at that power." }
+        {
+          "tool": "tidal-capture",
+          "handoff": "Stellar capture rate → accretion torque."
+        },
+        {
+          "tool": "spin-up-timeline",
+          "handoff": "Time to target spin a."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at achieved spin."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute ops/s at that power."
+        }
       ]
     },
-
     "workflow-evodevouniverse": {
       "title": "EvoDeVo Universe",
       "tier": "workflow",
       "page": "tools/workflow-evodevouniverse.html",
       "register": "speculative",
       "steps": [
-        { "tool": "ferd-complexity-ladder",      "handoff": "Complexity ladder rung establishes civilisational context." },
-        { "tool": "stem-compression",            "handoff": "STEM compression rate." },
-        { "tool": "starivore-energy",            "handoff": "Starivore energy budget." },
-        { "tool": "transcension-crossover",      "handoff": "Crossover point: expansion vs transcension." },
-        { "tool": "cns-three-stage",             "handoff": "Three-stage CNS arc." }
+        {
+          "tool": "ferd-complexity-ladder",
+          "handoff": "Complexity ladder rung establishes civilisational context."
+        },
+        {
+          "tool": "stem-compression",
+          "handoff": "STEM compression rate."
+        },
+        {
+          "tool": "starivore-energy",
+          "handoff": "Starivore energy budget."
+        },
+        {
+          "tool": "transcension-crossover",
+          "handoff": "Crossover point: expansion vs transcension."
+        },
+        {
+          "tool": "cns-three-stage",
+          "handoff": "Three-stage CNS arc."
+        }
       ]
     },
-
     "workflow-tde-detection": {
       "title": "TDE Detection Chain",
       "tier": "workflow",
       "page": "tools/workflow-tde-detection.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "tde-rate",            "handoff": "TDE rate in OC core." },
-        { "tool": "tidal-disruption",    "handoff": "Disruption radius and flare energy." },
-        { "tool": "jwst-accretion",      "handoff": "JWST accretion luminosity limit." },
-        { "tool": "qpo-mass-spin",       "handoff": "QPO mass-spin constraint from flare signal." },
-        { "tool": "constraint-stacker",  "handoff": "Updated constraint map." }
+        {
+          "tool": "tde-rate",
+          "handoff": "TDE rate in OC core."
+        },
+        {
+          "tool": "tidal-disruption",
+          "handoff": "Disruption radius and flare energy."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "JWST accretion luminosity limit."
+        },
+        {
+          "tool": "qpo-mass-spin",
+          "handoff": "QPO mass-spin constraint from flare signal."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Updated constraint map."
+        }
       ]
     },
-
     "workflow-grabby-fermi": {
       "title": "Grabby Fermi Chain",
       "tier": "workflow",
       "page": "tools/workflow-grabby-fermi.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "grabby-aliens",      "handoff": "Civilisation appearance rate and expansion wavefront." },
-        { "tool": "drake-monte-carlo",  "handoff": "N uncertainty distribution." },
-        { "tool": "great-filter",       "handoff": "Filter placement given grabby constraints." },
-        { "tool": "aestivation",        "handoff": "Aestivation hypothesis in grabby universe." },
-        { "tool": "passive-seti",       "handoff": "Passive SETI detectability." }
+        {
+          "tool": "grabby-aliens",
+          "handoff": "Civilisation appearance rate and expansion wavefront."
+        },
+        {
+          "tool": "drake-monte-carlo",
+          "handoff": "N uncertainty distribution."
+        },
+        {
+          "tool": "great-filter",
+          "handoff": "Filter placement given grabby constraints."
+        },
+        {
+          "tool": "aestivation",
+          "handoff": "Aestivation hypothesis in grabby universe."
+        },
+        {
+          "tool": "passive-seti",
+          "handoff": "Passive SETI detectability."
+        }
       ]
     },
-
     "workflow-mass-tension": {
       "title": "Mass Tension Workflow",
       "tier": "workflow",
       "page": "tools/workflow-mass-tension.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "velocity-dispersion", "handoff": "Stellar kinematics lower bound (Häberle ≥ 8,200 M☉)." },
-        { "tool": "pulsar-timing",       "handoff": "Pulsar timing upper bound (Bañares ≤ 6,000 M☉)." },
-        { "tool": "accretion-state",     "handoff": "Accretion state cross-check on mass." },
-        { "tool": "constraint-stacker",  "handoff": "Observational resolution roadmap." }
+        {
+          "tool": "velocity-dispersion",
+          "handoff": "Stellar kinematics lower bound (Häberle ≥ 8,200 M☉)."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "Pulsar timing upper bound (Bañares ≤ 6,000 M☉)."
+        },
+        {
+          "tool": "accretion-state",
+          "handoff": "Accretion state cross-check on mass."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Observational resolution roadmap."
+        }
       ]
     },
-
     "workflow-naked-imbh": {
       "title": "Naked IMBH",
       "tier": "workflow",
       "page": "tools/workflow-naked-imbh.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "cluster-dissolution", "handoff": "OC dissolution timeline." },
-        { "tool": "imbh-proper-motion",  "handoff": "IMBH wander post-dissolution." },
-        { "tool": "astrometric-microlensing","handoff": "Detectability as naked wandering IMBH by Roman/AXIS." }
+        {
+          "tool": "cluster-dissolution",
+          "handoff": "OC dissolution timeline."
+        },
+        {
+          "tool": "imbh-proper-motion",
+          "handoff": "IMBH wander post-dissolution."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Detectability as naked wandering IMBH by Roman/AXIS."
+        }
       ]
     },
-
     "workflow-accretion-to-spin": {
       "title": "Accretion to Spin",
       "tier": "workflow",
       "page": "tools/workflow-accretion-to-spin.html",
       "register": "speculative",
       "steps": [
-        { "tool": "accretion-state",  "handoff": "Current accretion state → torque on IMBH." },
-        { "tool": "spin-up-timeline", "handoff": "Spin-up timeline to target a." },
-        { "tool": "bz-kardashev",     "handoff": "BZ power at target spin." },
-        { "tool": "ergosphere-orbit", "handoff": "Optimal computation orbit in ergosphere." }
+        {
+          "tool": "accretion-state",
+          "handoff": "Current accretion state → torque on IMBH."
+        },
+        {
+          "tool": "spin-up-timeline",
+          "handoff": "Spin-up timeline to target a."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ power at target spin."
+        },
+        {
+          "tool": "ergosphere-orbit",
+          "handoff": "Optimal computation orbit in ergosphere."
+        }
       ]
     },
-
     "workflow-adaf-accretion-suite": {
       "title": "ADAF Accretion Suite",
       "tier": "workflow",
       "page": "tools/workflow-adaf-accretion-suite.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "adaf-sed-modeler", "handoff": "Full SED shape and Bondi supply check; peak frequency and component fractions feed JWST tool." },
-        { "tool": "jwst-accretion",   "handoff": "NIRCam/MIRI sensitivity floor vs ADAF prediction — cross-check accretion luminosity limit." },
-        { "tool": "constraint-stacker","handoff": "Add accretion non-detection as a constraint lane on the mass-stacker map." }
+        {
+          "tool": "adaf-sed-modeler",
+          "handoff": "Full SED shape and Bondi supply check; peak frequency and component fractions feed JWST tool."
+        },
+        {
+          "tool": "jwst-accretion",
+          "handoff": "NIRCam/MIRI sensitivity floor vs ADAF prediction — cross-check accretion luminosity limit."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Add accretion non-detection as a constraint lane on the mass-stacker map."
+        }
       ]
     },
-
     "workflow-multimessenger-campaign": {
       "title": "Multi-Messenger Campaign",
       "tier": "workflow",
       "page": "tools/workflow-multimessenger-campaign.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "constraint-stacker",       "handoff": "Current constraint map." },
-        { "tool": "astrometric-microlensing", "handoff": "Gaia DR4 astrometry sensitivity." },
-        { "tool": "pulsar-timing",            "handoff": "MeerKAT TRAPUM pulsar sensitivity." },
-        { "tool": "tde-rate",                 "handoff": "Roman microlensing TDE channel." },
-        { "tool": "lisa-emri",                "handoff": "LISA EMRI: which instrument wins the race?" }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Current constraint map."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Gaia DR4 astrometry sensitivity."
+        },
+        {
+          "tool": "pulsar-timing",
+          "handoff": "MeerKAT TRAPUM pulsar sensitivity."
+        },
+        {
+          "tool": "tde-rate",
+          "handoff": "Roman microlensing TDE channel."
+        },
+        {
+          "tool": "lisa-emri",
+          "handoff": "LISA EMRI: which instrument wins the race?"
+        }
       ]
     },
-
     "workflow-cns-reproduction": {
       "title": "CNS Reproduction Coefficient",
       "tier": "workflow",
       "page": "tools/workflow-cns-reproduction.html",
       "register": "speculative",
       "steps": [
-        { "tool": "cns-fitness-landscape", "handoff": "CNS fitness landscape establishes parameter space." },
-        { "tool": "gough-blowtorch",       "handoff": "Three-stage BH production rate." },
-        { "tool": "barrow-scale",          "handoff": "Barrow-scale engineering requirement." },
-        { "tool": "cosmological-natural-selection","handoff": "Child universe reproduction coefficient." }
+        {
+          "tool": "cns-fitness-landscape",
+          "handoff": "CNS fitness landscape establishes parameter space."
+        },
+        {
+          "tool": "gough-blowtorch",
+          "handoff": "Three-stage BH production rate."
+        },
+        {
+          "tool": "barrow-scale",
+          "handoff": "Barrow-scale engineering requirement."
+        },
+        {
+          "tool": "cosmological-natural-selection",
+          "handoff": "Child universe reproduction coefficient."
+        }
       ]
     },
-
     "workflow-settle-imbh-question": {
       "title": "Settle the IMBH Question",
       "tier": "workflow",
       "page": "tools/workflow-settle-imbh-question.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "constraint-stacker",        "handoff": "Allowed mass window; establishes the Häberle ≥ 8,200 M☉ vs Bañares ≤ 6,000 M☉ tension." },
-        { "tool": "evidence-ledger",           "handoff": "Bayesian posterior over IMBH vs dark-cluster; posterior odds guide detection priority." },
-        { "tool": "astrometric-microlensing",  "handoff": "Decisive microlensing test — Gaia DR4 or Roman detectability." },
-        { "tool": "detection-forecast",        "handoff": "Minimum instrument sensitivity and timeline to confirm or rule out." },
-        { "tool": "observing-campaign-planner","handoff": "Resource ledger: instrument, time, and schedule for the winning strategy." },
-        { "tool": "falsification-hub",         "handoff": "Observational proposals and falsification roadmap." }
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Allowed mass window; establishes the Häberle ≥ 8,200 M☉ vs Bañares ≤ 6,000 M☉ tension."
+        },
+        {
+          "tool": "evidence-ledger",
+          "handoff": "Bayesian posterior over IMBH vs dark-cluster; posterior odds guide detection priority."
+        },
+        {
+          "tool": "astrometric-microlensing",
+          "handoff": "Decisive microlensing test — Gaia DR4 or Roman detectability."
+        },
+        {
+          "tool": "detection-forecast",
+          "handoff": "Minimum instrument sensitivity and timeline to confirm or rule out."
+        },
+        {
+          "tool": "observing-campaign-planner",
+          "handoff": "Resource ledger: instrument, time, and schedule for the winning strategy."
+        },
+        {
+          "tool": "falsification-hub",
+          "handoff": "Observational proposals and falsification roadmap."
+        }
       ]
     },
-
     "workflow-black-hole-101": {
       "title": "Black Hole 101",
       "tier": "workflow",
       "page": "tools/workflow-black-hole-101.html",
       "register": "peer-reviewed",
       "steps": [
-        { "tool": "bh-scale-comparator",  "handoff": "Visual size context for the chosen mass; Schwarzschild and ISCO radii." },
-        { "tool": "infall-survival",      "handoff": "Spaghettification threshold — survives crossing the event horizon intact?" },
-        { "tool": "time-dilation",        "handoff": "Gravitational time dilation at ISCO — clock rate deep in the gravity well." },
-        { "tool": "shadow-imaging",       "handoff": "Photon sphere shadow size — would EHT or ngEHT resolve it?" },
-        { "tool": "kerr-geometry",        "handoff": "Full Kerr metric: ISCO, ergosphere, frame dragging at OC mass and spin." },
-        { "tool": "hawking-evaporation",  "handoff": "Hawking temperature and evaporation lifetime." },
-        { "tool": "constraint-stacker",   "handoff": "Return to observational reality — current mass constraint map." }
+        {
+          "tool": "bh-scale-comparator",
+          "handoff": "Visual size context for the chosen mass; Schwarzschild and ISCO radii."
+        },
+        {
+          "tool": "infall-survival",
+          "handoff": "Spaghettification threshold — survives crossing the event horizon intact?"
+        },
+        {
+          "tool": "time-dilation",
+          "handoff": "Gravitational time dilation at ISCO — clock rate deep in the gravity well."
+        },
+        {
+          "tool": "shadow-imaging",
+          "handoff": "Photon sphere shadow size — would EHT or ngEHT resolve it?"
+        },
+        {
+          "tool": "kerr-geometry",
+          "handoff": "Full Kerr metric: ISCO, ergosphere, frame dragging at OC mass and spin."
+        },
+        {
+          "tool": "hawking-evaporation",
+          "handoff": "Hawking temperature and evaporation lifetime."
+        },
+        {
+          "tool": "constraint-stacker",
+          "handoff": "Return to observational reality — current mass constraint map."
+        }
       ]
     },
-
     "workflow-cosmology-to-mth": {
       "title": "Cosmology → MTH Bridge",
       "tier": "workflow",
       "page": "tools/workflow-cosmology-to-mth.html",
       "register": "mixed",
       "steps": [
-        { "tool": "cosmology-calculator",   "handoff": "Comoving distance and lookback time establish the cosmic context for the OC system." },
-        { "tool": "cosmic-center",          "handoff": "OC's position in the cosmic web and distance from the Galactic center." },
-        { "tool": "transcension-darkening", "handoff": "MTH argument: inward transcension civilisations darken the cosmic web — context for Fermi silence." }
+        {
+          "tool": "cosmology-calculator",
+          "handoff": "Comoving distance and lookback time establish the cosmic context for the OC system."
+        },
+        {
+          "tool": "cosmic-center",
+          "handoff": "OC's position in the cosmic web and distance from the Galactic center."
+        },
+        {
+          "tool": "transcension-darkening",
+          "handoff": "MTH argument: inward transcension civilisations darken the cosmic web — context for Fermi silence."
+        }
       ]
     },
-
     "workflow-kardashev-ladder": {
       "title": "Kardashev Ladder",
       "tier": "workflow",
       "page": "tools/workflow-kardashev-ladder.html",
       "register": "speculative",
       "steps": [
-        { "tool": "kardashev-meter",       "handoff": "Current Kardashev rung and years to K-II / K-III at given growth rate." },
-        { "tool": "energy-translator",     "handoff": "Translate energy outputs to comparable astrophysical benchmarks." },
-        { "tool": "dyson-swarm",           "handoff": "Dyson swarm stellar power — the canonical K-II path." },
-        { "tool": "bz-kardashev",          "handoff": "BZ ergosphere power at OC IMBH — the MTH K-II alternative." },
-        { "tool": "scifi-tech-auditor",    "handoff": "Physics audit of Dyson, warp, Matrioshka brain, and transcension." },
-        { "tool": "transcension-crossover","handoff": "Crossover point: expansion vs inward transcension strategy." },
-        { "tool": "bekenstein-landauer",   "handoff": "Compute limits at BZ power — the MTH engineering ceiling." }
+        {
+          "tool": "kardashev-meter",
+          "handoff": "Current Kardashev rung and years to K-II / K-III at given growth rate."
+        },
+        {
+          "tool": "energy-translator",
+          "handoff": "Translate energy outputs to comparable astrophysical benchmarks."
+        },
+        {
+          "tool": "dyson-swarm",
+          "handoff": "Dyson swarm stellar power — the canonical K-II path."
+        },
+        {
+          "tool": "bz-kardashev",
+          "handoff": "BZ ergosphere power at OC IMBH — the MTH K-II alternative."
+        },
+        {
+          "tool": "scifi-tech-auditor",
+          "handoff": "Physics audit of Dyson, warp, Matrioshka brain, and transcension."
+        },
+        {
+          "tool": "transcension-crossover",
+          "handoff": "Crossover point: expansion vs inward transcension strategy."
+        },
+        {
+          "tool": "bekenstein-landauer",
+          "handoff": "Compute limits at BZ power — the MTH engineering ceiling."
+        }
       ]
     }
-
   }
 }

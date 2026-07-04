@@ -17,6 +17,8 @@ import { compute as jwstAccretionLedgerCompute } from './kernels/jwst-accretion-
 import JWST_ACCRETION_LEDGER_PROOF from './kernels/receipts/jwst-accretion-ledger.computeproof.mjs';
 import { compute as gwtcRemnantClassifierCompute } from './kernels/gwtc-remnant-classifier.kernel.mjs';
 import GWTC_REMNANT_CLASSIFIER_PROOF from './kernels/receipts/gwtc-remnant-classifier.computeproof.mjs';
+import { compute as romanMicrolensingCompute } from './kernels/roman-microlensing.kernel.mjs';
+import ROMAN_MICROLENSING_PROOF from './kernels/receipts/roman-microlensing.computeproof.mjs';
 
 const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.3.0';
@@ -24,7 +26,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:97b6a82d006788923809de9acec060b6ac5925c3af2c9ab76721e8ac7be09a41';
+const KERNEL_DIGEST = 'sha256:d7517f8f6a30a0ea1761a28d071f947a1f387dae64ccd1ce35db15dc11946a80';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -216,6 +218,7 @@ const KERNEL_REGISTRY = {
   'bayes-factor-router':      { compute: bayesFactorRouterCompute,      mandate_type: 'me.omegacentauri/bayes_factor' },
   'jwst-accretion-ledger':    { compute: jwstAccretionLedgerCompute,    mandate_type: 'me.omegacentauri/imbh_accretion' },
   'gwtc-remnant-classifier':  { compute: gwtcRemnantClassifierCompute,  mandate_type: 'me.omegacentauri/gw_remnant' },
+  'roman-microlensing':       { compute: romanMicrolensingCompute,       mandate_type: 'me.omegacentauri/roman_microlensing' },
 };
 
 // §21.2/§21.4 composite preimage helper — bare-hex SHA-256 over the JCS-
@@ -855,6 +858,112 @@ function buildServer(manifest) {
   });
 
   // -------------------------------------------------------------------------
+  // roman_microlensing — Nancy Grace Roman Space Telescope microlensing geometry
+  // -------------------------------------------------------------------------
+  server.registerTool('roman_microlensing', {
+    title: 'OCS Roman Microlensing',
+    description:
+      'Computes Einstein radius (theta_E, mas) and Einstein crossing timescale (t_E, days) for a ' +
+      'gravitational microlensing event observable by the Nancy Grace Roman Space Telescope ' +
+      '(launch target 2026-08-30), using the Gould 2000 (ApJ 542, 785) microlensing formalism. ' +
+      'Also reports a yield-scaled stellar event estimate from Penny et al. 2019 (arXiv:1808.02490). ' +
+      'The `regime` field is "forecast" until released=true (Roman has not launched as of 2026-07-04). ' +
+      'Inputs: lens_mass_Msun (lens mass), D_L_kpc (lens distance), D_S_kpc (source distance, must be ' +
+      'greater than D_L_kpc), mu_mas_yr (relative proper motion), released (boolean, default false), ' +
+      'survey_fraction (0-1, scales Penny 2019 yield). Returns a hash-anchored OCS ChainGraph artifact. ' +
+      'Register: peer-reviewed (Gould 2000 formalism; Penny 2019 yield). ' +
+      'IMBH context: for a lens mass of 8,200 M☉ (Haberle 2024 lower bound) at omega-Cen distance ' +
+      '(5.3 kpc) with galactic-bulge sources (8.2 kpc), theta_E ~ 67 mas and t_E ~ 22 years — ' +
+      'detectable with Roman astrometric microlensing but very long-duration events.',
+    inputSchema: {
+      lens_mass_Msun: z.number().positive().optional().describe(
+        'Lens mass in solar masses. Default 1.0 (stellar). Try 8200 for Haberle 2024 IMBH lower bound.'
+      ),
+      D_L_kpc: z.number().positive().optional().describe(
+        'Lens distance in kpc. Default 4.0. For omega-Cen as lens: ~5.3 kpc.'
+      ),
+      D_S_kpc: z.number().positive().optional().describe(
+        'Source distance in kpc. Must exceed D_L_kpc. Default 8.0 (galactic bulge).'
+      ),
+      mu_mas_yr: z.number().positive().optional().describe(
+        'Relative proper motion of lens and source (mas/yr). Default 5.0. Typical bulge: 3-8 mas/yr.'
+      ),
+      released: z.boolean().optional().describe(
+        'Whether Roman data are released. Default false (Roman launches 2026-08-30). ' +
+        'When false, regime="forecast"; when true, regime="live".'
+      ),
+      survey_fraction: z.number().min(0).max(1).optional().describe(
+        'Fraction of the Penny 2019 6-field 2-season fiducial survey (0-1). Default 1.0. ' +
+        'Scales the ~27,000 stellar event yield estimate proportionally.'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ lens_mass_Msun, D_L_kpc, D_S_kpc, mu_mas_yr, released, survey_fraction }) => {
+    const input_parameters = {};
+    if (lens_mass_Msun   !== undefined) input_parameters.lens_mass_Msun   = lens_mass_Msun;
+    if (D_L_kpc          !== undefined) input_parameters.D_L_kpc          = D_L_kpc;
+    if (D_S_kpc          !== undefined) input_parameters.D_S_kpc          = D_S_kpc;
+    if (mu_mas_yr        !== undefined) input_parameters.mu_mas_yr        = mu_mas_yr;
+    if (released         !== undefined) input_parameters.released         = released;
+    if (survey_fraction  !== undefined) input_parameters.survey_fraction  = survey_fraction;
+
+    const policyParameters = { execution_backend: 'js', input_parameters };
+    const { output_payload: outputPayload } = romanMicrolensingCompute(policyParameters);
+    const execHash = await executionHash(policyParameters, outputPayload);
+
+    const artifact = {
+      '@context':     'https://openchain.graph/spec/v0.3/context.jsonld',
+      chaingraph_version: '0.4.0',
+      buildType:      'https://openchain.graph/spec/v0.2#WebCryptoSHA256',
+      mandate_type:   'me.omegacentauri/roman_microlensing',
+      tool_id:        'roman-microlensing',
+      tool_version:   '1.2.0',
+      generated_at:   new Date().toISOString(),
+      execution_hash: execHash,
+      chain: {
+        parent_hashes:   [],
+        parent_tool_ids: [],
+        chain_depth:     0,
+      },
+      policy_parameters: policyParameters,
+      output_payload:    outputPayload,
+      compliance_flags: ['register:peer-reviewed'],
+      audit_signature: {
+        client_side_executed: true,
+        zero_pii_verified:    true,
+        deterministic_run:    true,
+        register:             'peer-reviewed',
+        data_sources: [
+          'Gould 2000, ApJ 542, 785 (microlensing Einstein radius formalism)',
+          'Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield',
+          'Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield estimates',
+        ],
+        schema_version: 'ocs-chaingraph-0.4.0',
+        ocs_artifact_version: '1.0.0',
+      },
+    };
+
+    artifact.audit_signature.build_identity = {
+      kernel_digest: KERNEL_DIGEST,
+      buildType:     BUILDID_BUILDTYPE,
+      source_ref:    'worker.mjs',
+    };
+
+    const PROVEN_PP_ROMAN_MICROLENSING = {
+      execution_backend: 'js',
+      input_parameters: { lens_mass_Msun: 1.0, D_L_kpc: 4.0, D_S_kpc: 8.0, mu_mas_yr: 5.0, survey_fraction: 1.0, released: false },
+    };
+    if (JSON.stringify(cgCanon(policyParameters)) === JSON.stringify(cgCanon(PROVEN_PP_ROMAN_MICROLENSING))) {
+      artifact.audit_signature.compute_proof = ROMAN_MICROLENSING_PROOF;
+    }
+
+    return {
+      content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
+      structuredContent: artifact,
+    };
+  });
+
+  // -------------------------------------------------------------------------
   // build_ocs_workflow_links
   // -------------------------------------------------------------------------
   server.registerTool('build_ocs_workflow_links', {
@@ -1043,7 +1152,7 @@ function buildServer(manifest) {
     description:
       'Executes a ChainGraph chain server-side (OCG Standard §21) — runs the actual ' +
       'kernels (constraint-stacker, bayes-factor-router, jwst-accretion-ledger, ' +
-      'gwtc-remnant-classifier) in sequence, NOT deep-links. Supports §21.4 decision ' +
+      'gwtc-remnant-classifier, roman-microlensing) in sequence, NOT deep-links. Supports §21.4 decision ' +
       'gates: an RFC 6901 pointer into a step\'s output_payload (e.g. gate_token, ' +
       'excluded_above_Msun) is matched against ordered rules (eq/neq/gt/gte/lt/lte/in/' +
       'present/absent) to pick the next step id, falling through to a mandatory default ' +
@@ -1062,7 +1171,7 @@ function buildServer(manifest) {
       steps: z.array(z.object({
         id: z.string().optional().describe('Explicit step id (defaults to tool_id if omitted).'),
         tool_id: z.string().describe(
-          'Kernel tool_id to execute: constraint-stacker | bayes-factor-router | jwst-accretion-ledger | gwtc-remnant-classifier'
+          'Kernel tool_id to execute: constraint-stacker | bayes-factor-router | jwst-accretion-ledger | gwtc-remnant-classifier | roman-microlensing'
         ),
         fields: z.record(z.any()).optional().describe('Input parameters passed to the kernel as input_parameters.'),
         gate: z.object({

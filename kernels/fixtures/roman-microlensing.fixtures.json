@@ -1,0 +1,122 @@
+{
+  "tool_id": "roman-microlensing",
+  "vectors": [
+    {
+      "name": "stellar_prelaunch",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "lens_mass_Msun": 1.0,
+          "D_L_kpc": 4.0,
+          "D_S_kpc": 8.0,
+          "mu_mas_yr": 5.0,
+          "survey_fraction": 1.0,
+          "released": false
+        }
+      },
+      "output_payload": {
+        "theta_E_mas": 1.009,
+        "t_E_days": 73.7,
+        "pi_rel_mas": 0.125,
+        "kappa_mas_Msun": 8.144,
+        "regime": "forecast",
+        "lens_mass_Msun": 1,
+        "D_L_kpc": 4,
+        "D_S_kpc": 8,
+        "mu_mas_yr": 5,
+        "survey_fraction": 1,
+        "yield_scaled_events": 27000,
+        "yield_base_events": 27000,
+        "yield_note": "Scaled from Penny et al. 2019 (arXiv:1808.02490) 6-field 2-season fiducial yield of ~27,000 stellar events by survey_fraction=1. Stellar events only; IMBH-induced events would be a small, uncertain subset.",
+        "survey": "Nancy Grace Roman Space Telescope (launch target 2026-08-30)",
+        "regime_note": "Roman has not yet launched; all outputs are pre-launch forecasts (launch target 2026-08-30).",
+        "register": "peer-reviewed",
+        "citations": [
+          "Gould 2000, ApJ 542, 785 (microlensing Einstein radius formalism)",
+          "Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield",
+          "Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield estimates",
+          "Roman launch target: 2026-08-30 (NASA/GSFC)"
+        ]
+      },
+      "golden_hash": "0dd88896821bae242b1b114cd0d16aa714d2387d577bb81269414af3a8fb2472"
+    },
+    {
+      "name": "imbh_oc_prelaunch",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "lens_mass_Msun": 8200,
+          "D_L_kpc": 5.3,
+          "D_S_kpc": 8.2,
+          "mu_mas_yr": 3.0,
+          "survey_fraction": 0.5,
+          "released": false
+        }
+      },
+      "output_payload": {
+        "theta_E_mas": 66.7544,
+        "t_E_days": 8127.35,
+        "pi_rel_mas": 0.066728,
+        "kappa_mas_Msun": 8.144,
+        "regime": "forecast",
+        "lens_mass_Msun": 8200,
+        "D_L_kpc": 5.3,
+        "D_S_kpc": 8.2,
+        "mu_mas_yr": 3,
+        "survey_fraction": 0.5,
+        "yield_scaled_events": 13500,
+        "yield_base_events": 27000,
+        "yield_note": "Scaled from Penny et al. 2019 (arXiv:1808.02490) 6-field 2-season fiducial yield of ~27,000 stellar events by survey_fraction=0.5. Stellar events only; IMBH-induced events would be a small, uncertain subset.",
+        "survey": "Nancy Grace Roman Space Telescope (launch target 2026-08-30)",
+        "regime_note": "Roman has not yet launched; all outputs are pre-launch forecasts (launch target 2026-08-30).",
+        "register": "peer-reviewed",
+        "citations": [
+          "Gould 2000, ApJ 542, 785 (microlensing Einstein radius formalism)",
+          "Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield",
+          "Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield estimates",
+          "Roman launch target: 2026-08-30 (NASA/GSFC)"
+        ]
+      },
+      "golden_hash": "3197ba6c72df803d4443a89f65f591850af1e66de5d1ac0bcdc67657f2fc8a24"
+    },
+    {
+      "name": "stellar_postlaunch",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "lens_mass_Msun": 0.5,
+          "D_L_kpc": 2.0,
+          "D_S_kpc": 8.0,
+          "mu_mas_yr": 6.0,
+          "survey_fraction": 0.3,
+          "released": true
+        }
+      },
+      "output_payload": {
+        "theta_E_mas": 1.2357,
+        "t_E_days": 75.22,
+        "pi_rel_mas": 0.375,
+        "kappa_mas_Msun": 8.144,
+        "regime": "live",
+        "lens_mass_Msun": 0.5,
+        "D_L_kpc": 2,
+        "D_S_kpc": 8,
+        "mu_mas_yr": 6,
+        "survey_fraction": 0.3,
+        "yield_scaled_events": 8100,
+        "yield_base_events": 27000,
+        "yield_note": "Scaled from Penny et al. 2019 (arXiv:1808.02490) 6-field 2-season fiducial yield of ~27,000 stellar events by survey_fraction=0.3. Stellar events only; IMBH-induced events would be a small, uncertain subset.",
+        "survey": "Nancy Grace Roman Space Telescope (launch target 2026-08-30)",
+        "regime_note": "Roman data available (released=true).",
+        "register": "peer-reviewed",
+        "citations": [
+          "Gould 2000, ApJ 542, 785 (microlensing Einstein radius formalism)",
+          "Penny et al. 2019, ApJS 241, 3 (arXiv:1808.02490) — Roman Galactic Bulge microlensing yield",
+          "Johnson et al. 2024, arXiv:2512.05182 — updated Roman microlensing yield estimates",
+          "Roman launch target: 2026-08-30 (NASA/GSFC)"
+        ]
+      },
+      "golden_hash": "bbacdc14871c3a3cd6c79a70b4cc63a28b80974851e51ec5187d376822fbee4b"
+    }
+  ]
+}
