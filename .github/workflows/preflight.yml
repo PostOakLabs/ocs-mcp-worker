@@ -55,14 +55,10 @@ jobs:
         run: npm ci
 
       - name: §17 kernel_digest freshness (worker.mjs)
-        run: |
-          node generate.mjs
-          if ! git diff --quiet -- worker.mjs; then
-            echo "::error::worker.mjs KERNEL_DIGEST is stale — 'node generate.mjs' produced a diff. Run it locally and commit the result."
-            git diff -- worker.mjs
-            exit 1
-          fi
-          echo "OK  worker.mjs KERNEL_DIGEST matches a fresh recompute (§17 stamp is not drifted)."
+        # Standalone digest check — does NOT run generate.mjs, which vendors the
+        # manifest from ../repo (absent in CI). Recomputes the self-referential
+        # sha256-source over worker.mjs and compares to the committed KERNEL_DIGEST.
+        run: node scripts/check-kernel-digest.mjs
 
       - name: Measurements-sync gate (IMBH_CONSTRAINTS <-> live measurements.js)
         run: node scripts/check-measurements-sync.mjs
