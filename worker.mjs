@@ -8,9 +8,15 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { z } from 'zod';
+import { BUILDID_BUILDTYPE } from './lib/_buildid.mjs';
 
 const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.3.0';
+
+// OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
+// generate.mjs over the LF-normalized source with this line's value replaced by the literal
+// 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
+const KERNEL_DIGEST = 'sha256:12d0f39fa8900e58f99701df8163658e808a50d757250ae57c4e03eb0d465c52';
 
 // ---------------------------------------------------------------------------
 // Physical constants (SI) — constraint_stacker computation.
@@ -344,6 +350,14 @@ function buildServer(manifest) {
         schema_version: 'ocs-chaingraph-0.4.0',
         ocs_artifact_version: '1.0.0',
       },
+    };
+
+    // OCG Standard §17 (Kernel Identity Binding) — hash-excluded; stamped AFTER
+    // execution_hash is computed and never enters the hashed preimage.
+    artifact.audit_signature.build_identity = {
+      kernel_digest: KERNEL_DIGEST,
+      buildType:     BUILDID_BUILDTYPE,
+      source_ref:    'worker.mjs',
     };
 
     return {
