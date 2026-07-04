@@ -21,6 +21,8 @@ import { compute as romanMicrolensingCompute } from './kernels/roman-microlensin
 import ROMAN_MICROLENSING_PROOF from './kernels/receipts/roman-microlensing.computeproof.mjs';
 import { compute as apophisFlybyGeometryCompute } from './kernels/apophis-flyby-geometry.kernel.mjs';
 import APOPHIS_FLYBY_GEOMETRY_PROOF from './kernels/receipts/apophis-flyby-geometry.computeproof.mjs';
+import { compute as rubinAlertThroughputCompute } from './kernels/rubin-alert-throughput.kernel.mjs';
+import RUBIN_ALERT_THROUGHPUT_PROOF from './kernels/receipts/rubin-alert-throughput.computeproof.mjs';
 
 const BASE_URL = 'https://omegacentauri.me';
 const VERSION  = '0.3.0';
@@ -28,7 +30,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:583502d86e14fb858ba0b9dcde209c577a3575ee31fa391de6f74bab32582333';
+const KERNEL_DIGEST = 'sha256:44274afcbedcb7a22e8079f8a2a9d9a98326a405ca6054af308b9d78e4d55fe6';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -222,6 +224,7 @@ const KERNEL_REGISTRY = {
   'gwtc-remnant-classifier':  { compute: gwtcRemnantClassifierCompute,  mandate_type: 'me.omegacentauri/gw_remnant' },
   'roman-microlensing':       { compute: romanMicrolensingCompute,       mandate_type: 'me.omegacentauri/roman_microlensing' },
   'apophis-flyby-geometry':   { compute: apophisFlybyGeometryCompute,   mandate_type: 'me.omegacentauri/apophis_flyby' },
+  'rubin-alert-throughput':   { compute: rubinAlertThroughputCompute,   mandate_type: 'me.omegacentauri/rubin_alert_throughput' },
 };
 
 // §21.2/§21.4 composite preimage helper — bare-hex SHA-256 over the JCS-
@@ -1060,6 +1063,101 @@ function buildServer(manifest) {
       structuredContent: artifact,
     };
   });
+
+  // -------------------------------------------------------------------------
+  // rubin_alert_throughput — Rubin/LSST transient-alert throughput calculator
+  // -------------------------------------------------------------------------
+  server.registerTool('rubin_alert_throughput', {
+    title: 'OCS Rubin Alert Throughput',
+    description:
+      'Estimates the nightly transient-alert count and data-rate budget for the Vera C. Rubin ' +
+      'Observatory Legacy Survey of Space and Time (LSST). ' +
+      'Pure arithmetic: alerts_per_night = visits_per_night × alerts_per_visit; ' +
+      'nightly_data_rate_GB = alerts_per_night × avg_alert_bytes / 1e9. ' +
+      'Default parameters from Rubin system design (Ivezic et al. 2019, ApJ 873 111): ' +
+      '~1,000 visits/night, ~10,000 alerts/visit, ~182 clear nights/year, ~82 KB/alert packet ' +
+      '(Bellm et al. 2019, PASP 131 995004). ' +
+      'Rubin is in commissioning as of 2026; all figures are pre-science design estimates. ' +
+      'Inputs: visits_per_night, alerts_per_visit, nights_per_year, avg_alert_bytes. ' +
+      'Returns a hash-anchored OCS ChainGraph artifact. Register: speculative ' +
+      '(Rubin LSST full-survey operations not yet begun as of 2026).',
+    inputSchema: {
+      visits_per_night: z.number().positive().optional().describe(
+        'Number of telescope visits (exposures) per night. Default 1000 (Rubin design estimate).'
+      ),
+      alerts_per_visit: z.number().positive().optional().describe(
+        'Number of transient alerts generated per visit. Default 10000 (Rubin alert design, ~10⁴/visit).'
+      ),
+      nights_per_year: z.number().positive().optional().describe(
+        'Clear science nights per year at Cerro Pachón. Default 182 (Ivezic et al. 2019).'
+      ),
+      avg_alert_bytes: z.number().positive().optional().describe(
+        'Average bytes per alert packet. Default 82000 (82 KB; Bellm et al. 2019, PASP 131 995004).'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ visits_per_night, alerts_per_visit, nights_per_year, avg_alert_bytes }) => {
+    const input_parameters = {};
+    if (visits_per_night  !== undefined) input_parameters.visits_per_night  = visits_per_night;
+    if (alerts_per_visit  !== undefined) input_parameters.alerts_per_visit  = alerts_per_visit;
+    if (nights_per_year   !== undefined) input_parameters.nights_per_year   = nights_per_year;
+    if (avg_alert_bytes   !== undefined) input_parameters.avg_alert_bytes   = avg_alert_bytes;
+
+    const policyParameters = { execution_backend: 'js', input_parameters };
+    const { output_payload: outputPayload } = rubinAlertThroughputCompute(policyParameters);
+    const execHash = await executionHash(policyParameters, outputPayload);
+
+    const artifact = {
+      '@context':     'https://openchain.graph/spec/v0.3/context.jsonld',
+      chaingraph_version: '0.4.0',
+      buildType:      'https://openchain.graph/spec/v0.2#WebCryptoSHA256',
+      mandate_type:   'me.omegacentauri/rubin_alert_throughput',
+      tool_id:        'rubin-alert-throughput',
+      tool_version:   '1.2.0',
+      generated_at:   new Date().toISOString(),
+      execution_hash: execHash,
+      chain: {
+        parent_hashes:   [],
+        parent_tool_ids: [],
+        chain_depth:     0,
+      },
+      policy_parameters: policyParameters,
+      output_payload:    outputPayload,
+      compliance_flags: ['register:speculative'],
+      audit_signature: {
+        client_side_executed: true,
+        zero_pii_verified:    true,
+        deterministic_run:    true,
+        register:             'speculative',
+        data_sources: [
+          'Ivezic et al. 2019, ApJ 873, 111 (arXiv:0805.2366) — LSST science design overview',
+          'Bellm et al. 2019, PASP 131, 995004 (arXiv:1902.02134) — LSST alert system design (~10^4 alerts/visit, ~82 KB/alert)',
+          'LSST Science Book 2009 (arXiv:0912.0201) — survey design parameters',
+        ],
+        schema_version: 'ocs-chaingraph-0.4.0',
+        ocs_artifact_version: '1.0.0',
+      },
+    };
+
+    artifact.audit_signature.build_identity = {
+      kernel_digest: KERNEL_DIGEST,
+      buildType:     BUILDID_BUILDTYPE,
+      source_ref:    'worker.mjs',
+    };
+
+    const PROVEN_PP_RUBIN = {
+      execution_backend: 'js',
+      input_parameters: { visits_per_night: 1000, alerts_per_visit: 10000, nights_per_year: 182, avg_alert_bytes: 82000 },
+    };
+    if (JSON.stringify(cgCanon(policyParameters)) === JSON.stringify(cgCanon(PROVEN_PP_RUBIN))) {
+      artifact.audit_signature.compute_proof = RUBIN_ALERT_THROUGHPUT_PROOF;
+    }
+
+    return {
+      content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
+      structuredContent: artifact,
+    };
+  }); // -----------------------------------------------------------------------
 
   // -------------------------------------------------------------------------
   // build_ocs_workflow_links

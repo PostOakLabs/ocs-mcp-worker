@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "me.omegacentauri/tools",
   "title": "Omega Centauri Society — Astrophysics Calculator Suite",
-  "description": "Interactive, client-side astrophysics decision tools — IMBH evidence, black-hole physics, Fermi paradox, SETI sensitivity, Macro Transcension Hypothesis, Kardashev metrics. 31 tools in catalog across three compliance registers (peer-reviewed, speculative, model-dependent); 41 named chains; run_chain and decision-gate evaluation. Emits ChainGraph v0.8 hash-anchored artifacts with reproducible execution_hash; §18 zk-proven (groth16-bn254, RISC0). Zero PII.",
+  "description": "Interactive, client-side astrophysics decision tools — IMBH evidence, black-hole physics, Fermi paradox, SETI sensitivity, Macro Transcension Hypothesis, Kardashev metrics. 32 tools in catalog across three compliance registers (peer-reviewed, speculative, model-dependent); 41 named chains; run_chain and decision-gate evaluation. Emits ChainGraph v0.8 hash-anchored artifacts with reproducible execution_hash; §18 zk-proven (groth16-bn254, RISC0). Zero PII.",
   "repository": {
     "url": "https://github.com/PostOakLabs/ocs-mcp-worker",
     "source": "github"

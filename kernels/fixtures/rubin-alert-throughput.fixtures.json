@@ -1,0 +1,71 @@
+{
+  "tool_id": "rubin-alert-throughput",
+  "vectors": [
+    {
+      "name": "nominal_lsst_design",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "visits_per_night": 1000,
+          "alerts_per_visit": 10000,
+          "nights_per_year": 182,
+          "avg_alert_bytes": 82000
+        }
+      },
+      "output_payload": {
+        "survey": "Vera C. Rubin Observatory — LSST (Legacy Survey of Space and Time)",
+        "status": "commissioning-2026",
+        "visits_per_night": 1000,
+        "alerts_per_visit": 10000,
+        "nights_per_year": 182,
+        "avg_alert_bytes": 82000,
+        "alerts_per_night": 10000000,
+        "alerts_per_year": 1820000000,
+        "nightly_data_rate_GB": 820,
+        "yearly_data_rate_TB": 149.24,
+        "throughput_note": "alerts_per_night = visits_per_night * alerts_per_visit. nightly_data_rate_GB = alerts_per_night * avg_alert_bytes / 1e9. Design parameters from Rubin LSST system design; measured values will differ once full science operations begin.",
+        "register": "speculative",
+        "register_note": "Rubin LSST is in commissioning as of 2026-07-04. Alert throughput figures are design estimates, not measured science-quality statistics. Treat as order-of-magnitude forecast.",
+        "citations": [
+          "Ivezic et al. 2019, ApJ 873, 111 (arXiv:0805.2366) — LSST science design overview",
+          "Bellm et al. 2019, PASP 131, 995004 (arXiv:1902.02134) — LSST alert system design (~10^4 alerts/visit, ~82 KB/alert)",
+          "LSST Science Book 2009 (arXiv:0912.0201) — survey design parameters"
+        ]
+      },
+      "golden_hash": "1bec039fcb60b70a942fab4981fc987ba7cd664bc7946f5c5d4bbe361a4e28f2"
+    },
+    {
+      "name": "conservative_estimate",
+      "policy_parameters": {
+        "execution_backend": "js",
+        "input_parameters": {
+          "visits_per_night": 500,
+          "alerts_per_visit": 5000,
+          "nights_per_year": 182,
+          "avg_alert_bytes": 60000
+        }
+      },
+      "output_payload": {
+        "survey": "Vera C. Rubin Observatory — LSST (Legacy Survey of Space and Time)",
+        "status": "commissioning-2026",
+        "visits_per_night": 500,
+        "alerts_per_visit": 5000,
+        "nights_per_year": 182,
+        "avg_alert_bytes": 60000,
+        "alerts_per_night": 2500000,
+        "alerts_per_year": 455000000,
+        "nightly_data_rate_GB": 150,
+        "yearly_data_rate_TB": 27.3,
+        "throughput_note": "alerts_per_night = visits_per_night * alerts_per_visit. nightly_data_rate_GB = alerts_per_night * avg_alert_bytes / 1e9. Design parameters from Rubin LSST system design; measured values will differ once full science operations begin.",
+        "register": "speculative",
+        "register_note": "Rubin LSST is in commissioning as of 2026-07-04. Alert throughput figures are design estimates, not measured science-quality statistics. Treat as order-of-magnitude forecast.",
+        "citations": [
+          "Ivezic et al. 2019, ApJ 873, 111 (arXiv:0805.2366) — LSST science design overview",
+          "Bellm et al. 2019, PASP 131, 995004 (arXiv:1902.02134) — LSST alert system design (~10^4 alerts/visit, ~82 KB/alert)",
+          "LSST Science Book 2009 (arXiv:0912.0201) — survey design parameters"
+        ]
+      },
+      "golden_hash": "029cb455cebb0fa2918c04f9063cd802d48a9a5bd01e62ea34472fc092d9f7cd"
+    }
+  ]
+}

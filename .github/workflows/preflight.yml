@@ -309,7 +309,8 @@ jobs:
                              'build_ocs_workflow_links', 'verify_execution_hash',
                              'bayes_factor_router', 'jwst_accretion_ledger',
                              'gwtc_remnant_classifier', 'roman_microlensing',
-                             'apophis_flyby_geometry', 'run_chain'])
+                             'apophis_flyby_geometry', 'rubin_alert_throughput',
+                             'run_chain'])
           if names != expected:
               fail.append(f'/mcp tools/list = {names}, expected {expected}')
           else:
