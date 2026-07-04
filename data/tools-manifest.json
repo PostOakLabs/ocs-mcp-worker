@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.1.0",
     "updated": "2026-07-04",
-    "toolCount": 26,
+    "toolCount": 29,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -521,6 +521,60 @@
       "citations": [
         "Alcubierre 1994, Class. Quantum Grav. 11 (warp metric)",
         "Blandford & Znajek 1977, MNRAS 179 (BZ effect)"
+      ]
+    },
+
+    "bayes-factor-router": {
+      "title": "Bayes Factor Evidence Router",
+      "path": "tools/bayes-factor-router.html",
+      "category": "imbh-evidence",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Maps a Bayes factor (or 2-ln BF) to a categorical evidence-strength token on the Jeffreys/Kass-Raftery scale. Gate primitive for ChainGraph evidence chains.",
+      "inputs": {
+        "mode":    { "type": "string", "desc": "Input mode: bf (direct Bayes factor) or k (2-ln BF)" },
+        "log10bf": { "type": "number", "desc": "log10 of Bayes factor (log10 scale, default 14)", "log10": true },
+        "k":       { "type": "number", "desc": "2-ln BF value (linear, default 8)" }
+      },
+      "citations": [
+        "Jeffreys, H. 1961, Theory of Probability, 3rd ed. (Oxford University Press)",
+        "Kass, R.E. & Raftery, A.E. 1995, JASA 90:773 (DOI 10.2307/2291091)",
+        "NANOGrav 2023, arXiv:2306.16213"
+      ]
+    },
+
+    "jwst-accretion-ledger": {
+      "title": "JWST Accretion Ledger",
+      "path": "tools/jwst-accretion-ledger.html",
+      "category": "imbh-evidence",
+      "register": "model-dependent",
+      "widget": true,
+      "description": "Computes the IMBH mass above which predicted Bondi/ADAF accretion luminosity would exceed the JWST NIRCam/MIRI bolometric upper limit. Model-dependent; scales with ADAF radiative efficiency epsilon.",
+      "inputs": {
+        "epslog": { "type": "number", "desc": "log10 of ADAF radiative efficiency epsilon (log10 scale, default -3)", "log10": true },
+        "rholog": { "type": "number", "desc": "log10 of ambient gas density rho_inf in kg/m3 (log10 scale, default -21)", "log10": true }
+      },
+      "citations": [
+        "Chen et al. 2025, arXiv:2511.20945 (accepted ApJ, v2 2026-03-20)",
+        "Pesce et al. 2021, ApJ 923, 260 (DOI 10.3847/1538-4357/ac2eb3)"
+      ]
+    },
+
+    "gwtc-remnant-classifier": {
+      "title": "GWTC Remnant Classifier",
+      "path": "tools/gwtc-remnant-classifier.html",
+      "category": "bh-physics",
+      "register": "peer-reviewed",
+      "widget": true,
+      "description": "Classifies binary black hole merger remnants using JF17 nonspinning-limit fits. Computes chirp mass, total mass, remnant mass, final spin, PI-gap membership, and a ChainGraph gate token.",
+      "inputs": {
+        "m1": { "type": "number", "desc": "Primary component mass in solar masses (linear, default 137)" },
+        "m2": { "type": "number", "desc": "Secondary component mass in solar masses (linear, default 103)" }
+      },
+      "citations": [
+        "Jimenez-Forteza et al. 2017, PRD 95, 064024 (arXiv:1611.00332)",
+        "Farmer et al. 2019, ApJ 887, 53",
+        "Chatterjee et al. 2025, arXiv:2509.09161"
       ]
     }
 
