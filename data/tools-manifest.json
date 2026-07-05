@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.1.0",
     "updated": "2026-07-04",
-    "toolCount": 32,
+    "toolCount": 31,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -953,37 +953,6 @@
         "Farnocchia et al. 2021, Icarus 369, 114594 (DOI 10.1016/j.icarus.2021.114594) — definitive Apophis orbit",
         "Brozovic et al. 2018, Icarus 300, 115 (DOI 10.1016/j.icarus.2017.09.010) — Apophis radar + diameter",
         "JPL/CNEOS Apophis close-approach solution #197: 2029-Apr-13 perigee ~38,017 km"
-      ]
-    },
-    "rubin-alert-throughput": {
-      "title": "Rubin Alert Throughput",
-      "path": "tools/rubin-alert-throughput.html",
-      "category": "bh-physics",
-      "register": "speculative",
-      "widget": true,
-      "description": "Estimates nightly transient-alert count and data-rate budget for the Vera C. Rubin Observatory LSST. Pure arithmetic: alerts_per_night = visits_per_night × alerts_per_visit; nightly_data_rate_GB = alerts_per_night × avg_alert_bytes / 1e9. Default parameters from Rubin system design (Ivezic et al. 2019; Bellm et al. 2019). Rubin is in commissioning as of 2026.",
-      "inputs": {
-        "vpn": {
-          "type": "number",
-          "desc": "visits_per_night — telescope visits per night (linear, default 1000)"
-        },
-        "apv": {
-          "type": "number",
-          "desc": "alerts_per_visit — transient alerts per visit (linear, default 10000)"
-        },
-        "npy": {
-          "type": "number",
-          "desc": "nights_per_year — clear science nights per year (linear, default 182)"
-        },
-        "abytes": {
-          "type": "number",
-          "desc": "avg_alert_bytes — average bytes per alert packet (linear, default 82000)"
-        }
-      },
-      "citations": [
-        "Ivezic et al. 2019, ApJ 873, 111 (arXiv:0805.2366) — LSST science design overview",
-        "Bellm et al. 2019, PASP 131, 995004 (arXiv:1902.02134) — LSST alert system design (~10^4 alerts/visit, ~82 KB/alert)",
-        "LSST Science Book 2009 (arXiv:0912.0201) — survey design parameters"
       ]
     }
   },
