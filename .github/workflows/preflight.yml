@@ -21,7 +21,9 @@
 #   • Push to master      → runs automatically alongside Cloudflare deploy
 #   • workflow_dispatch   → manual trigger for ad-hoc validation
 #
-# No secrets required — pure python3 validation of committed files.
+# No secrets required — python3 validation of committed files, plus a
+# node:test suite (OCS-TEST-COVERAGE-SPEC.md v1) that runs against a local
+# `wrangler dev` instance (never live prod).
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Pre-flight — MCP Worker
@@ -68,6 +70,34 @@ jobs:
         # compute, kernel_digest, imageId, cgv) and enforces §18.6 coverage: every
         # kernel has a receipt or a dated deferral (no vacuous skip). CI-standalone.
         run: node scripts/check-compute-proofs.mjs
+
+      # OCS-TEST-COVERAGE-SPEC.md v1 §5 — Tier A: run every §18-proven kernel's
+      # compute() against its committed fixtures. Pure import, no server needed.
+      - name: Test — kernel fixtures (Tier A)
+        run: node --test scripts/tests/tier-a-kernels.test.mjs
+
+      # Tier B (registry/utility tool contracts) + chain dynamic walk both need
+      # a running worker to call — spin up local wrangler dev rather than
+      # hitting live prod, so test runs never depend on network availability
+      # or add load to the public endpoint.
+      - name: Start local wrangler dev
+        run: |
+          npx wrangler dev --port 8799 --ip 127.0.0.1 > /tmp/wrangler-dev.log 2>&1 &
+          echo $! > /tmp/wrangler-dev.pid
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null http://127.0.0.1:8799/mcp && break
+            sleep 1
+          done
+          curl -s -o /dev/null http://127.0.0.1:8799/mcp || { echo "::error::local wrangler dev did not come up"; cat /tmp/wrangler-dev.log; exit 1; }
+
+      - name: Test — tool contracts (Tier B) + chain dynamic walk
+        env:
+          MCP_ENDPOINT: http://127.0.0.1:8799/mcp
+        run: node --test scripts/tests/tier-b-contracts.test.mjs scripts/tests/chains.test.mjs
+
+      - name: Stop local wrangler dev
+        if: always()
+        run: kill "$(cat /tmp/wrangler-dev.pid)" 2>/dev/null || true
 
       - name: Validate tools-manifest.json
         run: |
