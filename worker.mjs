@@ -420,7 +420,7 @@ export async function runChain(chainTitle, steps) {
 // ---------------------------------------------------------------------------
 // buildServer — called per request; manifest already loaded + cached.
 // ---------------------------------------------------------------------------
-function buildServer(manifest) {
+export function buildServer(manifest) {
   const server = new McpServer({ name: 'ocs-mcp', version: VERSION });
   const tools  = manifest.tools  ?? {};
   const chains = manifest.chains ?? {};
@@ -1450,6 +1450,14 @@ export default {
     if (url.pathname === '/health' || url.pathname === '/') {
       return Response.json(
         { status: 'ok', server: 'ocs-mcp', version: VERSION, mcp_endpoint: 'https://mcp.omegacentauri.me/mcp' },
+        { headers: corsHeaders }
+      );
+    }
+
+    // Glama ownership-claim file — mirrors the root glama.json committed to the repo.
+    if (url.pathname === '/.well-known/glama.json') {
+      return Response.json(
+        { '$schema': 'https://glama.ai/mcp/schemas/server.json', maintainers: ['collectrix'] },
         { headers: corsHeaders }
       );
     }
