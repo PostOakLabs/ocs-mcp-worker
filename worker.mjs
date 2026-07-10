@@ -30,7 +30,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:44274afcbedcb7a22e8079f8a2a9d9a98326a405ca6054af308b9d78e4d55fe6';
+const KERNEL_DIGEST = 'sha256:0bb1cdbd5b358ea8765a6ed99e91aa580bde101bbf549e5402a41196248bc0b8';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
