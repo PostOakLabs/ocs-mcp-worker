@@ -30,7 +30,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:44274afcbedcb7a22e8079f8a2a9d9a98326a405ca6054af308b9d78e4d55fe6';
+const KERNEL_DIGEST = 'sha256:1d2b16d77a61c6fc57e72433e8d6241361efafa80736c90217cb346bf0d72acb';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -420,7 +420,7 @@ export async function runChain(chainTitle, steps) {
 // ---------------------------------------------------------------------------
 // buildServer — called per request; manifest already loaded + cached.
 // ---------------------------------------------------------------------------
-function buildServer(manifest) {
+export function buildServer(manifest) {
   const server = new McpServer({ name: 'ocs-mcp', version: VERSION });
   const tools  = manifest.tools  ?? {};
   const chains = manifest.chains ?? {};
@@ -1444,6 +1444,11 @@ export default {
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    // Glama ownership claim (directory listing verification)
+    if (url.pathname === '/.well-known/glama.json') {
+      return Response.json({ maintainers: ['collectrix'] }, { headers: corsHeaders });
     }
 
     // Health check
