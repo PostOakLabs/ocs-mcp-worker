@@ -65,6 +65,13 @@ jobs:
       - name: Measurements-sync gate (IMBH_CONSTRAINTS <-> live measurements.js)
         run: node scripts/check-measurements-sync.mjs
 
+      # OCS-JOSS-LIB-SPEC.md — the constraint-stacker kernel and the published
+      # imbh-constraints library must compute identical payloads. The kernel is
+      # guest-legal and §18-proven so it cannot import the library; CI holds the two
+      # copies together instead. Same lineage-by-gate shape as the sync gate above.
+      - name: imbh-constraints parity gate (kernel <-> live library)
+        run: node scripts/check-lib-parity.mjs
+
       - name: §18 compute-proof verify + §18.6 coverage gate
         # Verifies every committed groth16 receipt offline (BN254 seal, journal==V8
         # compute, kernel_digest, imageId, cgv) and enforces §18.6 coverage: every
