@@ -2134,6 +2134,31 @@
           "handoff": "Compute limits at BZ power — the MTH engineering ceiling."
         }
       ]
+    },
+    "scenario-paper-e-feasibility": {
+      "title": "Paper E, Walked: Envelope to Adjudication",
+      "tier": "scenario",
+      "page": "tools/scenario-paper-e-feasibility.html",
+      "register": "mixed",
+      "steps": [
+        {
+          "tool": "flyby-survival-simulator",
+          "handoff": "Monte Carlo sweep shows flybys never bind the envelope; median diffusion floor ~3e9 yr across the swept radius range."
+        },
+        {
+          "tool": "flyby-survival",
+          "handoff": "Single-point drill-down at a radius chosen from the swept envelope returns the full encounter-rate and orbit budget."
+        },
+        {
+          "tool": "imbh-fuel-budget",
+          "handoff": "Bondi supply vs. waste-heat ceiling ordering shows thermal concealment binds, not fuel, at the fiducial transport floor."
+        },
+        {
+          "tool": "bayes-factor-router",
+          "handoff": "Waste-heat channel routed as 2*ln BF adjudicates today's data: ln K = -0.40, supports null hypothesis."
+        }
+      ]
     }
-  }
+  },
+  "updated": "2026-07-18"
 }
