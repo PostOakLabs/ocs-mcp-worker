@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "1.1.0",
-    "updated": "2026-07-04",
-    "toolCount": 31,
+    "version": "1.2.0",
+    "updated": "2026-07-17",
+    "toolCount": 33,
     "site": "https://omegacentauri.me",
     "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
   },
@@ -953,6 +953,82 @@
         "Farnocchia et al. 2021, Icarus 369, 114594 (DOI 10.1016/j.icarus.2021.114594) — definitive Apophis orbit",
         "Brozovic et al. 2018, Icarus 300, 115 (DOI 10.1016/j.icarus.2017.09.010) — Apophis radar + diameter",
         "JPL/CNEOS Apophis close-approach solution #197: 2029-Apr-13 perigee ~38,017 km"
+      ]
+    },
+    "flyby-survival": {
+      "title": "Flyby Survival",
+      "path": "tools/flyby-survival.html",
+      "category": "mth",
+      "register": "speculative",
+      "description": "Survival time of structures orbiting a cluster-core IMBH against cumulative stellar-flyby perturbation: gravitationally focused encounter rates, impulsive eccentricity diffusion with saturated kicks, two-component mass function. Conservative floor; adiabatic protection lengthens real lifetimes. Companion to Paper E Fig. 1 / Appendix A.",
+      "inputs": {
+        "mbh": {
+          "type": "number",
+          "desc": "IMBH mass, M_sun (linear, default 20000)"
+        },
+        "a": {
+          "type": "number",
+          "desc": "Structure semi-major axis, AU (linear, default 10)"
+        },
+        "sigma": {
+          "type": "number",
+          "desc": "Velocity dispersion, km/s (linear, default from measurements.js clusterParams)"
+        },
+        "nstar": {
+          "type": "number",
+          "desc": "Stellar density, pc^-3 (linear, default 10000)"
+        },
+        "ecross": {
+          "type": "number",
+          "desc": "Orbit-crossing eccentricity threshold (linear, default 0.5)"
+        }
+      },
+      "citations": [
+        "Swanson 2026, Paper E (engineered-IMBH systems), §2.3–2.4",
+        "Häberle et al. 2024, Nature 631, 285 (mass floor)",
+        "Baumgardt & Vasiliev 2021 (core density)"
+      ]
+    },
+    "imbh-fuel-budget": {
+      "title": "IMBH Fuel Budget",
+      "path": "tools/imbh-fuel-budget.html",
+      "category": "mth",
+      "register": "speculative",
+      "description": "Bondi accretion supply from the measured omega Cen intracluster medium vs the waste-heat concealment ceiling for a hypothetical engineered installation: accretion rate, Eddington ratio, extractable power at MAD efficiency, and which constraint binds. Companion to Paper E §2.7 / Fig. 2.",
+      "inputs": {
+        "mbh": {
+          "type": "number",
+          "desc": "IMBH mass, M_sun (linear, default 20000)"
+        },
+        "ne": {
+          "type": "number",
+          "desc": "Electron density, cm^-3 (linear, default from measurements.js OC_ne_cm3 = 0.23)"
+        },
+        "sigma": {
+          "type": "number",
+          "desc": "Relative velocity, km/s (linear)"
+        },
+        "cs": {
+          "type": "number",
+          "desc": "Gas sound speed, km/s (linear, default 10)"
+        },
+        "eta": {
+          "type": "number",
+          "desc": "Extraction efficiency, MAD+spin (linear, default 1.0)"
+        },
+        "llim": {
+          "type": "number",
+          "desc": "MIR point-source limit, L_sun (linear, default 1.0)"
+        },
+        "leak": {
+          "type": "number",
+          "desc": "Radiated fraction 1-f_sink (linear, default 1e-4)"
+        }
+      },
+      "citations": [
+        "Swanson 2026, Paper E (engineered-IMBH systems), §2.7",
+        "oMEGACat VII (arXiv:2510.00330, ICM density)",
+        "Mahida et al. 2026 (ATCA efficiency limit)"
       ]
     }
   },
