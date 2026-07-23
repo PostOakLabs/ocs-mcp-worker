@@ -2166,7 +2166,47 @@
           "handoff": "Waste-heat channel routed as 2*ln BF adjudicates today's data: ln K = -0.40, supports null hypothesis."
         }
       ]
+    },
+    "scenario-migrate-or-stay": {
+      "title": "Migrate or Stay: The Discount-Rate Verdict",
+      "tier": "scenario",
+      "page": "tools/scenario-migrate-or-stay.html",
+      "register": "speculative",
+      "steps": [
+        {
+          "tool": "patience-threshold",
+          "handoff": "Closed-form migrate-vs-densify crossover: rho* = 2.00e-4 yr^-1 at the fiducial destination gain, transit survival, and transit time."
+        },
+        {
+          "tool": "gamma-discounting",
+          "handoff": "Weitzman gamma-discounting under a two-point prior over the discount rate: rho_eff either clears or stays above the Step 1 threshold depending on the prior's horizon and weighting."
+        },
+        {
+          "tool": "workflow-wait-or-act",
+          "handoff": "Concrete wait-vs-act verdict given a real engine: a large IMBH platform favors acting now, a small one favors aestivation, independent of the discount-rate verdict alone."
+        }
+      ]
+    },
+    "scenario-background-free": {
+      "title": "Background-Free: From Multiplet to Campaign",
+      "tier": "scenario",
+      "page": "tools/scenario-background-free.html",
+      "register": "mixed",
+      "steps": [
+        {
+          "tool": "neutrino-multiplet-fa",
+          "handoff": "Poisson background accounting behind Paper A's T6 kill condition: a quiet field is background-free by many orders of magnitude, a busy field is marginal once a trials-factor penalty is applied."
+        },
+        {
+          "tool": "multi-messenger-alert",
+          "handoff": "LISA/Fermi-LAT/CTA/KM3NeT coincidence score for the same IMBH mass range: 4/4 channels detected regardless of environment at OC's distance, since any transient in the tool's allowed power range clears every threshold."
+        },
+        {
+          "tool": "observing-campaign-planner",
+          "handoff": "Follow-up campaign sized off the Step 1 background result: ELT-MICADO confirmation for the quiet field, Roman discovery-goal search for the busy field."
+        }
+      ]
     }
   },
-  "updated": "2026-07-18"
+  "updated": "2026-07-23"
 }
