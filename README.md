@@ -45,6 +45,17 @@ Each OCS evidence tool is wrapped as an MCP tool: deterministic inputs in, a str
 
 Kernel fixtures and goldens under `data/fixtures/` pin the observational inputs (catalog values, published measurement ranges) each kernel is tested against; `scripts/check-measurements-sync.mjs` verifies kernel logic hasn't drifted from the pinned fixtures. This does not assert the underlying astrophysical measurements themselves are correct — it asserts the kernel reproduces the same result from the same pinned inputs every time. Citable sources for the underlying evidence and the OCS Zenodo dataset release are tracked in the [OCS repo](https://github.com/PostOakLabs/OCS)'s `CITATION.cff` and DOI badge, not duplicated here.
 
+## Running the tests
+
+`preflight.yml` runs three `node --test` suites. Tier A needs no server; Tier B and chains need a local worker:
+
+```bash
+node --test scripts/tests/tier-a-kernels.test.mjs
+
+npx wrangler dev --port 8799 --ip 127.0.0.1 &
+MCP_ENDPOINT=http://127.0.0.1:8799/mcp node --test scripts/tests/tier-b-contracts.test.mjs scripts/tests/chains.test.mjs
+```
+
 ## Structure
 
 ```
