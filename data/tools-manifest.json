@@ -51,7 +51,7 @@
         },
         "rh": {
           "type": "number",
-          "desc": "Half-light radius pc (linear, default 4.8)"
+          "desc": "Half-light radius pc (linear, default 7.0)"
         },
         "sig": {
           "type": "number",
