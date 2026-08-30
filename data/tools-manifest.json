@@ -1,10 +1,11 @@
 {
   "_meta": {
-    "version": "1.4.0",
-    "updated": "2026-07-23",
-    "toolCount": 34,
+    "version": "1.5.0",
+    "updated": "2026-08-30",
+    "toolCount": 35,
     "site": "https://omegacentauri.me",
-    "note": "Hash params verified from each tool's saveHash() / loadHash() source. Log10 params flagged — do not pass linear values to those fields."
+    "note": "Two distinct deeplink namespaces exist, and this manifest's `inputs` describe namespace (2) unless a `hash_params` field says otherwise: (1) `tools/<slug>.html#<key>=<val>&...` — the tool's own saveHash()/loadHash() keys, frequently log10 (flagged per-key with \"LOG10\" in `desc` or \"log10\": true) and always the raw slider state; (2) `tools/<slug>.html#in=<base64url(JSON)>` — decoded by data/prefill.js into window.OCS_APPLY_PREFILL(obj), which 22 of 35 catalog tools define, and which always takes LINEAR, human-named keys (e.g. mass_solar, distance_kpc) regardless of what the underlying hash key or its units are. `inputs` in this manifest documents namespace (2)'s keys when a tool defines OCS_APPLY_PREFILL; where namespace (1)'s hash keys differ in name and/or scale from the `inputs` keys, a `hash_params` field lists the real hash keys with their log10 flags. Tools with no `hash_params` field and no divergence note use the same keys/scale in both namespaces.",
+    "chainsNote": "The chains below are narrative reading paths, not machine-executable workflows: every entry is the identical shape {page, register, steps, tier, title}, and every step carries only {tool, handoff} — handoff is English prose describing what a human reader should do with the prior tool's output, never a structured output-to-input mapping. They exist to guide a reader (or an agent reading prose) through a sequence of pages, not to be executed as a pipeline. The MCP worker's actual machine-executable chains are a small, separate, disjoint set — imbh-evidence-window, evidence-threshold-routing, accretion-eligibility-fastfail — reachable via the run_chain tool, with real structured step inputs (fields) and decision gates (gate.rules). None of those three worker chain ids appear among the catalog chains below, and none of the catalog chains below are runnable via run_chain."
   },
   "tools": {
     "constraint-stacker": {
@@ -21,7 +22,7 @@
         },
         "rho": {
           "type": "number",
-          "desc": "Ambient density g/cm³ (linear, maps to rhoInf)"
+          "desc": "Ambient density kg/m³ (linear, 1e-28-1e-18 range; hash param on this page, corresponds to rho_inf_kg_m3 in the tool's own arithmetic). NOTE: the worker's constraint_stacker MCP tool takes this same quantity under the argument name rho_inf, NOT rho — calling the worker with rho is silently ignored (falls back to its default) rather than rejected."
         },
         "show": {
           "type": "string",
@@ -379,6 +380,14 @@
           "type": "number",
           "desc": "Monte Carlo sample count (integer)"
         },
+        "Rstar_lo": {
+          "type": "number",
+          "desc": "Star formation rate per year — lower log10 bound"
+        },
+        "Rstar_hi": {
+          "type": "number",
+          "desc": "Star formation rate per year — upper log10 bound"
+        },
         "fp_lo": {
           "type": "number",
           "desc": "Fraction of stars with planets — lower log10 bound"
@@ -451,6 +460,38 @@
         "H": {
           "type": "number",
           "desc": "Fraction of stars with habitable planets (linear)"
+        },
+        "abio": {
+          "type": "number",
+          "desc": "log10(P survival: dead chemistry -> self-replicating), same units/name in hash and prefill"
+        },
+        "prok": {
+          "type": "number",
+          "desc": "log10(P survival: replicators -> stable single-cell life)"
+        },
+        "euk": {
+          "type": "number",
+          "desc": "log10(P survival: prokaryote -> eukaryote / Margulis event)"
+        },
+        "multi": {
+          "type": "number",
+          "desc": "log10(P survival: single-cell -> multicellularity)"
+        },
+        "intel": {
+          "type": "number",
+          "desc": "log10(P survival: multicellular -> tool-using intelligence)"
+        },
+        "tool": {
+          "type": "number",
+          "desc": "log10(P survival: brain -> civilisation/language+culture)"
+        },
+        "ind": {
+          "type": "number",
+          "desc": "log10(P survival: culture -> industrial civilisation)"
+        },
+        "stellar": {
+          "type": "number",
+          "desc": "log10(P survival: industry -> durable interstellar presence)"
         }
       },
       "citations": [
@@ -489,6 +530,24 @@
         "bw": {
           "type": "number",
           "desc": "log10(bandwidth Hz) — LOG10. e.g. 0 = 1 Hz"
+        }
+      },
+      "hash_params": {
+        "sefd": {
+          "type": "number",
+          "desc": "log10(System Equivalent Flux Density, Jy) — LOG10, clamped 0-6. Direct-SEFD input path added after this manifest entry was written; hash-only."
+        },
+        "sefdmode": {
+          "type": "number",
+          "desc": "0 = aperture+T_sys mode (default), 1 = direct-SEFD mode. Hash-only."
+        },
+        "coh": {
+          "type": "number",
+          "desc": "0 = incoherent beamforming (default), 1 = coherent (sqrt(N_ant) SEFD penalty). Hash-only."
+        },
+        "nant": {
+          "type": "number",
+          "desc": "Number of antennas for beamforming, linear, clamped 2-200. Hash-only."
         }
       },
       "citations": [
@@ -593,6 +652,28 @@
           "desc": "Prior probability for no central mass (%, integer 0–100; all three must sum to 100)"
         }
       },
+      "hash_params": {
+        "pi": {
+          "type": "number",
+          "desc": "prior_imbh — same linear % value, short hash key"
+        },
+        "pd": {
+          "type": "number",
+          "desc": "prior_dc — same linear % value, short hash key"
+        },
+        "pn": {
+          "type": "number",
+          "desc": "prior_null — same linear % value, short hash key"
+        },
+        "r_<id>": {
+          "type": "number",
+          "desc": "Per-evidence log10(likelihood ratio, IMBH vs dark-cluster) weight, hash-only, no prefill equivalent. <id> in kinematics|pulsar|propmotion|accretion|nbody|microlensing"
+        },
+        "s_<id>": {
+          "type": "number",
+          "desc": "Per-evidence log10(likelihood ratio, any central mass vs null) weight, hash-only, no prefill equivalent. Same <id> set as r_<id>"
+        }
+      },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285 (≥ 8,200 M☉ lower bound)",
         "Bañares-Hernández et al. 2025, A&A 693 A104 (≤ 6,000 M☉ upper bound)"
@@ -617,6 +698,12 @@
         "sigma": {
           "type": "number",
           "desc": "Detection threshold in σ (default 3.0)"
+        }
+      },
+      "hash_params": {
+        "scenario": {
+          "type": "string",
+          "desc": "Named preset id applied via setScenario() — hash-only, no prefill equivalent; lower/upper/sigma keys and scale are identical in both namespaces"
         }
       },
       "citations": [
@@ -645,6 +732,28 @@
           "desc": "Available observing time hours (linear)"
         }
       },
+      "hash_params": {
+        "instr": {
+          "type": "string",
+          "desc": "Same values/name as prefill's instr"
+        },
+        "goal": {
+          "type": "string",
+          "desc": "Same values/name as prefill's goal"
+        },
+        "time": {
+          "type": "number",
+          "desc": "time_h — same linear value, short hash key, clamped 1-200"
+        },
+        "stars": {
+          "type": "number",
+          "desc": "Target star count, clamped 10-5000. Hash-only — no prefill equivalent."
+        },
+        "cprec": {
+          "type": "number",
+          "desc": "Custom-instrument astrometric precision, μas, clamped 1-200. Hash-only — no prefill equivalent."
+        }
+      },
       "citations": [
         "Häberle et al. 2024, Nature 631, 285",
         "Bañares-Hernández et al. 2025, A&A 693 A104"
@@ -664,6 +773,13 @@
         }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted). The raw URL hash key is #mass= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
+      "hash_params": {
+        "mass": {
+          "type": "number",
+          "log10": true,
+          "desc": "log10(mass_solar) — the tool's real hash key (no clamp observed in loadHash())"
+        }
+      },
       "citations": [
         "Misner, Thorne & Wheeler 1973, Gravitation",
         "Häberle et al. 2024, Nature 631, 285"
@@ -687,6 +803,21 @@
         }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted); height_m is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
+      "hash_params": {
+        "lm": {
+          "type": "number",
+          "log10": true,
+          "desc": "log10(mass_solar), clamped 0.477-10"
+        },
+        "h": {
+          "type": "number",
+          "desc": "height_m, clamped 0.5-3.0"
+        },
+        "tol": {
+          "type": "number",
+          "desc": "Tidal-survival tolerance factor, clamped 0.1-100. Hash-only — no prefill (linear) equivalent."
+        }
+      },
       "citations": [
         "Misner, Thorne & Wheeler 1973, Gravitation",
         "Penrose 1965 (singularity theorem)"
@@ -710,6 +841,17 @@
         }
       },
       "hashNote": "Prefill input mass_solar is linear (auto-converted); distance_kpc is linear. The raw URL hash key for mass is #lm= and stores log10(M☉) — pass log10 if building a hash deep-link by hand.",
+      "hash_params": {
+        "lm": {
+          "type": "number",
+          "log10": true,
+          "desc": "log10(mass_solar), clamped 0.477-10"
+        },
+        "d": {
+          "type": "number",
+          "desc": "distance_kpc, clamped 0.001-1000"
+        }
+      },
       "citations": [
         "Event Horizon Telescope Collaboration 2019 (M87*)",
         "Häberle et al. 2024, Nature 631, 285"
@@ -769,6 +911,16 @@
           "desc": "Annual energy growth rate %/yr (linear, e.g. 1.5)"
         }
       },
+      "hash_params": {
+        "energy": {
+          "type": "number",
+          "desc": "energy_EJ — same linear value, short hash key, clamped 100-1200"
+        },
+        "growth": {
+          "type": "number",
+          "desc": "growth_pct — same linear value, short hash key, clamped 0.1-10"
+        }
+      },
       "citations": [
         "Kardashev 1964, Soviet Astronomy 8",
         "Zackrisson et al. 2015, ApJ 810 (Kardashev calibration)"
@@ -789,6 +941,16 @@
         "unit": {
           "type": "string",
           "desc": "Source unit key: J | kWh | Lsun | K1 | K2 | K3 | W | EJ | eV"
+        }
+      },
+      "hash_params": {
+        "v": {
+          "type": "number",
+          "desc": "value — same linear scale/value as the prefill's 'value' field, short hash key"
+        },
+        "u": {
+          "type": "string",
+          "desc": "unit — same values as the prefill's 'unit' field, short hash key"
         }
       },
       "citations": [
@@ -955,6 +1117,37 @@
         "JPL/CNEOS Apophis close-approach solution #197: 2029-Apr-13 perigee ~38,017 km"
       ]
     },
+    "rubin-alert-throughput": {
+      "title": "Rubin Alert Throughput",
+      "path": "tools/rubin-alert-throughput.html",
+      "category": "imbh-evidence",
+      "register": "speculative",
+      "widget": true,
+      "description": "Estimates the nightly transient-alert count and data-rate budget for the Vera C. Rubin Observatory Legacy Survey of Space and Time (LSST): alerts_per_night = visits_per_night x alerts_per_visit; nightly_data_rate_GB = alerts_per_night x avg_alert_bytes / 1e9. Rubin is in commissioning as of 2026; figures are pre-science design estimates.",
+      "hashNote": "All params linear. Hash keys differ from the worker's argument names: vpn=visits_per_night, apv=alerts_per_visit, npy=nights_per_year, abytes=avg_alert_bytes.",
+      "inputs": {
+        "vpn": {
+          "type": "number",
+          "desc": "visits_per_night — telescope visits per night (linear, default 1000, clamped 100-2000)"
+        },
+        "apv": {
+          "type": "number",
+          "desc": "alerts_per_visit — transient alerts generated per visit (linear, default 10000, clamped 1000-50000)"
+        },
+        "npy": {
+          "type": "number",
+          "desc": "nights_per_year — clear science nights per year at Cerro Pachon (linear, default 182, clamped 50-365)"
+        },
+        "abytes": {
+          "type": "number",
+          "desc": "avg_alert_bytes — average bytes per alert packet (linear, default 82000, clamped 10000-200000)"
+        }
+      },
+      "citations": [
+        "Ivezic et al. 2019, ApJ 873, 111 (arXiv:0805.2366) — LSST science design overview",
+        "Bellm et al. 2019, PASP 131, 995004 (arXiv:1902.02134) — LSST alert system design"
+      ]
+    },
     "flyby-survival": {
       "title": "Flyby Survival",
       "path": "tools/flyby-survival.html",
@@ -1027,6 +1220,18 @@
         "trials": {
           "type": "number",
           "desc": "MC trials per bin (integer, default 6000; browser default reduced vs paper reference run)"
+        },
+        "mbhpert": {
+          "type": "number",
+          "desc": "Perturber BH mass, M_sun (linear, 1-60, default 31)"
+        },
+        "adiab": {
+          "type": "number",
+          "desc": "Apply adiabatic (1+x^2)^-5/2 per-encounter correction: 1 = on, 0 = off (default 0)"
+        },
+        "bound": {
+          "type": "number",
+          "desc": "Overlay bound-member diffusion + Kozai cadence, paper-reference only: 1 = on, 0 = off (default 0; requires paper=1)"
         }
       },
       "citations": [
@@ -1947,26 +2152,6 @@
         }
       ]
     },
-    "workflow-adaf-accretion-suite": {
-      "title": "ADAF Accretion Suite",
-      "tier": "workflow",
-      "page": "tools/workflow-adaf-accretion-suite.html",
-      "register": "peer-reviewed",
-      "steps": [
-        {
-          "tool": "adaf-sed-modeler",
-          "handoff": "Full SED shape and Bondi supply check; peak frequency and component fractions feed JWST tool."
-        },
-        {
-          "tool": "jwst-accretion",
-          "handoff": "NIRCam/MIRI sensitivity floor vs ADAF prediction — cross-check accretion luminosity limit."
-        },
-        {
-          "tool": "constraint-stacker",
-          "handoff": "Add accretion non-detection as a constraint lane on the mass-stacker map."
-        }
-      ]
-    },
     "workflow-multimessenger-campaign": {
       "title": "Multi-Messenger Campaign",
       "tier": "workflow",
@@ -2084,26 +2269,6 @@
         {
           "tool": "constraint-stacker",
           "handoff": "Return to observational reality — current mass constraint map."
-        }
-      ]
-    },
-    "workflow-cosmology-to-mth": {
-      "title": "Cosmology → MTH Bridge",
-      "tier": "workflow",
-      "page": "tools/workflow-cosmology-to-mth.html",
-      "register": "mixed",
-      "steps": [
-        {
-          "tool": "cosmology-calculator",
-          "handoff": "Comoving distance and lookback time establish the cosmic context for the OC system."
-        },
-        {
-          "tool": "cosmic-center",
-          "handoff": "OC's position in the cosmic web and distance from the Galactic center."
-        },
-        {
-          "tool": "transcension-darkening",
-          "handoff": "MTH argument: inward transcension civilisations darken the cosmic web — context for Fermi silence."
         }
       ]
     },
