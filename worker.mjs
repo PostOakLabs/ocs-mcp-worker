@@ -30,7 +30,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:1d2b16d77a61c6fc57e72433e8d6241361efafa80736c90217cb346bf0d72acb';
+const KERNEL_DIGEST = 'sha256:0070aa4583d5ffde529f43b2ee6a125bd2f5963e405f353c686daaf4bf9ee594';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -236,14 +236,26 @@ async function routePlanDigest(steps) {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Full-lane constraint-stacker fields — the kernel's `show` key has no
+// default of its own (it is a comma-joined lane-method string built by the
+// MCP handler's `?? true` per-lane defaults); a chain step passing fields:{}
+// bypasses the handler and reaches the kernel with `show` absent, which the
+// kernel reads as zero active lanes (M-6). Every chain step below spells the
+// lanes out explicitly so run_chain agrees with the constraint_stacker
+// handler's default (all 5 lanes on) rather than running vacuous.
+const CONSTRAINT_STACKER_DEFAULT_FIELDS = {
+  epsilon: 1e-3,
+  rho: 1e-21,
+  show: 'kinematics,propermotion,timing,accretion,nbody',
+};
+
 // Named chains (OCG §21.1/§21.4). Mirrored as fixtures under kernels/chains/.
 export const CHAINS = {
-  // LINEAR (§21.1) — single step, no gate. Freezes a linear composite golden;
-  // per the linear-hash-freeze rule this composite_execution_hash must never move.
+  // LINEAR (§21.1) — single step, no gate.
   'imbh-evidence-window': {
     title: 'IMBH evidence window (linear)',
     steps: [
-      { id: 'window', tool_id: 'constraint-stacker', fields: {} },
+      { id: 'window', tool_id: 'constraint-stacker', fields: CONSTRAINT_STACKER_DEFAULT_FIELDS },
     ],
   },
   // GATED — evidence-threshold routing. bayes-factor-router's gate_token routes
@@ -256,7 +268,7 @@ export const CHAINS = {
         id: 'evidence', tool_id: 'bayes-factor-router', fields: { bf: 1e14 },
         gate: { input: '/gate_token', rules: [{ op: 'in', value: ['decisive', 'strong'], next: 'falsification' }], default: 'consistency' },
       },
-      { id: 'falsification', tool_id: 'constraint-stacker', fields: {}, gate: { input: '', rules: [], default: 'end' } },
+      { id: 'falsification', tool_id: 'constraint-stacker', fields: CONSTRAINT_STACKER_DEFAULT_FIELDS, gate: { input: '', rules: [], default: 'end' } },
       { id: 'consistency', tool_id: 'gwtc-remnant-classifier', fields: { m1: 35, m2: 30 } },
     ],
   },
@@ -271,7 +283,7 @@ export const CHAINS = {
         id: 'ledger', tool_id: 'jwst-accretion-ledger', fields: { epsilon: 1e-3, rho_inf: 1e-21 },
         gate: { input: '/excluded_above_Msun', rules: [{ op: 'lt', value: 1000, next: 'end' }], default: 'followup' },
       },
-      { id: 'followup', tool_id: 'constraint-stacker', fields: {} },
+      { id: 'followup', tool_id: 'constraint-stacker', fields: CONSTRAINT_STACKER_DEFAULT_FIELDS },
     ],
   },
 };
@@ -448,7 +460,7 @@ export function buildServer(manifest) {
       'Registers: peer-reviewed (citable science) vs speculative (MTH engineering extrapolations). ' +
       'IMBH mass tension note: Häberle 2024 sets a ≥8,200 M☉ lower bound; ' +
       'Bañares 2025 sets a ≤6,000 M☉ upper bound. These are irreconcilable — never collapse to one number.',
-    inputSchema: {
+    inputSchema: z.object({
       query:    z.string().optional().describe('Free-text search against tool title and description'),
       category: z.string().optional().describe(
         'Filter by category: imbh-evidence | bh-physics | fermi-paradox | fermi-seti | mth | kardashev'
@@ -457,7 +469,7 @@ export function buildServer(manifest) {
         'Filter by epistemic register: peer-reviewed | speculative'
       ),
       limit: z.number().optional().describe('Max results (default 20)'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, register, limit }) => {
     const q = (query ?? '').toLowerCase();
@@ -500,7 +512,7 @@ export function buildServer(manifest) {
       '"at least one analysis has unaccounted-for systematics" — never collapse to one mass. ' +
       'The JWST accretion limit (Chen et al. 2025) shifts with epsilon and rho_inf. ' +
       'execution_hash anchors the result for citation and downstream chain provenance.',
-    inputSchema: {
+    inputSchema: z.object({
       epsilon: z.number().min(1e-6).max(1).optional().describe(
         'ADAF radiative efficiency (0 < ε ≤ 1). Default 0.001. ' +
         'Lower ε → weaker accretion → JWST upper limit shifts to higher masses.'
@@ -514,7 +526,7 @@ export function buildServer(manifest) {
       show_timing:       z.boolean().optional().describe('Include pulsar timing constraints (default true)'),
       show_accretion:    z.boolean().optional().describe('Include JWST accretion constraints (default true)'),
       show_nbody:        z.boolean().optional().describe('Include N-body simulation constraints (default true)'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ epsilon, rho_inf, show_kinematics, show_propermotion, show_timing, show_accretion, show_nbody }) => {
     const eps = epsilon ?? 1e-3;
@@ -631,7 +643,7 @@ export function buildServer(manifest) {
       'Worked example: BF > 1e14 (NANOGrav 15-yr GWB, arXiv:2306.16213) -> "decisive". ' +
       'Pass either bf (raw Bayes factor) or two_ln_bf (2·ln(BF), the twice-log-likelihood-ratio ' +
       'scale); if both are omitted, returns an "undefined" gate_token with no evidence input.',
-    inputSchema: {
+    inputSchema: z.object({
       bf: z.number().optional().describe(
         'Raw Bayes factor (BF > 0). Thresholds: <1 supports null, <3.2 weak, <10 substantial, ' +
         '<100 strong, >=100 decisive (Kass & Raftery 1995). Mutually preferred over two_ln_bf if both given.'
@@ -640,7 +652,7 @@ export function buildServer(manifest) {
         '2·ln(Bayes factor) — the twice-log-likelihood-ratio scale. Thresholds: <0 supports null, ' +
         '<2.3263 weak, <4.6052 substantial, <9.2103 strong, >=9.2103 decisive.'
       ),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ bf, two_ln_bf }) => {
     const input_parameters = {};
@@ -713,7 +725,7 @@ export function buildServer(manifest) {
       'the assumed epsilon (Pesce et al. 2021) and is NOT a peer of the Häberle 2024 kinematic ' +
       'lower bound or the Bañares 2025 pulsar-timing upper bound. It constrains (mass, accretion) ' +
       'COMBINATIONS and does not assert or imply any IMBH mass detection.',
-    inputSchema: {
+    inputSchema: z.object({
       epsilon: z.number().min(1e-6).max(1).optional().describe(
         'ADAF radiative efficiency (0 < ε ≤ 1). Default 0.001. ' +
         'Lower ε → weaker accretion → exclusion mass shifts higher.'
@@ -722,7 +734,7 @@ export function buildServer(manifest) {
         'Ambient gas density at the Bondi radius (kg/m³). Default 1e-21. ' +
         'Lower ρ∞ → less Bondi accretion → exclusion mass shifts higher.'
       ),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ epsilon, rho_inf }) => {
     const eps = epsilon ?? 1e-3;
@@ -796,12 +808,12 @@ export function buildServer(manifest) {
       'hash-anchored OCS ChainGraph artifact JSON. Register: peer-reviewed fit (JF17) in its ' +
       'nonspinning limit; PI-gap edges and GW231123-class remnant masses carry model/waveform-' +
       'systematics uncertainty — see the artifact caveat field.',
-    inputSchema: {
+    inputSchema: z.object({
       m1: z.number().optional().describe('Primary component mass (M☉). Default 30.'),
       m2: z.number().optional().describe('Secondary component mass (M☉). Default 25.'),
       chi1: z.number().optional().describe('Primary aligned dimensionless spin. Default 0 (nonspinning-limit fit).'),
       chi2: z.number().optional().describe('Secondary aligned dimensionless spin. Default 0 (nonspinning-limit fit).'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ m1, m2, chi1, chi2 }) => {
     const input_parameters = {};
@@ -881,7 +893,7 @@ export function buildServer(manifest) {
       'IMBH context: for a lens mass of 8,200 M☉ (Haberle 2024 lower bound) at omega-Cen distance ' +
       '(5.3 kpc) with galactic-bulge sources (8.2 kpc), theta_E ~ 67 mas and t_E ~ 22 years — ' +
       'detectable with Roman astrometric microlensing but very long-duration events.',
-    inputSchema: {
+    inputSchema: z.object({
       lens_mass_Msun: z.number().positive().optional().describe(
         'Lens mass in solar masses. Default 1.0 (stellar). Try 8200 for Haberle 2024 IMBH lower bound.'
       ),
@@ -902,7 +914,7 @@ export function buildServer(manifest) {
         'Fraction of the Penny 2019 6-field 2-season fiducial survey (0-1). Default 1.0. ' +
         'Scales the ~27,000 stellar event yield estimate proportionally.'
       ),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ lens_mass_Msun, D_L_kpc, D_S_kpc, mu_mas_yr, released, survey_fraction }) => {
     const input_parameters = {};
@@ -986,7 +998,7 @@ export function buildServer(manifest) {
       'diameter_m (asteroid mean diameter, m), rel_velocity_km_s (hyperbolic excess velocity v_inf, km/s). ' +
       'Returns a hash-anchored OCS ChainGraph artifact. Register: peer-reviewed ' +
       '(Farnocchia et al. 2021 Icarus 369 114594; Brozovic et al. 2018 Icarus 300 115).',
-    inputSchema: {
+    inputSchema: z.object({
       perigee_km: z.number().positive().optional().describe(
         'Earth-centre distance at closest approach in km. Default 38017.0 (JPL nominal). ' +
         'GEO orbit is at 42,164 km — values below this are inside GEO.'
@@ -998,7 +1010,7 @@ export function buildServer(manifest) {
         'Hyperbolic excess velocity (v_inf) in km/s. Default 7.43. ' +
         'Used in vis-viva equation: v_peri² = v_inf² + 2·GM/r.'
       ),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ perigee_km, diameter_m, rel_velocity_km_s }) => {
     const input_parameters = {};
@@ -1081,7 +1093,7 @@ export function buildServer(manifest) {
       'Inputs: visits_per_night, alerts_per_visit, nights_per_year, avg_alert_bytes. ' +
       'Returns a hash-anchored OCS ChainGraph artifact. Register: speculative ' +
       '(Rubin LSST full-survey operations not yet begun as of 2026).',
-    inputSchema: {
+    inputSchema: z.object({
       visits_per_night: z.number().positive().optional().describe(
         'Number of telescope visits (exposures) per night. Default 1000 (Rubin design estimate).'
       ),
@@ -1094,7 +1106,7 @@ export function buildServer(manifest) {
       avg_alert_bytes: z.number().positive().optional().describe(
         'Average bytes per alert packet. Default 82000 (82 KB; Bellm et al. 2019, PASP 131 995004).'
       ),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ visits_per_night, alerts_per_visit, nights_per_year, avg_alert_bytes }) => {
     const input_parameters = {};
@@ -1173,7 +1185,7 @@ export function buildServer(manifest) {
       'IMBH mass tension: Häberle 2024 lower bound ≥8,200 M☉; Bañares 2025 upper bound ≤6,000 M☉ — ' +
       'irreconcilable. Do not collapse to a single value; present both. ' +
       'Named chains (' + CHAIN_NAMES.length + ' total): ' + CHAIN_NAMES.join(', ') + '.',
-    inputSchema: {
+    inputSchema: z.object({
       chain: z.string().optional().describe(
         'Name of a pre-defined scenario or workflow chain. ' +
         'One of: ' + CHAIN_NAMES.join(', ') + '. ' +
@@ -1189,7 +1201,7 @@ export function buildServer(manifest) {
           'qpo-mass-spin: lognu is log10(Hz). bz-kardashev: use key "spin" (not "a") and "power" (not "P").'
         ),
       })).optional().describe('Ad-hoc ordered step list. Mutually exclusive with chain.'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ chain, steps }) => {
     // Validate mutual exclusivity
@@ -1300,12 +1312,12 @@ export function buildServer(manifest) {
       '(bare hex or legacy sha256:-prefixed). ' +
       'Pass a full artifact, or policy_parameters + output_payload + claimed_hash. ' +
       'Works on artifacts from any ChainGraph vendor (OCS, AINumbers, ApexLogics).',
-    inputSchema: {
+    inputSchema: z.object({
       artifact:          z.record(z.any()).optional().describe('A full ChainGraph artifact (with policy_parameters, output_payload, execution_hash).'),
       policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
       output_payload:    z.record(z.any()).optional().describe('Artifact output_payload (if not passing a full artifact).'),
       claimed_hash:      z.string().optional().describe('execution_hash to check against (if not passing a full artifact).'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ artifact, policy_parameters, output_payload, claimed_hash }) => {
     const pp = policy_parameters ?? artifact?.policy_parameters;
@@ -1359,7 +1371,7 @@ export function buildServer(manifest) {
       '(tight JWST exclusion mass skips the followup step). Returns a composite hash over ' +
       'the executed (RAN) steps, the decision record(s), and the path_taken. No argument ' +
       'runs the default linear chain ("imbh-evidence-window").',
-    inputSchema: {
+    inputSchema: z.object({
       chain: z.string().optional().describe(
         'Name of a pre-defined chain to execute. One of: ' + CHAIN_KEYS.join(', ') + '. ' +
         'Mutually exclusive with steps. Defaults to "imbh-evidence-window" if neither is given.'
@@ -1380,10 +1392,15 @@ export function buildServer(manifest) {
           default: z.string().describe('Mandatory fallback step id, or "end", when no rule matches.'),
         }).optional().describe('Optional §21.4 decision gate evaluated after this step runs.'),
       })).optional().describe('Ad-hoc ordered step list. Mutually exclusive with chain.'),
-    },
+    }).strict(),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ chain, steps }) => {
-    if (chain && steps) {
+    // An empty steps array is treated as absent (not "both provided") — a
+    // caller sending steps:[] alongside chain is asking to run the named
+    // chain, not opting into an empty ad-hoc chain.
+    const stepsGiven = (steps && steps.length > 0) ? steps : undefined;
+
+    if (chain && stepsGiven) {
       return { isError: true, content: [{ type: 'text', text: 'Provide either chain or steps, not both.' }] };
     }
 
@@ -1395,9 +1412,9 @@ export function buildServer(manifest) {
       }
       chainTitle = chainMeta.title;
       chainSteps = chainMeta.steps;
-    } else if (steps && steps.length > 0) {
+    } else if (stepsGiven) {
       chainTitle = 'ad-hoc';
-      chainSteps = steps;
+      chainSteps = stepsGiven;
     } else {
       // FIXTURE-DEFAULT: no-argument call runs the default linear chain.
       chainTitle = CHAINS['imbh-evidence-window'].title;
@@ -1405,7 +1422,7 @@ export function buildServer(manifest) {
     }
 
     const result = await runChain(chainTitle, chainSteps);
-    const output = { chain: chain ?? (steps ? 'ad-hoc' : 'imbh-evidence-window'), ...result };
+    const output = { chain: chain ?? (stepsGiven ? 'ad-hoc' : 'imbh-evidence-window'), ...result };
 
     return {
       content: [{ type: 'text', text: JSON.stringify(output, null, 2) }],
