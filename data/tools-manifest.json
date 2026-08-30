@@ -185,7 +185,7 @@
         },
         "dist": {
           "type": "number",
-          "desc": "OC distance kpc (linear, default 5.43)"
+          "desc": "OC distance kpc (linear, default 5.49)"
         }
       },
       "citations": [
@@ -200,7 +200,7 @@
       "category": "fermi-seti",
       "register": "peer-reviewed",
       "widget": true,
-      "description": "Given a covering fraction f and waste-heat temperature T, computes the IR excess produced by a partial Dyson swarm and compares against WISE W3/W4 and SPHEREx survey sensitivity. Returns the f–T region current all-sky surveys exclude — the quantitative falsification backbone for the MTH hypothesis. Default is ωCen distance (5.43 kpc), Solar luminosity, T=300 K, f=0.01.",
+      "description": "Given a covering fraction f and waste-heat temperature T, computes the IR excess produced by a partial Dyson swarm and compares against WISE W3/W4 and SPHEREx survey sensitivity. Returns the f–T region current all-sky surveys exclude — the quantitative falsification backbone for the MTH hypothesis. Default is ωCen distance (5.49 kpc), Solar luminosity, T=300 K, f=0.01.",
       "hashNote": "f is log10 (e.g. f=-2 means covering fraction 0.01). dist, temp, lstar are linear.",
       "inputs": {
         "f": {
@@ -213,7 +213,7 @@
         },
         "dist": {
           "type": "number",
-          "desc": "Distance pc (linear, default 5430)"
+          "desc": "Distance pc (linear, default 5490)"
         },
         "lstar": {
           "type": "number",
