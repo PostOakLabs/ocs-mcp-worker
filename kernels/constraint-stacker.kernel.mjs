@@ -28,14 +28,15 @@ const JWST_L_LIMIT = 1e28;  // 10^35 erg/s → 10^28 W
 const JWST_C_S     = 1.0e4; // m/s (~10 km/s, typical GC-core sound speed)
 
 // Full IMBH constraint set — mirrors window.OCS_MEASUREMENTS.imbh in
-// repo/tools/data/measurements.js (all 9 entries, same id/method/limitType/value).
+// repo/tools/data/measurements.js (all 10 entries, same id/method/limitType/value).
 // computeConstraintWindow() ignores 'detection'/'noEvidence' for lo/hi, but the
 // full list is needed so n_constraints_active matches the browser tool's count.
 // Keep in sync with measurements.js and worker.mjs.
 const IMBH_CONSTRAINTS = [
   { id: 'noyola2008',         year: 2008, authors: 'Noyola, Gebhardt & Bergmann',          limitType: 'detection',          method: 'kinematics',   value: 4e4 },
-  { id: 'vandermarel2010',    year: 2010, authors: 'van der Marel & Anderson',             limitType: 'upper',              method: 'kinematics',   value: 1.2e4 },
-  { id: 'baumgardt2017',      year: 2017, authors: 'Baumgardt',                            limitType: 'noEvidence',         method: 'nbody',        value: null },
+  { id: 'vandermarel2010',    year: 2010, authors: 'van der Marel & Anderson',             limitType: 'upper',              method: 'kinematics',   value: 1.8e4 },
+  { id: 'baumgardt2017',      year: 2017, authors: 'Baumgardt',                            limitType: 'detection',          method: 'nbody',        value: 4e4 },
+  { id: 'baumgardt2019',      year: 2019, authors: 'Baumgardt et al.',                     limitType: 'noEvidence',         method: 'nbody',        value: null },
   { id: 'haberle2024',        year: 2024, authors: 'Häberle et al.',                       limitType: 'lower',              method: 'propermotion', value: 8200 },
   { id: 'banares2025',        year: 2025, authors: 'Bañares-Hernández et al.',             limitType: 'upper',              method: 'timing',       value: 6000 },
   { id: 'omegacat6_2025',     year: 2025, authors: 'Häberle et al. (oMEGACat VI)',         limitType: 'noEvidence',         method: 'kinematics',   value: null },

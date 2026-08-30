@@ -18,7 +18,7 @@
         },
         "tension_detected": true,
         "tension_direction": "lower_bound_exceeds_upper_limit",
-        "n_constraints_active": 9,
+        "n_constraints_active": 10,
         "constraint_lanes_active": [
           "kinematics",
           "propermotion",
@@ -32,7 +32,7 @@
         "rho_inf_kg_m3": 1e-21,
         "verdict": "tension — Häberle et al. 2024 (8,200 M☉) exceeds Chen et al. 2025 (709 M☉)"
       },
-      "golden_hash": "533362070f30bf62f874fcf9b589446c8ec745c1023b575d515a7f77d68ae59f"
+      "golden_hash": "cd220168816cc14ab51fa7c402ef838592caaa61304db350a7bb0f6efed6e23f"
     },
     {
       "name": "kinematics_timing_only",

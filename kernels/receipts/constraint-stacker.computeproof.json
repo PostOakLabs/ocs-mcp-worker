@@ -3,10 +3,10 @@
   "system": "risc0",
   "receiptFormat": "groth16-bn254",
   "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-  "seal": "EWSQDz6vVjNnd3pn+9noK2lkn0Y79WyWtgugGC/2i8IahvtU9MIcJBEmVQfhoaMjrmMtgLVfRPQwuitR+o6S5gNEVyXMaHAkt/X2DNlMt0Y4syuHWFcID+TNtw1OubnJHlhUxXCOBzBc3kY72nAfj1LxMYoNw+CdS2Itk3in8c0HzIR+o/paivh7yEcGmS0doe8AEdKLhu4ZfjPsLQ2Cly+Yy5+U7r4nveIKHmMrET+lPfRmGaxgTYoVQ9FSQewJA7T3Hbsq6RocEE6jRD+H9Y5coL2EU3oScrQkoPzKk/oFdKNKPAlHnE0Gd850QYmTEsq8hRljEBkTChcX7Rw4vA==",
+  "seal": "K4Tp3UXI8w//zJr3fYTrVGLgEFZeWQ7J5HTSpggLdlsqPnEyObzr90bvtpsoMvYEEDXm98vE6iuUSFWpto/1NStMADgtxPtM04MKxVg9hoxiXbulGtVMQtg/zFbGMxNmDj1AiUJi726V8VnOE+uLNiA/jtzu3HCGKaS2bopJgqMLqZ4VPdnunOpiRg0R46Y9azYZQI2mLQY1jWyU3E4eqR91PiOa18csnGqK68Cl6BCKq4uFRZb8nZTq77M8weGMEU2gbYIM9AwM1OCR/WWLumGpF8VPQNz0DgwGveFwr4MTW2RAYLTt6xv7vQLH2ujgGGnbG/g+x6O5OnIII19NDw==",
   "journal": {
     "chaingraph_version": "0.4.0",
-    "kernel_digest": "sha256:07c674444506a4a459c0ad43db12cad497b57ad7c478b51b4412a91bef82d2c0",
+    "kernel_digest": "sha256:5d3ba0bc728eeadae8b2ab711f0a49a2c6d4fb0a094fc65180f211bb2ca4ad7a",
     "output": {
       "allowed_window_M_solar": {
         "lower": 8200,
@@ -21,7 +21,7 @@
       ],
       "epsilon_adaf": 0.001,
       "lower_bound_source": "Häberle et al. 2024",
-      "n_constraints_active": 9,
+      "n_constraints_active": 10,
       "rho_inf_kg_m3": 1e-21,
       "tension_detected": true,
       "tension_direction": "lower_bound_exceeds_upper_limit",
