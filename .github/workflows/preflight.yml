@@ -298,7 +298,9 @@ jobs:
   #   2. list_ocs_tools returns count == committed manifest catalog count, proving
   #      the deployed ASSETS manifest matches the repo (catalog not stale/truncated).
   #   3. build_ocs_workflow_links advertises chain count == committed manifest chains.
-  # Gentle call cadence (3 POSTs, retries) to stay under the /mcp WAF rate limit.
+  #   4. prompts/list returns the committed showcase-prompts library (30 entries,
+  #      PROMPTS-MCP-1) and prompts/get returns a committed body verbatim.
+  # Gentle call cadence (5 POSTs, retries) to stay under the /mcp WAF rate limit.
   smoke:
     name: Post-deploy MCP smoke
     needs: deploy
@@ -332,6 +334,8 @@ jobs:
           mcp_call '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' /tmp/list.json
           mcp_call '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"list_ocs_tools","arguments":{"limit":500}}}' /tmp/catalog.json
           mcp_call '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"build_ocs_workflow_links","arguments":{"chain":"workflow-black-hole-101"}}}' /tmp/chain.json
+          mcp_call '{"jsonrpc":"2.0","id":4,"method":"prompts/list","params":{}}' /tmp/prompts.json
+          mcp_call '{"jsonrpc":"2.0","id":5,"method":"prompts/get","params":{"name":"same-physics-three-doorways"}}' /tmp/prompt-get.json
 
           python3 << 'PYEOF'
           import json, sys
@@ -370,6 +374,31 @@ jobs:
               fail.append(f'build_ocs_workflow_links advertises {live_chains} chains, committed = {chain_expected}')
           else:
               print(f'OK  chain count: {live_chains} == committed {chain_expected}')
+
+          # 4. prompts/list count == committed showcase-prompts.json == 30
+          sp = json.load(open('data/showcase-prompts.json', encoding='utf-8'))
+          sp_expected = len(sp.get('prompts', []))
+          pl = json.load(open('/tmp/prompts.json', encoding='utf-8'))['result'].get('prompts', [])
+          if len(pl) != sp_expected or sp_expected != 30:
+              fail.append(f'prompts/list = {len(pl)}, committed = {sp_expected}, expected 30 (PROMPTS-MCP-1)')
+          else:
+              live_ids = sorted(p.get('name', '') for p in pl)
+              want_ids = sorted(p['id'] for p in sp['prompts'])
+              if live_ids != want_ids:
+                  fail.append('prompts/list names diverge from committed showcase-prompts ids')
+              else:
+                  print(f'OK  prompts/list: {len(pl)} == committed {sp_expected} == 30, ids match')
+
+          # 5. prompts/get returns the committed body verbatim as a user message
+          slug = 'same-physics-three-doorways'
+          body = next(p['body'] for p in sp['prompts'] if p['id'] == slug)
+          pg = json.load(open('/tmp/prompt-get.json', encoding='utf-8'))['result']
+          msgs = pg.get('messages', [])
+          got = msgs[0]['content']['text'] if msgs else ''
+          if got != body or (msgs and msgs[0].get('role') != 'user'):
+              fail.append(f'prompts/get {slug}: body/role mismatch ({len(got)} vs {len(body)} chars)')
+          else:
+              print(f'OK  prompts/get {slug}: body matches committed SSOT, role=user')
 
           if fail:
               for f in fail:

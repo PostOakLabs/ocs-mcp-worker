@@ -144,3 +144,55 @@ test('tier-b contract — run_chain executes each named server-side chain', asyn
     });
   }
 });
+
+// ---------------------------------------------------------------------------
+// Prompts surface (PROMPTS-MCP-1) — the showcase-prompts library over the MCP
+// prompts capability. Same contract style: shape against the committed SSOT,
+// not specific copy. prompts/* is a separate MCP method from tools/*, so the
+// 11-tool surface above is unaffected.
+// ---------------------------------------------------------------------------
+
+const showcase = JSON.parse(readFileSync(resolve(ROOT, 'data/showcase-prompts.json'), 'utf8'));
+
+async function mcpMethod(method, params) {
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: nextId++, method, params: params ?? {} }),
+  });
+  const raw = await res.text();
+  const dataLine = raw.split('\n').find((l) => l.startsWith('data: '));
+  return JSON.parse(dataLine ? dataLine.slice(6) : raw);
+}
+
+test('tier-b contract — prompts/list serves the committed showcase library', async () => {
+  const json = await mcpMethod('prompts/list', {});
+  assert.ok(!json.error, `prompts/list errored: ${JSON.stringify(json.error)}`);
+  const prompts = json.result.prompts;
+  assert.equal(prompts.length, 30, `prompts/list returned ${prompts.length}, SSOT claims 30`);
+  assert.equal(prompts.length, showcase.prompts.length,
+    'prompts/list count != committed data/showcase-prompts.json');
+  const want = showcase.prompts.map((p) => p.id).sort();
+  const got = prompts.map((p) => p.name).sort();
+  assert.deepEqual(got, want, 'prompts/list names diverge from committed SSOT ids');
+  for (const p of prompts) {
+    assert.equal(p.arguments ?? null, null, `prompt ${p.name}: expected no arguments`);
+  }
+});
+
+test('tier-b contract — prompts/get returns the committed body as a user message', async () => {
+  const slug = 'same-physics-three-doorways';
+  const committed = showcase.prompts.find((p) => p.id === slug);
+  const json = await mcpMethod('prompts/get', { name: slug });
+  assert.ok(!json.error, `prompts/get errored: ${JSON.stringify(json.error)}`);
+  const msgs = json.result.messages;
+  assert.ok(Array.isArray(msgs) && msgs.length >= 1, 'prompts/get must return at least one message');
+  assert.equal(msgs[0].role, 'user', 'prompt message must be role=user');
+  assert.equal(msgs[0].content.type, 'text', 'prompt message content must be text');
+  assert.equal(msgs[0].content.text, committed.body, 'prompt body diverges from committed SSOT');
+});
+
+test('tier-b contract — prompts/get on an unknown name is a JSON-RPC error', async () => {
+  const json = await mcpMethod('prompts/get', { name: 'no-such-prompt-xyz' });
+  assert.ok(json.error, 'unknown prompt name must produce a JSON-RPC error');
+});
