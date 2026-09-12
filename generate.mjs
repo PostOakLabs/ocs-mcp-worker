@@ -21,7 +21,15 @@ writeFileSync(
   readFileSync(resolve(REPO, 'tools', 'data', 'tools-manifest.json'))
 );
 
-console.log('Vendored tools-manifest.json into ./data/');
+// PROMPTS-MCP-1: the example-prompts SSOT rides the same vendoring path so the
+// worker's prompts/* surface serves exactly what the site deploys. Auto-synced
+// into data/ by PostOakLabs/OCS deploy.yml alongside the manifest.
+writeFileSync(
+  resolve(DATA, 'showcase-prompts.json'),
+  readFileSync(resolve(REPO, 'tools', 'data', 'showcase-prompts.json'))
+);
+
+console.log('Vendored tools-manifest.json + showcase-prompts.json into ./data/');
 
 // ---------------------------------------------------------------------------
 // OCG Standard §17 — stamp KERNEL_DIGEST into worker.mjs.

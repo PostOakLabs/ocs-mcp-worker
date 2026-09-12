@@ -1,0 +1,351 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "updated": "2026-09-11",
+    "source": "OCS-EXAMPLE-PROMPTS-MASTER_2026-09-10.md (SSOT), numbers re-derived at build time 2026-09-11",
+    "counts": {
+      "total": 30,
+      "by_group": {
+        "showcase": 5,
+        "persona": 4,
+        "everyday": 7,
+        "imbh-evidence": 5,
+        "fermi-seti": 4,
+        "education": 3,
+        "agentic": 2
+      }
+    }
+  },
+  "prompts": [
+    {
+      "id": "same-physics-three-doorways",
+      "title": "Prove this site's flagship computation gives the same answer in the page, at the edge, and inside a zkVM",
+      "one_line": "Run constraint_stacker in the page and on the MCP worker, recompute the execution_hash yourself, verify the groth16 receipt with an independent BN254 verifier, and check the timestamp anchors.",
+      "doorways": "P→R→Z→A",
+      "body": "Prove that the site's flagship computation gives the same answer from three different doors: the browser page, the hosted MCP worker, and a signed zero-knowledge receipt.\n\n1. Open https://omegacentauri.me/tools/constraint-stacker.html and run it with its default published inputs. Download the artifact JSON and record its execution_hash.\n2. Call constraint_stacker on mcp.omegacentauri.me/mcp with the same inputs. Record its execution_hash and compare with the page's, character by character.\n3. Recompute the hash yourself: take the artifact's {policy_parameters, output_payload}, serialize as canonical JSON, and SHA-256 it. State whether your hash matches both.\n4. Call verify_execution_hash on the worker with the artifact as claimed_hash. State pass/fail.\n5. Fetch kernels/receipts/constraint-stacker.computeproof.json from github.com/PostOakLabs/ocs-mcp-worker. Record system (risc0), receiptFormat (groth16-bn254), imageId, and journal.kernel_digest. Run the groth16 seal through a BN254 verifier that is NOT ours and state pass/fail and which library you used.\n6. Fetch https://omegacentauri.me/tools/data/anchored-evidence.json and check the RFC3161 (freetsa.org) and OpenTimestamps anchors that cover the golden execution_hash cd220168…. State what the anchors prove (the artifact existed by those times) and what they do not (that the physics is right).\n7. Close with two lists: what you verified independently, and what you took on trust.",
+      "verify_surface": "your own SHA-256 recompute + groth16 verifier + OTS/RFC3161 on cd220168…",
+      "group": "showcase",
+      "requires": ["P", "R", "Z", "A"],
+      "tools": ["constraint_stacker", "verify_execution_hash", "tools/constraint-stacker.html"]
+    },
+    {
+      "id": "run-the-evidence-window",
+      "title": "Run the machine chain that turns ten published measurements into an allowed IMBH mass window, then break it",
+      "one_line": "Execute the imbh-evidence-window machine chain, read its gate rules and tension flag, then move one input and watch the window respond.",
+      "doorways": "R→P",
+      "body": "Run the machine-executable chain that turns ten published measurements into an allowed IMBH mass window, then break the window on purpose.\n\n1. Call run_chain on mcp.omegacentauri.me/mcp with chain_id imbh-evidence-window. Record the allowed window, the active constraint lanes, whether tension_detected fired, and the gate rules that fired.\n2. Call constraint_stacker directly. The artifact names its sources: state which published measurement sets the floor and which sets the ceiling.\n3. The headline bounds are the Häberle 2024 fast-star floor at ≥8,200 M☉ and upper limits of 709 M☉ (Chen 2025 JWST fiducial curve) and 6,000 M☉ (Bañares 2025 pulsar timing). State why the chain reports a tension instead of collapsing the bounds to one number.\n4. Change one input (epsilon or rho_inf) on constraint_stacker and re-run. State which bound moved and why.\n5. Call build_ocs_workflow_links to mint a deeplink for the page state you used. Open it and confirm the inputs restored.\n6. Call verify_execution_hash on the chain result and record the execution_hash.\n7. Close with: what you verified (hashes, gate rules) versus what you took on trust (the ten published measurements).",
+      "verify_surface": "gate rules in the chain result + verify_execution_hash",
+      "group": "showcase",
+      "requires": ["R", "C"],
+      "tools": ["run_chain", "constraint_stacker", "bayes_factor_router", "build_ocs_workflow_links"]
+    },
+    {
+      "id": "paper-in-your-hands",
+      "title": "Reproduce Paper E's headline ln K from the shipped JSON, then walk its scenario with live tools",
+      "one_line": "Re-derive Paper E's two headline numbers (ln K = −0.474 mid-infrared channel, −0.501 framework total) from shipped files, then route on the total with bayes_factor_router.",
+      "doorways": "F→N→P→R",
+      "body": "Reproduce Paper E's headline Bayes factor from the shipped figure data, then walk its scenario with live tools.\n\n1. Fetch https://omegacentauri.me/papers/figs/fE_calc7_windows.json and read p10_framings.fiducial.lnK. State the mid-infrared channel's ln K to three decimals (the paper quotes −0.474).\n2. Fetch https://omegacentauri.me/papers/figs/fig3_lnk.py and read how the framework total is assembled from per-channel values. State the total the paper reports (−0.501) and which channel carries most of the evidence budget.\n3. Feed the framework total to bayes_factor_router on mcp.omegacentauri.me/mcp. The router takes k = 2·ln K, so send k = −1.002. Record the action band and the prescribed action.\n4. Check the band boundaries against the published Jeffreys/Kass–Raftery conventions yourself and state whether the router's bands match them.\n5. Open https://omegacentauri.me/tools/scenario-paper-e-feasibility.html and walk the scenario. Note where its numbers match the JSON and where it defers to the paper.\n6. Close with: the two numbers you reproduced, the one you routed on, and anything you could not source to a shipped file.",
+      "verify_surface": "shipped JSON recompute; −0.474 MIR / −0.501 total two-number rule",
+      "group": "showcase",
+      "requires": ["F", "R"],
+      "tools": ["bayes_factor_router", "tools/scenario-paper-e-feasibility.html"]
+    },
+    {
+      "id": "fastfail-eligibility-gate",
+      "title": "Give the accretion fast-fail chain a candidate cluster and watch it refuse politely, with receipts",
+      "one_line": "Run the accretion-eligibility-fastfail chain on a synthetic candidate, read the gate refusals in order, and verify the execution hashes.",
+      "doorways": "R",
+      "body": "Give the accretion fast-fail chain a candidate cluster and watch it refuse politely, with receipts.\n\n1. Call run_chain on mcp.omegacentauri.me/mcp with chain_id accretion-eligibility-fastfail and a synthetic candidate (mass, radius, and density of your invention, kept physically sane for a globular cluster).\n2. Read the result's gate.rules: state which checks passed and which refused, in order.\n3. Re-run with a candidate just inside the boundary. State which gate flipped.\n4. Call jwst_accretion_ledger with the same candidate's epsilon and rho_inf. Compare its verdict with the chain's.\n5. Record the execution_hash of each run and confirm each with verify_execution_hash.\n6. State what the refusals prove and what they do not: the gates encode the site's published policy, not a law of nature.",
+      "verify_surface": "chain gate.rules + execution_hashes",
+      "group": "showcase",
+      "requires": ["R", "C", "Z"],
+      "tools": ["run_chain", "jwst_accretion_ledger"]
+    },
+    {
+      "id": "apophis-2029-live",
+      "title": "Compute the 2029 Apophis flyby geometry three ways and anchor the agreement",
+      "one_line": "Compute the April 2029 Apophis close approach on the worker, in the page, and from the shipped fixture, then cross-check against JPL Horizons and the groth16 receipt.",
+      "doorways": "R→P→A",
+      "body": "Compute the 2029 Apophis flyby geometry three ways and anchor the agreement.\n\n1. Call apophis_flyby_geometry on mcp.omegacentauri.me/mcp for the 2029 close approach. Record the geometry outputs and the execution_hash.\n2. Open https://omegacentauri.me/tools/apophis-flyby-geometry.html, enter the same inputs, and download the page artifact. Compare the two execution_hashes character by character.\n3. Fetch the tool's fixture from github.com/PostOakLabs/ocs-mcp-worker (kernels/fixtures/) and replay it. State whether the fixture output matches both runs.\n4. Cross-check the flyby distance and date against an independent ephemeris (JPL Horizons) and state the agreement at the precision the tool claims.\n5. Fetch kernels/receipts/ for this tool's receipt and verify the groth16 seal (system risc0) with a BN254 verifier that is not ours.\n6. State what you verified independently (your Horizons lookup, your hash comparison) versus what you took on trust (the tool's internal model).",
+      "verify_surface": "fixture replay + groth16 receipt + your ephemeris cross-check (JPL Horizons)",
+      "group": "showcase",
+      "requires": ["R", "P", "Z", "X"],
+      "tools": ["apophis_flyby_geometry", "tools/apophis-flyby-geometry.html"]
+    },
+    {
+      "id": "trust-nothing-verify-the-verifier",
+      "title": "Verify the estate's claims from primary bytes: kernel digest, risc0 image id, groth16 seal, anchored golden, page-vs-worker parity",
+      "one_line": "A no-trust tour of the estate: kernel digest, risc0 image id, groth16 seal, anchored golden, and page-versus-worker parity, each checked from primary bytes.",
+      "doorways": "R→Z→P→A",
+      "body": "Do not take this site's word for anything. Verify its claims from primary bytes, then use it for one real computation.\n\n1. Fetch https://mcp.omegacentauri.me/mcp with a tools/list call. Record the 11 tool names. Cross-check against https://omegacentauri.me/.well-known/agent-card.json (tool_count should read worker_callable 11, artifact_emitting 28, catalog 35).\n2. Fetch the compute-proof receipt for constraint-stacker from the public worker repo: github.com/PostOakLabs/ocs-mcp-worker, kernels/receipts/constraint-stacker.computeproof.json. Record system (risc0), receiptFormat (groth16-bn254), imageId, and journal.kernel_digest.\n3. Fetch kernels/constraint-stacker.kernel.mjs from the same repo. Hash it yourself (SHA-256). State whether it equals journal.kernel_digest. If not, stop and say so.\n4. Verify the Groth16 seal with a BN254 verifier that is NOT ours. State pass/fail and which library you used.\n5. Call constraint_stacker on mcp.omegacentauri.me with its default published inputs. Record execution_hash. Recompute it yourself: canonical JSON of the artifact's {policy_parameters, output_payload}, SHA-256. State equality, then confirm with verify_execution_hash.\n6. Open https://omegacentauri.me/tools/constraint-stacker.html, run the same inputs in-page, download the artifact, and compare all three hashes (worker, page, your recompute).\n7. Fetch https://omegacentauri.me/tools/data/anchored-evidence.json. For the execution_hash cd220168…, verify the RFC3161 timestamp against the issuing TSA's chain and the OpenTimestamps proof against the Bitcoin calendar. State what the anchors prove (the artifact existed by those times) and what they do not (that the physics is right).\n8. Write the shortest possible statement of what you verified independently versus what you took on trust. Name every point where trust was still required.",
+      "verify_surface": "independent BN254 verifier + freetsa/OTS + own SHA-256",
+      "group": "persona",
+      "requires": ["R", "Z", "A", "P"],
+      "tools": ["verify_execution_hash", "constraint_stacker"]
+    },
+    {
+      "id": "adjudicate-the-imbh-yourself",
+      "title": "Hold both published answers at once (≥8,200 vs ≤6,000 M☉), run every evidence channel, and refuse to collapse the tension",
+      "one_line": "Hold the ≥8,200 and ≤6,000 M☉ results side by side, run every evidence channel on the live worker, and deliver a referee's summary that refuses to collapse the tension.",
+      "doorways": "R→P→N→F",
+      "body": "Omega Centauri has two published central-mass answers that cannot both be complete: fast-star kinematics imply a dark mass ≥ 8,200 M☉ (Häberle et al. 2024, Nature 631, 285), while joint kinematics + pulsar-timing modeling caps any point mass at ≤ 6,000 M☉ 3σ and favors an extended ~2–3×10⁵ M☉ remnant component (Bañares-Hernández et al. 2025, A&A 693, A104). Do not collapse this tension. Adjudicate it.\n\n1. Read both abstracts at the primaries. State each result in one sentence with its method and its blind spot.\n2. Call run_chain with chain_id imbh-evidence-window on mcp.omegacentauri.me. Report the allowed window, which constraint lanes are active, whether tension_detected fired, and the gate rules that fired.\n3. Call constraint_stacker directly and identify which single published measurement sets the floor and which sets the ceiling (the artifact names its sources). For each, state what would have to be wrong for that bound to move.\n4. Feed the framework's own evidence total to bayes_factor_router (Paper E quotes ln K = −0.474 for the mid-infrared channel and −0.501 for the framework total; the router takes k = 2·ln K). Report the action band each lands in and what the pre-registered routing prescribes.\n5. Call gwtc_remnant_classifier on a synthetic merger remnant in the contested 6,000–8,200 M☉ gap; state whether any GWTC event to date constrains this cluster.\n6. Read https://omegacentauri.me/omega-centauri-mass-tension.html (Paper H). Quote its pre-registered verdict verbatim (the data cannot yet decide) and its stated reasons per data type. Check its headline numbers against the shipped fit JSONs in /papers/figs/ where they exist.\n7. Deliver a referee's summary: the two results, why both survive, the three observations Paper H says would decide it, and in which order. Flag anything the site claimed that you could not source to a primary or a shipped computation.",
+      "verify_surface": "primary literature (Häberle 2024 Nature; Bañares-Hernández 2025 A&A) + shipped paper JSON",
+      "group": "persona",
+      "requires": ["R", "C", "F", "X"],
+      "tools": ["run_chain", "constraint_stacker", "bayes_factor_router", "gwtc_remnant_classifier", "tools/scenario-imbh-evidence.html", "omega-centauri-mass-tension.html"]
+    },
+    {
+      "id": "teach-the-tension",
+      "title": "Run problem set 2 against the live tools, grade yourself, then reproduce one paper figure from its shipped script",
+      "one_line": "Work pulsar problem set 2 by hand, grade against the revealed solutions, and regenerate one paper figure from its shipped script.",
+      "doorways": "P→F→R",
+      "body": "Learn the ω Cen mass problem by doing it, then check yourself against the site's own machinery.\n\n1. Open https://omegacentauri.me/pset-2-pulsar.html. Work Problem 1 by hand: the maximum line-of-sight acceleration a point mass M can produce at projected radius R is (2/(3√3))·GM/R². Invert it for the two pulsars given.\n2. Reveal the solutions (?solutions=1) and grade yourself. The printed answers reproduce from the printed givens; if yours differ, find your slip.\n3. The pset's acceleration table comes from real pulsars in measurements.js. Open https://omegacentauri.me/tools/pulsar-accel-mapper.html and confirm the |Ṗ|/P × c values the pset used.\n4. Ask list_ocs_tools (category imbh-evidence) what else bears on the central mass. Run constraint_stacker once and read which of your pset numbers show up as a constraint lane.\n5. Pick one of the nine papers from https://omegacentauri.me/paper.html. Fetch one figure script + JSON from /papers/figs/ (public source mirror) and regenerate the figure. State whether it matches the served PDF.\n6. Close with three sentences a classmate would understand: what the pulsars can bound, what they cannot, and why more pulsars beat better timing (Paper H: the nearest-neighbour jerk floor is 1-stable and does not average away).",
+      "verify_surface": "pset solutions re-derived + figure JSON regenerated",
+      "group": "persona",
+      "requires": ["P", "F"],
+      "tools": ["list_ocs_tools", "constraint_stacker", "pset-2-pulsar.html", "tools/pulsar-accel-mapper.html", "paper.html"]
+    },
+    {
+      "id": "plan-a-null-result-worth-publishing",
+      "title": "Design a SETI campaign whose silence means something: Drake priors → null-result significance → observing plan → proposal",
+      "one_line": "Turn silence into a publishable quantity: Drake priors, a null-result significance you can state, an observing plan, and reproduce-me deeplinks for every number.",
+      "doorways": "P→N→R",
+      "body": "Design a search whose silence is publishable. Every number must be re-derivable from the page state you link.\n\n1. Open https://omegacentauri.me/tools/drake-monte-carlo.html. Run the 1961 preset (documented output N≈3,162) and then your own prior set. Quote medians and the 5–95 band, not point values.\n2. Feed your pessimistic tail to https://omegacentauri.me/tools/passive-seti.html (the scenario walk-through is scenario-null-result-significance.html): with detection cross-section δ and N surveyed systems, P = 1−(1−0.6δ/R)^N. Find the N at which your null clears 50% and 95%.\n3. Plan the observation with https://omegacentauri.me/tools/observing-campaign-planner.html for ω Cen; then call rubin_alert_throughput on mcp.omegacentauri.me to check whether alert-stream volume is a binding constraint for your cadence. Record the execution_hash.\n4. Call build_ocs_workflow_links for every page you used so each exact state is one link. Verify one link round-trips (open it, confirm the inputs restored).\n5. Read https://omegacentauri.me/proposal_radio_seti.html and steal its structure: instrument, sensitivity chain, integration time, and the dated correction boxes (this site fixes its own numbers in public; check the EIRP chain yourself).\n6. Deliver a one-page observing case: priors, the null-result significance your survey buys, the campaign plan, your reproduce-me links, and the single sentence you could publish if you hear nothing.",
+      "verify_surface": "every quoted number re-derived on-page; deeplinks reproduce your exact run",
+      "group": "persona",
+      "requires": ["P", "R", "N"],
+      "tools": ["rubin_alert_throughput", "build_ocs_workflow_links", "tools/drake-monte-carlo.html", "tools/passive-seti.html", "tools/observing-campaign-planner.html", "proposal_radio_seti.html"]
+    },
+    {
+      "id": "is-this-receipt-real",
+      "title": "Someone sent me an OCS artifact JSON. Did this site really compute it?",
+      "one_line": "Recompute an artifact's execution_hash yourself, confirm it with the worker, and check whether timestamp anchors cover it.",
+      "doorways": "R",
+      "body": "Someone hands you an OCS artifact JSON and asks: did this site really compute this?\n\n1. Recompute the artifact's execution_hash yourself: canonical JSON of {policy_parameters, output_payload}, SHA-256. State whether it matches the claimed hash.\n2. Call verify_execution_hash on mcp.omegacentauri.me/mcp with the artifact as claimed_hash. State pass/fail.\n3. Fetch https://omegacentauri.me/tools/data/anchored-evidence.json and check whether the hash (or the golden cd220168…) carries RFC3161 or OpenTimestamps anchors. State what the anchors prove (existence by a time) and what they do not (that the physics is right).\n4. State what you verified versus what you took on trust.",
+      "verify_surface": "hash recompute (canonical JSON + SHA-256)",
+      "group": "everyday",
+      "requires": ["R"],
+      "tools": ["verify_execution_hash"]
+    },
+    {
+      "id": "find-the-right-tool",
+      "title": "I want to check X about ω Cen. Find the tool, run it once, hand me a link that reproduces it",
+      "one_line": "Find the right tool with list_ocs_tools, run it once, and mint a deeplink that reproduces your exact run.",
+      "doorways": "R→P",
+      "body": "You want to check one thing about Omega Centauri. Find the tool, run it once, and hand back a link that reproduces the run.\n\n1. Call list_ocs_tools on mcp.omegacentauri.me/mcp with a category filter (imbh-evidence, bh-physics, fermi-paradox, fermi-seti, mth, or kardashev) and pick the tool for your question.\n2. Call that tool once with inputs you choose. Record the execution_hash.\n3. Call build_ocs_workflow_links with the tool, its page, and your exact inputs. It returns a deeplink URL.\n4. Open the deeplink in a browser and confirm the page restores your exact state.\n5. Hand off the link plus one sentence on what the run showed. Anyone with the link can re-verify the answer without trusting you.",
+      "verify_surface": "deeplink reproduces the state",
+      "group": "everyday",
+      "requires": ["R", "P"],
+      "tools": ["list_ocs_tools", "build_ocs_workflow_links"]
+    },
+    {
+      "id": "route-my-evidence",
+      "title": "I have a Bayes factor from my own analysis. What action does the pre-registered routing say?",
+      "one_line": "Convert your ln K to the router's k = 2·ln K convention, get the pre-registered action band, and check the bands against the published definitions.",
+      "doorways": "R",
+      "body": "You have a Bayes factor from your own analysis. What does the site's pre-registered routing say you should do?\n\n1. Convert your natural-log Bayes factor to the router's convention: k = 2·ln K (Kass–Raftery).\n2. Call bayes_factor_router on mcp.omegacentauri.me/mcp with that k. Record the band and the prescribed action.\n3. Check the band boundaries against the published Jeffreys/Kass–Raftery definitions yourself and state whether the router's bands match them.\n4. Open https://omegacentauri.me/tools/bayes-factor-router.html with your k and confirm the page agrees with the worker.\n5. State the action you would take and why. If the band is indecisive, say so and stop.",
+      "verify_surface": "router bands vs the published band definitions",
+      "group": "everyday",
+      "requires": ["R"],
+      "tools": ["bayes_factor_router", "tools/bayes-factor-router.html"]
+    },
+    {
+      "id": "gw-event-triage",
+      "title": "An O5 alert dropped. Classify the remnant and check whether ω Cen-mass IMBHs are in range",
+      "one_line": "Classify a synthetic remnant in the contested 6,000–8,200 M☉ gap and check the detection horizon against the cluster's distance.",
+      "doorways": "R→P",
+      "body": "An O5 gravitational-wave alert dropped. Classify the remnant and check whether an omega Cen-mass IMBH is in range.\n\n1. Call gwtc_remnant_classifier on mcp.omegacentauri.me/mcp with a synthetic merger remnant in the 6,000–8,200 M☉ gap (the contested omega Cen range). Record the classification and the execution_hash.\n2. Open https://omegacentauri.me/tools/gw-horizon-plotter.html and check whether current detectors could see such a remnant at omega Cen's distance (the campaign paper uses d = 5.49 kpc).\n3. Cross-check against the public GWTC catalog (gwosc.org): state whether any event to date has a remnant mass in that range.\n4. Call verify_execution_hash on the classification artifact.\n5. State what you verified versus what you took on trust.",
+      "verify_surface": "GWTC catalog cross-check",
+      "group": "everyday",
+      "requires": ["R", "Z", "X"],
+      "tools": ["gwtc_remnant_classifier", "tools/gw-horizon-plotter.html"]
+    },
+    {
+      "id": "roman-or-rubin",
+      "title": "Which survey catches an 8,200 M☉ lens first? Microlensing forecast vs alert throughput",
+      "one_line": "Compare a Roman microlensing forecast for an 8,200 M☉ lens against Rubin alert throughput, with both hashes verified.",
+      "doorways": "R",
+      "body": "Which survey catches an 8,200 M☉ microlensing event first: Roman's blank-sky survey or Rubin's alert stream?\n\n1. Call roman_microlensing on mcp.omegacentauri.me/mcp with an 8,200 M☉ lens toward the bulge. Record the event timescale, the expected yield band, and the execution_hash.\n2. Call rubin_alert_throughput for the same field and cadence. Record whether alert-stream volume is a binding constraint.\n3. Compare the two answers and state which program detects the lens first under its own assumptions.\n4. Verify both execution_hashes with verify_execution_hash and confirm page parity for each tool's page artifact.\n5. State the assumptions that most move the answer (lens distance, blending, cadence).",
+      "verify_surface": "both execution_hashes + page parity",
+      "group": "everyday",
+      "requires": ["R", "Z"],
+      "tools": ["roman_microlensing", "rubin_alert_throughput"]
+    },
+    {
+      "id": "two-agents-one-hash",
+      "title": "Run the same kernel from two different agent hosts and prove they agree",
+      "one_line": "Run one kernel from two agent hosts and prove byte-identical, hash-anchored agreement.",
+      "doorways": "R",
+      "body": "Run the same computation from two different agent hosts and prove the estate gives identical, hash-anchored answers.\n\n1. From host A, call constraint_stacker on mcp.omegacentauri.me/mcp with its default published inputs. Record execution_hash_A.\n2. From host B (a different machine, account, or agent framework), call the same tool with the same inputs. Record execution_hash_B.\n3. Compare the two hashes character by character and state whether they match.\n4. Recompute the hash yourself from each artifact: canonical JSON of {policy_parameters, output_payload}, SHA-256.\n5. Call verify_execution_hash on each artifact and state pass/fail for both.\n6. If the hashes diverge, stop and report: determinism is the estate's contract, and a divergence is a finding worth publishing.",
+      "verify_surface": "identical execution_hash from both hosts",
+      "group": "everyday",
+      "requires": ["R"],
+      "tools": ["constraint_stacker", "verify_execution_hash"]
+    },
+    {
+      "id": "nightly-golden-watch",
+      "title": "Every night, re-verify the anchored golden and tell me if the site's flagship number ever changes",
+      "one_line": "A nightly cron that re-verifies the anchored golden and alerts on any change to the flagship number or its anchors.",
+      "doorways": "R→A",
+      "body": "Set up a nightly cron that re-verifies the site's anchored golden artifact and alerts if the flagship number ever changes.\n\n1. Fetch https://omegacentauri.me/tools/data/anchored-evidence.json and record the golden execution_hash (cd220168…) with its RFC3161 and OpenTimestamps anchor bindings.\n2. Call verify_execution_hash on mcp.omegacentauri.me/mcp with that hash as claimed_hash. Record pass/fail and the timestamp.\n3. Verify the RFC3161 timestamp against the freetsa.org chain and the OpenTimestamps proof against the Bitcoin calendar. State the earliest date the artifact provably existed.\n4. Schedule steps 1–3 daily. Alert on any change in the hash, the verdict, the anchor bindings, or a failed verification.\n5. Write down what a change would mean: the site re-derived its flagship computation, and your watch is what makes that visible instead of silent.",
+      "verify_surface": "OTS/RFC3161 bindings unchanged",
+      "group": "everyday",
+      "requires": ["R", "A"],
+      "tools": ["verify_execution_hash"]
+    },
+    {
+      "id": "stack-the-constraints",
+      "title": "Stack all ten published constraint channels and tell me what mass window survives",
+      "one_line": "Run the ten-lane constraint stacker, name the floor and ceiling measurements, and trace one lane back to its primary.",
+      "doorways": "R→P",
+      "body": "Stack all ten published constraint channels and see what mass window survives.\n\n1. Call constraint_stacker on mcp.omegacentauri.me/mcp with default inputs. The artifact names every source it used.\n2. State the allowed window, which lane sets the floor (Häberle 2024 fast stars, ≥8,200 M☉) and which sets the ceiling (Chen 2025 JWST fiducial curve at 709 M☉, with Bañares 2025's ≤6,000 M☉ pulsar-timing limit next).\n3. Open https://omegacentauri.me/tools/constraint-stacker.html, run the same inputs, download the artifact, and compare execution_hashes with the worker's.\n4. Trace one constraint lane back to its primary: open the measurements.js citation named in the artifact (https://omegacentauri.me/tools/data/measurements.js) and read the cited paper's abstract. State what the lane assumes.\n5. Verify the run's execution_hash, and check kernels/receipts/ in the worker repo for this tool's groth16 receipt.\n6. State which single published measurement, if wrong, would most change the window, and what would have to be wrong for that bound to move.",
+      "verify_surface": "measurements.js citations → primaries",
+      "group": "imbh-evidence",
+      "requires": ["R", "Z"],
+      "tools": ["constraint_stacker", "tools/constraint-stacker.html"]
+    },
+    {
+      "id": "threshold-routing-drill",
+      "title": "Feed the evidence-threshold chain three synthetic ln K values and map every gate branch",
+      "one_line": "Drive the evidence-threshold-routing chain through all three gate branches with synthetic inputs and reconcile it with the router's bands.",
+      "doorways": "R",
+      "body": "Feed the evidence-threshold chain three synthetic ln K values and map every gate branch.\n\n1. Call run_chain on mcp.omegacentauri.me/mcp with chain_id evidence-threshold-routing and a strongly negative synthetic ln K (decisive for the null). Record the gate.rules that fire and the prescribed action.\n2. Re-run with a near-zero ln K (indecisive). Record the different branch.\n3. Re-run with a strongly positive ln K (decisive for the candidate). Record the branch.\n4. Call bayes_factor_router with k = 2·ln K for each of the three values and confirm the chain's routing matches the router's bands.\n5. Verify all three execution_hashes with verify_execution_hash.\n6. State the full routing table you observed: value range, band, action.",
+      "verify_surface": "gate.rules in the result",
+      "group": "imbh-evidence",
+      "requires": ["R", "C"],
+      "tools": ["run_chain", "bayes_factor_router"]
+    },
+    {
+      "id": "jwst-fuel-ledger",
+      "title": "Is a quiet IMBH even allowed to be this quiet? Run the accretion ledger at the published limits",
+      "one_line": "Run the JWST accretion ledger at the published limits and check Paper F's 78/85/99 per cent exclusion figures against the paper itself.",
+      "doorways": "R→N",
+      "body": "Is a quiet IMBH even allowed to be this quiet? Run the accretion ledger at the published limits and check the exclusion probabilities.\n\n1. Call jwst_accretion_ledger on mcp.omegacentauri.me/mcp at the published JWST limit (Chen 2025) with the defaults epsilon = 0.001 and rho_inf = 1e-21 kg/m³. Record the verdict and the execution_hash.\n2. Open https://omegacentauri.me/tools/workflow-naked-imbh.html and walk the naked-IMBH scenario. Note where it quotes Paper F's exclusion figures.\n3. Check those figures against the paper: https://omegacentauri.me/omega-centauri-accretion-limit.html states the data reject 78 per cent (pulsar-timing cap) and 85 per cent (fast-star anchor) of natural-flow draws under the RIAF family, 99 per cent at 4×10⁴ M☉, falling to 20/28/76 per cent with the radio leg removed. State what those numbers mean and what they do not (they exclude natural flow; they do not detect an IMBH).\n4. Lower epsilon by a decade and re-run the ledger. State how the limit responds and why.\n5. Confirm the execution_hash with verify_execution_hash.\n6. State what you verified versus what you took on trust (the published limits).",
+      "verify_surface": "Paper F's shipped fF_v4_results.json (P_excl 0.78/0.85/0.99)",
+      "group": "imbh-evidence",
+      "requires": ["R", "Z", "F"],
+      "tools": ["jwst_accretion_ledger", "tools/workflow-naked-imbh.html", "omega-centauri-accretion-limit.html"]
+    },
+    {
+      "id": "astrometry-reality-check",
+      "title": "The fast stars: how long until acceleration is detectable?",
+      "one_line": "Recompute the 7.75 sigma_mu/T sensitivity chain and the 0.21 sigma verdict on direct acceleration detection, from the catalogue's own precision.",
+      "doorways": "P→F",
+      "body": "The fast stars: how long until their acceleration is directly detectable? Work it from the shipped analysis chain.\n\n1. Open https://omegacentauri.me/tools/astrometric-microlensing.html and https://omegacentauri.me/tools/pulsar-accel-mapper.html. Note what each takes as input and what it returns.\n2. Read the sensitivity chain in Paper C (https://omegacentauri.me/omega-centauri-technosignature-campaign.html): sigma_a = 7.75·sigma_mu/T, with the oMEGACat catalogue's own proper-motion precision sigma_mu = 6.6 microarcsec/yr inside r < 1.5 arcmin (oMEGACat II, arXiv:2404.03722).\n3. Recompute the headline: at T = 20 yr the chain gives sigma_a ≈ 2.6×10⁻³ mas/yr², so direct acceleration detection on the fast stars stands at 0.21σ today. Confirm the arithmetic yourself.\n4. Read the crossing statement: the nominal signal stays below 1σ before about 2040 (T ≈ 38 yr). State why the paper routes the astrometry program through photocentric wander and reference-frame measurements instead of direct detection.\n5. Check the anchor: read the oMEGACat II abstract at arXiv:2404.03722 and confirm the 6.6 microarcsec/yr value and the region it covers.\n6. State what would have to improve, and by how much, for direct detection to work this decade.",
+      "verify_surface": "arXiv:2404.03722 abstract; recompute the 0.21σ",
+      "group": "imbh-evidence",
+      "requires": ["P", "F", "X"],
+      "tools": ["tools/astrometric-microlensing.html", "tools/pulsar-accel-mapper.html", "omega-centauri-technosignature-campaign.html"]
+    },
+    {
+      "id": "dark-cluster-or-point-mass",
+      "title": "Fit both dark-mass shapes to the same kinematics and show why the data cannot yet decide",
+      "one_line": "Fit point-mass and extended dark-mass shapes to the same kinematics and state exactly why the data cannot yet choose.",
+      "doorways": "P→N→F",
+      "body": "Fit both dark-mass shapes to the same kinematics and show why the data cannot yet decide.\n\n1. Open https://omegacentauri.me/tools/dark-cluster.html and fit an extended dark cluster to omega Cen's inner kinematics. Record your best-fit mass and scale radius.\n2. Open https://omegacentauri.me/tools/anisotropy-degeneracy-explorer.html and show how anisotropy mimics or masks a central point mass. Record the degeneracy direction.\n3. Open https://omegacentauri.me/tools/scenario-breaking-degeneracy.html and walk the scenario. State which observable it says breaks the degeneracy.\n4. Compare with Paper H's shipped fit results (https://omegacentauri.me/papers/figs/ has the fast-star and pulsar JSONs) and the paper's own pre-registered verdict: the data cannot yet decide between a compact and an extended central dark mass, and it says why per data type.\n5. State which fit Paper H's analysis favors, and under which conditions that preference holds (it is conditional on the tracer cusp and the pulsar reduction).",
+      "verify_surface": "Paper H v2.1 shipped fit results",
+      "group": "imbh-evidence",
+      "requires": ["P", "F"],
+      "tools": ["tools/dark-cluster.html", "tools/anisotropy-degeneracy-explorer.html", "tools/scenario-breaking-degeneracy.html"]
+    },
+    {
+      "id": "drake-with-error-bars",
+      "title": "Run the Drake equation as a Monte Carlo, not a slogan; quote distributions",
+      "one_line": "Run the Drake equation as a Monte Carlo with the 1961 preset (documented output N≈3,162) and your own priors, quoting bands instead of point values.",
+      "doorways": "P",
+      "body": "Run the Drake equation as a Monte Carlo and quote distributions, not slogans.\n\n1. Open https://omegacentauri.me/tools/drake-monte-carlo.html and load the Drake 1961 preset. The page documents its output as N≈3,162 (not the historical point estimate of about 10).\n2. Run it and quote the median and the 5–95 band. Then sum the preset's log10 ranges yourself and confirm the median sits at 10^3.5.\n3. Load the Sandberg-Drexler-Ord default and re-run. Quote P(N < 1) and compare with the paper's headline result.\n4. Build your own prior set, run it, and mint the deeplink so your exact run is reproducible by anyone.\n5. Reload the deeplink and confirm the page restores your state and reproduces your numbers.",
+      "verify_surface": "on-page MC + deeplink",
+      "group": "fermi-seti",
+      "requires": ["P"],
+      "tools": ["tools/drake-monte-carlo.html"]
+    },
+    {
+      "id": "silence-as-data",
+      "title": "Quantify what six decades of quiet actually rule out",
+      "one_line": "Turn a null result into a number: the civilisation count your silence excludes at 50 and 95 per cent, under stated assumptions.",
+      "doorways": "P→N",
+      "body": "Quantify what decades of quiet in the radio searches actually rule out.\n\n1. Open https://omegacentauri.me/tools/passive-seti.html. Read its model: per civilisation, p₁ = 0.6·δ/R (δ = detection cross-section, R = galaxy radius in light-years); over N independent civilisations, P(≥1) = 1 − (1 − p₁)^N.\n2. Choose δ and R, then solve for the N at which your survey's null clears 50 per cent and 95 per cent. Show the arithmetic.\n3. Open https://omegacentauri.me/tools/great-filter.html and place your result on the filter steps: state which steps a null constrains and which it cannot.\n4. Open https://omegacentauri.me/tools/scenario-null-result-significance.html and check your numbers against the scenario walk-through.\n5. Write the one sentence your silence buys: what N your null excludes, at what confidence, under which assumptions.",
+      "verify_surface": "P=1−(1−0.6δ/R)^N recompute",
+      "group": "fermi-seti",
+      "requires": ["P"],
+      "tools": ["tools/passive-seti.html", "tools/great-filter.html", "tools/scenario-null-result-significance.html"]
+    },
+    {
+      "id": "kardashev-engineering-audit",
+      "title": "Could a civilisation actually run on an 8,200 M☉ black hole? Price it",
+      "one_line": "Price an 8,200 M☉ black-hole power plant: BZ output near 5.1×10³⁷ W, its compute value, its waste heat, and the spin-up bill.",
+      "doorways": "P→N",
+      "body": "Could a civilisation actually run on an 8,200 M☉ black hole? Price it.\n\n1. Open https://omegacentauri.me/tools/bz-kardashev.html. Set M = 8,200 M☉, a = 0.9, B = 10⁶ T. The tool returns the Blandford-Znajek power P_BZ = (κ/4πμ₀)·B²·r₊⁴·Ω_H²/c with κ = 0.044 (Tchekhovskoy 2010).\n2. Recompute it by hand from the formula and confirm the tool's ≈5.1×10³⁷ W.\n3. Open https://omegacentauri.me/tools/bekenstein-landauer.html and convert that power into a computation rate. State the entropy cost per bit.\n4. Open https://omegacentauri.me/tools/waste-heat-plane.html and check where such a system lands against the JWST mid-infrared limits.\n5. Open https://omegacentauri.me/tools/scenario-spin-up-economics.html and read the spin-up economics. State the binding constraint (fuel, heat, or time) and why.\n6. Mark every number you computed yourself versus took from a page.",
+      "verify_surface": "BZ formula recompute (5.12×10³⁷ W @10⁶ T, a=0.9)",
+      "group": "fermi-seti",
+      "requires": ["P"],
+      "tools": ["tools/bz-kardashev.html", "tools/bekenstein-landauer.html", "tools/waste-heat-plane.html", "tools/scenario-spin-up-economics.html"]
+    },
+    {
+      "id": "mth-falsification-map",
+      "title": "What observation would kill the Macro Transcension Hypothesis? Walk the falsification schedule",
+      "one_line": "Walk the pre-registered falsification schedule and check each row's instrument, threshold, and date gate against reality.",
+      "doorways": "N→P→F",
+      "body": "What observation would kill the Macro Transcension Hypothesis? Walk the falsification schedule.\n\n1. Open https://omegacentauri.me/tools/falsification-hub.html. List the scheduled observations, each with its instrument, threshold, and date gate.\n2. Open https://omegacentauri.me/tools/imbh-evidence-dashboard.html and state which rows are live today versus awaiting future instruments.\n3. Pick one row and trace it to Paper A's Table 7 (linked from https://omegacentauri.me/paper.html). Quote the pre-registered threshold.\n4. Check the row's cited instrument against its public status (launched, delayed, or not funded). State whether the date gate is realistic.\n5. Write the two-sentence version: what result by what date would falsify the hypothesis, and what result would merely extend it.",
+      "verify_surface": "each row's cited instrument + date gate",
+      "group": "fermi-seti",
+      "requires": ["N", "F"],
+      "tools": ["tools/falsification-hub.html", "tools/imbh-evidence-dashboard.html", "paper.html"]
+    },
+    {
+      "id": "pset-speedrun",
+      "title": "Four problem sets, live tools, self-graded",
+      "one_line": "Work all four problem sets against the live tools and grade yourself from the printed solutions.",
+      "doorways": "P→F",
+      "body": "Four problem sets, live tools, self-graded.\n\n1. Open https://omegacentauri.me/psets.html and pick a set. Work it by hand first; the printed answers reproduce from the printed givens.\n2. Reveal the solutions (?solutions=1 on each pset URL) and grade yourself. If an answer differs, find your slip before moving on.\n3. Where a problem cites a measurement, open the linked tool page from the pset and confirm the number the problem used.\n4. Regenerate one quantitative step with its tool: pset 2's acceleration bound uses a_max = (2/(3√3))·GM/R²; confirm the constant (2/(3√3) = 0.3849) on https://omegacentauri.me/pset-2-pulsar.html and recompute one case.\n5. State which problems you could not reproduce, if any. A pset erratum is a finding; the site fixes its own numbers in public.",
+      "verify_surface": "printed solutions re-derived (every one reproduces from its givens)",
+      "group": "education",
+      "requires": ["P", "F"],
+      "tools": ["psets.html", "pset-2-pulsar.html"]
+    },
+    {
+      "id": "one-paper-one-notebook",
+      "title": "Pick any of the nine papers and regenerate one figure from the public source mirror",
+      "one_line": "Regenerate one published figure from the public source mirror, unmodified first, then with one input changed.",
+      "doorways": "F",
+      "body": "Pick any of the nine papers and regenerate one figure from the public source mirror.\n\n1. Open https://omegacentauri.me/paper.html and pick a paper.\n2. Fetch its figure scripts and JSON outputs from https://omegacentauri.me/papers/figs/ (the public source mirror; each .py script sits next to its .json outputs).\n3. Run one script unmodified. State whether it regenerates the figure as served in the paper's PDF.\n4. Change one input in the script, re-run, and state what moved. This is the fastest way to learn which assumptions the figure depends on.\n5. If a script does not run or does not reproduce, stop and report it: the mirror is supposed to be complete, and a broken script is a finding the site wants.",
+      "verify_surface": "figure regenerates from shipped script",
+      "group": "education",
+      "requires": ["F"],
+      "tools": ["paper.html"]
+    },
+    {
+      "id": "explain-the-two-answers",
+      "title": "Explain to a smart 15-year-old why one team says ≥8,200 M☉ and another says ≤6,000 M☉ and both might be right about their data",
+      "one_line": "Build a tension-preserving explanation of the two published omega Cen mass answers that a 15-year-old could follow.",
+      "doorways": "N→P",
+      "body": "Explain to a smart 15-year-old why one team says the dark mass is at least 8,200 solar masses, another says it is at most 6,000, and both might be right about their own data.\n\n1. Read https://omegacentauri.me/omega-centauri-mass-tension.html (Paper H) up to the verdict. State the two answers, their methods, and why the paper says the data cannot yet decide (its quotable reasons, S1 through S4).\n2. Open https://omegacentauri.me/tools/scenario-imbh-evidence.html and walk the evidence scenario. Note which measurement favors which answer.\n3. Open https://omegacentauri.me/tools/mass-tension-explorer.html and move one input to show how each bound responds.\n4. Write the explanation in three sentences without numbers, then add exactly two numbers you can source from the page.\n5. Test it: hand the explanation to someone else (or another agent) and ask what they now think. If they conclude one team must be wrong, your explanation collapsed the tension; fix it.",
+      "verify_surface": "Paper H's own quotable set S1–S4",
+      "group": "education",
+      "requires": ["N"],
+      "tools": ["omega-centauri-mass-tension.html", "tools/scenario-imbh-evidence.html", "tools/mass-tension-explorer.html"]
+    },
+    {
+      "id": "agentic-literature-loop",
+      "title": "Combine the OCS MCP with NASA ADS + arXiv MCPs: new paper lands → re-stack constraints → tell me if the window moved",
+      "one_line": "Wire the OCS MCP into an ADS/arXiv loop that re-stacks the constraints whenever a new omega Cen paper lands.",
+      "doorways": "R→X",
+      "body": "Combine the OCS MCP with NASA ADS and arXiv MCPs: when a new omega Cen paper lands, re-stack the constraints and report whether the window moved.\n\n1. Call constraint_stacker on mcp.omegacentauri.me/mcp with defaults. Record the window, the active lanes, and the named sources. This is your baseline.\n2. Query an external literature MCP (NASA ADS or arXiv) for new papers citing Häberle 2024 (Nature 631, 285) or Bañares-Hernández 2025 (A&A 693, A104).\n3. For each new primary, compare its claimed bound with the citation the baseline carries in measurements.js (https://omegacentauri.me/tools/data/measurements.js).\n4. If a bound changed: re-run constraint_stacker with the updated value and state the new window. Verify the execution_hash.\n5. If nothing changed: say so, and record the run. A no-op with a hash is still an auditable result.\n6. Report: baseline hash, papers checked, deltas if any.",
+      "verify_surface": "new primary vs measurements.js citation set",
+      "group": "agentic",
+      "requires": ["R", "X"],
+      "tools": ["constraint_stacker", "list_ocs_tools"]
+    },
+    {
+      "id": "read-the-agent-card-first",
+      "title": "Cold-start an agent on this estate from machine-readable surfaces alone; report what it could and couldn't learn",
+      "one_line": "Cold-start an agent from agent-card.json, llms.txt, chaingraph.json, and tools-manifest.json alone, then report what the machine-readable estate taught it.",
+      "doorways": "R→P",
+      "body": "Cold-start an agent on this estate from machine-readable surfaces alone, then report what it could and could not learn.\n\n1. Fetch https://omegacentauri.me/.well-known/agent-card.json. Record tool_count (worker_callable 11, artifact_emitting 28, catalog 35) and the skill families.\n2. Fetch https://omegacentauri.me/llms.txt, https://omegacentauri.me/chaingraph.json, and https://omegacentauri.me/tools/data/tools-manifest.json. Record the manifest version and the chainsNote (42 narrative chains; the 3 machine-executable chains run via run_chain).\n3. Call list_ocs_tools on mcp.omegacentauri.me/mcp and confirm the live worker count matches the card's worker_callable.\n4. Run one machine chain (run_chain, chain_id imbh-evidence-window) using only what the machine-readable surfaces told you. Record the execution_hash.\n5. Re-derive the counts yourself: worker tools from a live tools/list, catalog entries from the manifest, chains from the manifest's chains object. State any count that does not reconcile.\n6. Write the cold-start report: what an agent could learn with zero human help, and what it still could not.",
+      "verify_surface": "every count re-derivable from verify-counts.py outputs",
+      "group": "agentic",
+      "requires": ["R"],
+      "tools": ["run_chain", "list_ocs_tools"]
+    }
+  ]
+}

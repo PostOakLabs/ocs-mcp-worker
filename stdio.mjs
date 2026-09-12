@@ -18,6 +18,15 @@ const manifest = JSON.parse(
   readFileSync(resolve(HERE, 'data', 'tools-manifest.json'), 'utf8')
 );
 
-const server = buildServer(manifest);
+// Prompts SSOT is optional for stdio consumers (same graceful-absent rule as
+// the HTTP worker) so older checkouts without data/showcase-prompts.json boot.
+let prompts = null;
+try {
+  prompts = JSON.parse(
+    readFileSync(resolve(HERE, 'data', 'showcase-prompts.json'), 'utf8')
+  );
+} catch (_) { /* asset not vendored yet — prompts surface stays off */ }
+
+const server = buildServer(manifest, prompts);
 const transport = new StdioServerTransport();
 await server.connect(transport);

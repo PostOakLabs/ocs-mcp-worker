@@ -30,7 +30,7 @@ const VERSION  = '0.3.0';
 // OCG Standard §17 (Kernel Identity Binding) — content digest of this file, computed by
 // generate.mjs over the LF-normalized source with this line's value replaced by the literal
 // 'PLACEHOLDER'. Populated by `node generate.mjs`; idempotent (re-running yields no diff).
-const KERNEL_DIGEST = 'sha256:0070aa4583d5ffde529f43b2ee6a125bd2f5963e405f353c686daaf4bf9ee594';
+const KERNEL_DIGEST = 'sha256:4ec0a42c6928cf4c28735359a0ef0e6332a682af7a0d922e2c59777717fb3a3d';
 
 // Vendored from AINumbers ChainGraph SSOT kernels/_hash.mjs (OCG Standard §4 JCS).
 // Namespace adapted for me.omegacentauri. Recursive key sort + per-value
@@ -210,6 +210,21 @@ async function loadData(env) {
   if (!r.ok) throw new Error('asset miss: tools-manifest.json > ' + r.status);
   dataCache = await r.json();
   return dataCache;
+}
+
+// Example-prompts SSOT (PROMPTS-MCP-1), same vendored-asset pattern as the
+// manifest. Absence is tolerated (cache a null) so a sync lag can never take
+// the tools surface down — the prompts capability simply registers nothing.
+let promptsCache = null;
+let promptsLoaded = false;
+async function loadPrompts(env) {
+  if (promptsLoaded) return promptsCache;
+  promptsLoaded = true;
+  try {
+    const r = await env.ASSETS.fetch('https://assets.local/showcase-prompts.json');
+    if (r.ok) promptsCache = await r.json();
+  } catch (_) { /* asset miss — prompts surface stays off */ }
+  return promptsCache;
 }
 
 // ---------------------------------------------------------------------------
@@ -432,7 +447,7 @@ export async function runChain(chainTitle, steps) {
 // ---------------------------------------------------------------------------
 // buildServer — called per request; manifest already loaded + cached.
 // ---------------------------------------------------------------------------
-export function buildServer(manifest) {
+export function buildServer(manifest, prompts) {
   const server = new McpServer({ name: 'ocs-mcp', version: VERSION });
   const tools  = manifest.tools  ?? {};
   const chains = manifest.chains ?? {};
@@ -1430,6 +1445,26 @@ export function buildServer(manifest) {
     };
   });
 
+  // -------------------------------------------------------------------------
+  // Example prompts (PROMPTS-MCP-1) — the showcase-prompts library over the
+  // MCP prompts capability. name=slug, description=one_line, no arguments;
+  // prompts/get returns the body as a single user message. Data is the site's
+  // deployed tools/data/showcase-prompts.json (vendored into ASSETS by
+  // generate.mjs, auto-synced by the site's post-deploy sync job). Registers
+  // nothing when the asset is absent.
+  // -------------------------------------------------------------------------
+  if (prompts && Array.isArray(prompts.prompts)) {
+    for (const p of prompts.prompts) {
+      if (!p || typeof p.id !== 'string' || typeof p.body !== 'string') continue;
+      server.registerPrompt(p.id, {
+        title:       typeof p.title === 'string' ? p.title : p.id,
+        description: typeof p.one_line === 'string' ? p.one_line : undefined,
+      }, async () => ({
+        messages: [{ role: 'user', content: { type: 'text', text: p.body } }],
+      }));
+    }
+  }
+
   return server;
 }
 
@@ -1489,7 +1524,8 @@ export default {
 
       const t0        = Date.now();
       const manifest  = await loadData(env);
-      const server    = buildServer(manifest);
+      const prompts   = await loadPrompts(env);
+      const server    = buildServer(manifest, prompts);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       const { req, res } = toReqRes(request);
       await server.connect(transport);
