@@ -36,6 +36,8 @@ Add to any MCP-compatible client config:
 
 Each OCS evidence tool is wrapped as an MCP tool: deterministic inputs in, a structured evidence assessment plus a ChainGraph v0.8 hash-anchored artifact out, with a reproducible `execution_hash`. Zero PII.
 
+A **prompts** capability is also served (`data/showcase-prompts.json`): ready-made example prompts that walk agents through the suite's evidence workflows, following the same vendored-asset pattern as the tools surface.
+
 ## Verification Scope (read before citing proofs)
 
 - **Hash-verifiable (all tools):** deterministic client-side execution, SHA-256 execution hashes over inputs/outputs. Reproducible, not zero-knowledge proven.
